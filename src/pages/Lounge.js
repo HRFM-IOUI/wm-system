@@ -1,41 +1,37 @@
-import React from "react";
-import "./Lounge.css";
+import React from 'react';
+import { motion } from 'framer-motion';
+import Footer from '../components/Footer';
 
 const Lounge = () => {
   return (
-    <div className="lounge-wrapper">
-      <header className="lounge-header">
-        <div className="container">
-          <h1 className="site-title">TOA Lounge</h1>
-          <p className="tagline">Welcome to our private space</p>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-50 via-orange-50 to-white">
+      <motion.div
+        className="flex-grow flex flex-col items-center justify-center px-4"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <h1 className="text-5xl font-extrabold mb-4 text-gray-800">TOAラウンジ</h1>
+        <p className="text-gray-600 text-lg mb-6 text-center">
+          限定コミュニティに参加しよう
+        </p>
+        <div className="flex gap-4">
+          <a
+            href="/login"
+            className="px-6 py-2 bg-white text-pink-500 font-semibold rounded-full border border-pink-500 hover:bg-pink-50 transition"
+          >
+            ログイン
+          </a>
+          <a
+            href="/subscribe"
+            className="px-6 py-2 bg-pink-500 text-white font-semibold rounded-full hover:bg-pink-600 transition"
+          >
+            入会
+          </a>
         </div>
-      </header>
+      </motion.div>
 
-      <main className="lounge-main">
-        <section className="hero">
-          <div className="container">
-            <h2 className="hero-title">Join the Exclusive Community</h2>
-            <p className="hero-text">Enter the lounge to connect and explore.</p>
-            <div className="btn-group">
-              <a href="/login" className="btn login">ログイン</a>
-              <a href="/login" className="btn signup">入会</a>
-            </div>
-          </div>
-        </section>
-
-        <section className="about">
-          <div className="container">
-            <h3>About the Lounge</h3>
-            <p>ここはTOAファン専用のラウンジスペースです。イベント、投稿、限定コンテンツをご用意しています。</p>
-          </div>
-        </section>
-      </main>
-
-      <footer className="lounge-footer">
-        <div className="container">
-          <p>&copy; 2025 TOA Lounge. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
