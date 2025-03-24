@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import ReactionButtons from '../components/ReactionButtons';
 
 const generateDummyPosts = (page) => {
@@ -24,15 +24,15 @@ const Toppage = () => {
   const [hasMore, setHasMore] = useState(true);
   const videoRefs = useRef([]);
 
-  const loadMore = () => {
+  const loadMore = useCallback(() => {
     const newPosts = generateDummyPosts(page);
+    const userPosts = JSON.parse(localStorage.getItem('posts') || '[]');
+
     if (newPosts.length === 0) {
       setHasMore(false);
       return;
     }
 
-    // localStorageからの投稿を先頭に1回だけ追加
-    const userPosts = JSON.parse(localStorage.getItem('posts') || '[]');
     if (page === 1 && userPosts.length > 0) {
       setPosts([...userPosts, ...newPosts]);
     } else {
@@ -40,11 +40,11 @@ const Toppage = () => {
     }
 
     setPage((prev) => prev + 1);
-  };
+  }, [page]);
 
   useEffect(() => {
     loadMore();
-  }, []);
+  }, [loadMore]);
 
   useEffect(() => {
     const center = document.getElementById('center-scroll');
@@ -59,9 +59,11 @@ const Toppage = () => {
 
     center.addEventListener('scroll', handleScroll);
     return () => center.removeEventListener('scroll', handleScroll);
-  }, [hasMore, page]);
+  }, [hasMore, loadMore]);
 
   useEffect(() => {
+    const refs = videoRefs.current;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -76,12 +78,12 @@ const Toppage = () => {
       { threshold: 0.6 }
     );
 
-    videoRefs.current.forEach((video) => {
+    refs.forEach((video) => {
       if (video) observer.observe(video);
     });
 
     return () => {
-      videoRefs.current.forEach((video) => {
+      refs.forEach((video) => {
         if (video) observer.unobserve(video);
       });
     };
@@ -119,7 +121,6 @@ const Toppage = () => {
                   src={post.videoUrl}
                   ref={(el) => (videoRefs.current[index] = el)}
                 />
-                {/* PC用リアクションバブル */}
                 <div className="hidden sm:flex absolute right-4 bottom-6 flex-col items-center gap-4 text-white text-sm">
                   <ReactionButtons post={post} vertical />
                 </div>
@@ -153,7 +154,7 @@ const Toppage = () => {
         )}
       </div>
 
-      {/* 右サイドバー（PCのみ） */}
+      {/* 右サイドバー */}
       <div className="hidden sm:block w-[20%] min-w-[200px] bg-white border-l border-gray-200 p-6">
         <h2 className="text-xl font-bold mb-6">おすすめ</h2>
         <div className="space-y-4 text-gray-700">
