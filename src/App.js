@@ -1,21 +1,22 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Lounge from './pages/Lounge';
-import Subscribe from './pages/Subscribe';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
+import Toppage from './pages/Toppage';
+import Lounge from './pages/Lounge';
+import Post from './pages/Post'; // ← 投稿ページを追加
 
-function App() {
+const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/lounge" element={<Lounge />} />
-        <Route path="/subscribe" element={<Subscribe />} />
+        <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/toppage" element={<Toppage />} />
+        <Route path="/lounge" element={<Lounge />} />
+        <Route path="/post" element={<Post />} /> {/* 投稿ページ */}
       </Routes>
     </Router>
   );
-}
+};
 
 export default App;
