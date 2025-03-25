@@ -1,15 +1,253 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const Dashboard = () => {
+  const [tab, setTab] = useState('posts');
+  const [posts, setPosts] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [type, setType] = useState('text');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [productTitle, setProductTitle] = useState('');
+  const [productDescription, setProductDescription] = useState('');
+  const [price, setPrice] = useState('');
+  const [productFile, setProductFile] = useState(null);
+  const [productPreviewUrl, setProductPreviewUrl] = useState('');
+  const [earnings, setEarnings] = useState(150000);
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [withdrawals, setWithdrawals] = useState([]);
+
+  useEffect(() => {
+    const savedPosts = JSON.parse(localStorage.getItem('posts') || '[]');
+    const savedProducts = JSON.parse(localStorage.getItem('products') || '[]');
+    const savedWithdrawals = JSON.parse(localStorage.getItem('withdrawals') || '[]');
+    setPosts(savedPosts);
+    setProducts(savedProducts);
+    setWithdrawals(savedWithdrawals);
+  }, []);
+
+  const dummySales = () => ({
+    count: Math.floor(Math.random() * 50),
+    price: 500,
+  });
+
+  const handleFileChange = (e, setter, previewSetter) => {
+    const selected = e.target.files[0];
+    setter(selected);
+    if (selected) {
+      const reader = new FileReader();
+      reader.onloadend = () => previewSetter(reader.result);
+      reader.readAsDataURL(selected);
+    } else {
+      previewSetter('');
+    }
+  };
+
+  const getPostChartData = () => ({
+    labels: posts.map((p) => p.title),
+    datasets: [
+      {
+        label: '投稿売上（円）',
+        data: posts.map((p) => (p.sales?.count || 0) * (p.sales?.price || 0)),
+        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+      },
+    ],
+  });
+
+  const getProductChartData = () => ({
+    labels: products.map((p) => p.name),
+    datasets: [
+      {
+        label: '商品価格（円）',
+        data: products.map((p) => p.price || 0),
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+      },
+    ],
+  });
+
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4">
-      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md text-center">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">ようこそ、TOAラウンジへ！</h1>
-        <p className="text-gray-500 mb-6">このダッシュボードはログイン後のページです。</p>
-        <button className="bg-pink-500 text-white px-6 py-2 rounded-xl font-semibold hover:bg-pink-600 transition">
-          サブスク管理へ
-        </button>
-      </div>
+    <div className="min-h-screen flex flex-col sm:flex-row bg-white text-gray-800">
+      {/* サイドバー */}
+      <aside className="w-full sm:w-[240px] border-b sm:border-r border-gray-200 p-5">
+        <h2 className="text-2xl font-bold text-pink-500 mb-6">オーナー管理</h2>
+        <nav className="space-y-4">
+          {[
+            ['posts', '投稿管理'],
+            ['products', '商品管理'],
+            ['withdraw', '出金申請'],
+            ['history', '出金履歴'],
+            ['analytics', 'アナリティクス'],
+          ].map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              className={`block w-full text-left hover:text-pink-500 ${
+                tab === key ? 'font-bold text-pink-500' : ''
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
+      </aside>
+
+      {/* メインエリア */}
+      <main className="flex-1 p-6 space-y-10 overflow-y-auto">
+        {tab === 'posts' && (
+          <>
+            {/* 投稿作成フォーム（略） */}
+            {/* 投稿一覧 */}
+            {posts.map((post, index) => (
+              <PostItem
+                key={post.id}
+                post={post}
+                onUpdate={(updatedPost) => {
+                  const updated = [...posts];
+                  updated[index] = updatedPost;
+                  setPosts(updated);
+                  localStorage.setItem('posts', JSON.stringify(updated));
+                }}
+                onDelete={() => {
+                  if (confirm('この投稿を削除しますか？')) {
+                    const filtered = posts.filter((_, i) => i !== index);
+                    setPosts(filtered);
+                    localStorage.setItem('posts', JSON.stringify(filtered));
+                  }
+                }}
+              />
+            ))}
+          </>
+        )}
+
+        {tab === 'products' && (
+          <>
+            {/* 商品登録フォーム（略） */}
+            {/* 商品一覧（略） */}
+          </>
+        )}
+
+        {tab === 'withdraw' && (
+          <div>
+            <h3 className="text-xl font-bold mb-4">出金申請</h3>
+            <p className="mb-2">出金可能残高：<strong>{earnings.toLocaleString()}円</strong></p>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                value={withdrawAmount}
+                onChange={(e) => setWithdrawAmount(e.target.value)}
+                className="border p-2 rounded w-full"
+                placeholder="金額を入力"
+              />
+              <button
+                className="bg-pink-500 text-white px-4 rounded hover:bg-pink-600"
+                onClick={() => {
+                  const amount = parseInt(withdrawAmount);
+                  if (isNaN(amount) || amount <= 0 || amount > earnings) {
+                    alert('正しい金額を入力してください');
+                    return;
+                  }
+                  const newRecord = {
+                    id: Date.now(),
+                    date: new Date().toLocaleDateString(),
+                    amount,
+                    status: '申請中',
+                  };
+                  const updated = [newRecord, ...withdrawals];
+                  setWithdrawals(updated);
+                  localStorage.setItem('withdrawals', JSON.stringify(updated));
+                  setEarnings((prev) => prev - amount);
+                  setWithdrawAmount('');
+                }}
+              >
+                申請
+              </button>
+            </div>
+            <p className="text-sm text-gray-400 mt-2">※最低出金額：1,000円（手数料無料）</p>
+          </div>
+        )}
+
+        {tab === 'history' && (
+          <div>
+            <h3 className="text-xl font-bold mb-4">出金履歴</h3>
+            {withdrawals.length === 0 ? (
+              <p className="text-gray-400">出金履歴がまだありません。</p>
+            ) : (
+              <div className="space-y-3">
+                {withdrawals.map((w) => (
+                  <div key={w.id} className="p-3 border rounded bg-gray-50">
+                    <p>日付：{w.date}</p>
+                    <p>金額：{w.amount.toLocaleString()}円</p>
+                    <p className="text-sm text-gray-500">ステータス：{w.status}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === 'analytics' && (
+          <div className="max-w-5xl mx-auto space-y-10">
+            <h3 className="text-2xl font-bold text-center text-pink-500">アナリティクス</h3>
+            <Bar data={getPostChartData()} />
+            <Bar data={getProductChartData()} />
+          </div>
+        )}
+      </main>
+    </div>
+  );
+};
+
+// 投稿編集用の補助コンポーネント
+const PostItem = ({ post, onUpdate, onDelete }) => {
+  const [editMode, setEditMode] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(post.title);
+  const [editedDescription, setEditedDescription] = useState(post.description);
+
+  const handleSave = () => {
+    onUpdate({ ...post, title: editedTitle, description: editedDescription });
+    setEditMode(false);
+  };
+
+  return (
+    <div className="border p-4 rounded shadow-sm bg-white space-y-2">
+      {editMode ? (
+        <>
+          <input value={editedTitle} onChange={(e) => setEditedTitle(e.target.value)} className="w-full border p-2 rounded" />
+          <textarea value={editedDescription} onChange={(e) => setEditedDescription(e.target.value)} className="w-full border p-2 rounded h-20" />
+          <div className="flex gap-2">
+            <button onClick={handleSave} className="bg-pink-500 text-white px-4 py-1 rounded hover:bg-pink-600">保存</button>
+            <button onClick={() => setEditMode(false)} className="text-gray-500 hover:underline">キャンセル</button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex justify-between items-center">
+            <h4 className="font-semibold">{post.title}</h4>
+            <div className="flex gap-2">
+              <button onClick={() => setEditMode(true)} className="text-blue-500 hover:underline text-sm">編集</button>
+              <button onClick={onDelete} className="text-red-500 hover:underline text-sm">削除</button>
+            </div>
+          </div>
+          <p className="text-gray-600 text-sm">{post.description}</p>
+          {post.type === 'image' && <img src={post.mediaUrl} alt="" className="rounded w-full mt-2" />}
+          {post.type === 'video' && <video src={post.mediaUrl} controls className="rounded w-full mt-2" />}
+          <div className="text-sm text-gray-500 mt-2">
+            販売数: {post.sales.count} 件 / 売上: {(post.sales.count * post.sales.price).toLocaleString()} 円
+          </div>
+        </>
+      )}
     </div>
   );
 };
