@@ -9,10 +9,10 @@ const Lounge = () => {
         <div className="text-2xl font-bold text-pink-600">TOA</div>
         <nav className="space-y-4 text-gray-600 font-medium mt-10">
           <div className="hover:text-pink-500 cursor-pointer">ホーム</div>
-          <div className="hover:text-pink-500 cursor-pointer">クリエイター一覧</div>
+          <div className="hover:text-pink-500 cursor-pointer">ご利用ガイド</div>
           <div className="hover:text-pink-500 cursor-pointer">よくある質問</div>
         </nav>
-        <div className="text-xs text-gray-400">© 2025 TOA Inc.</div>
+        <div className="text-xs text-gray-400">© 2025 </div>
       </div>
 
       {/* 中央メイン */}
@@ -24,7 +24,7 @@ const Lounge = () => {
           <p className="text-gray-700 text-base sm:text-lg">
           TOA-FANS.SHOPは、クリエイターTOAが提供するエンタメの未来や、現在手がけているプロジェクトを、メンバーと一緒に作り、共有する、会員制オンラインサロンです。
 
-プロクリエイターのTOAが、エンタメを作っていく過程や、直面して得たリアルなどを、「一番近くの席で見られるリアルタイム型のメイキング」みたいなものです。プロクリエーターのとあが、サロン会員限定のコンテンツを毎日投稿しており、アートとして、立体的な読み物としてお楽しみいただけます。<br className="hidden sm:block" />
+プロクリエーターのとあが、サロン会員限定のコンテンツを毎日投稿しており、アートとして、立体的な読み物としてお楽しみいただけます。<br className="hidden sm:block" />
             安心・洗練された空間で、あなただけの価値を届けよう。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
