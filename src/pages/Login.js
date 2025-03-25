@@ -20,7 +20,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 to-orange-100">
       <form onSubmit={handleLogin} className="bg-white p-8 rounded shadow-md w-full max-w-sm space-y-4">
-        <h2 className="text-2xl font-bold text-center">TOA ログイン</h2>
+        <h2 className="text-2xl font-bold text-center">ログイン</h2>
         <input
           type="text"
           placeholder="メールアドレス（例: 0000@demo.com）"
