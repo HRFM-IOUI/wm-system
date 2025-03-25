@@ -65,10 +65,15 @@ const Dashboard = () => {
 
       {/* タブコンテンツ */}
       {activeTab === '投稿管理' && (
-        <div className="space-y-4">
-          <p className="text-gray-600">ここに投稿管理機能を実装（例：投稿の一覧や削除ボタンなど）</p>
-        </div>
-      )}
+  <div className="space-y-4">
+    <h2 className="text-xl font-bold text-pink-600">投稿管理セクション</h2>
+    <div className="border p-4 rounded bg-gray-50 shadow">
+      <p className="text-gray-700">サンプル投稿タイトル</p>
+      <p className="text-sm text-gray-500">2025年3月25日 投稿</p>
+    </div>
+  </div>
+)}
+
 
       {activeTab === '商品出品' && (
         <form onSubmit={handleProductSubmit} className="space-y-4">
