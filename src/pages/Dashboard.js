@@ -18,7 +18,6 @@ const Dashboard = () => {
   const [type, setType] = useState('text');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [productTitle, setProductTitle] = useState('');
   const [productDescription, setProductDescription] = useState('');
@@ -75,9 +74,7 @@ const Dashboard = () => {
         backgroundColor: 'rgba(54, 162, 235, 0.6)',
       },
     ],
-  });
-
-  return (
+  });   return (
     <div className="min-h-screen flex flex-col sm:flex-row bg-white text-gray-800">
       <aside className="w-full sm:w-[240px] border-b sm:border-r border-gray-200 p-5">
         <h2 className="text-2xl font-bold text-pink-500 mb-6">オーナー管理</h2>
@@ -128,7 +125,8 @@ const Dashboard = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="border p-2 rounded w-full h-24"
-              />               {(type === 'image' || type === 'video') && (
+              />
+              {(type === 'image' || type === 'video') && (
                 <>
                   <input
                     type="file"
@@ -198,9 +196,7 @@ const Dashboard = () => {
               ))}
             </div>
           </>
-        )}
-        
-        {tab === 'products' && (
+        )}         {tab === 'products' && (
           <>
             <h3 className="text-xl font-bold mb-4">新規商品</h3>
             <div className="space-y-4 border p-4 rounded-lg shadow-sm max-w-xl bg-gray-50">
@@ -292,7 +288,8 @@ const Dashboard = () => {
                     >
                       削除
                     </button>
-                  </div>                   <textarea
+                  </div>
+                  <textarea
                     value={product.description}
                     onChange={(e) => {
                       const updated = [...products];
@@ -409,7 +406,7 @@ const Dashboard = () => {
   );
 };
 
-// 投稿の編集UIコンポーネント
+// 投稿1件の補助コンポーネント
 const PostItem = ({ post, onUpdate, onDelete }) => {
   const [editMode, setEditMode] = useState(false);
   const [editedTitle, setEditedTitle] = useState(post.title);

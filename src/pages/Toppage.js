@@ -1,165 +1,115 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactionButtons from '@/components/ReactionButtons';
 
-// ダミー投稿を生成（ダミー10件ずつ）
-const generateDummyPosts = (page) => {
-  return Array.from({ length: 10 }, (_, index) => ({
-    id: `dummy-${page * 10 + index}`,
-    type: 'video',
-    title: `ダミー投稿 ${page * 10 + index}`,
-    description: `これはダミーの投稿です（開発用）`,
-    mediaUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    isPublic: true,
+const dummyPosts = [
+  {
+    id: 1,
+    type: 'image',
+    title: 'サンプル画像投稿',
+    description: 'これは画像のサンプル投稿です。',
+    mediaUrl: 'https://placehold.jp/400x300.png',
     user: {
-      name: `Guest_${page * 10 + index}`,
-      avatar: `https://i.pravatar.cc/150?img=${(page * 10 + index) % 70}`,
+      name: 'オーナー',
+      avatar: 'https://i.pravatar.cc/150?img=59',
     },
     stats: {
-      likes: Math.floor(Math.random() * 500),
-      views: Math.floor(Math.random() * 2000),
+      likes: 5,
+      views: 120,
     },
-  }));
-};
-
-const Toppage = () => {
-  const [page, setPage] = useState(1);
+  },
+  {
+    id: 2,
+    type: 'video',
+    title: 'サンプル動画投稿',
+    description: 'これは動画のサンプル投稿です。',
+    mediaUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    user: {
+      name: 'クリエーターX',
+      avatar: 'https://i.pravatar.cc/150?img=33',
+    },
+    stats: {
+      likes: 12,
+      views: 240,
+    },
+  },
+]; const Toppage = () => {
   const [posts, setPosts] = useState([]);
-  const [hasMore, setHasMore] = useState(true);
-  const videoRefs = useRef([]);
+  const containerRef = useRef(null);
+  const observer = useRef(null);
 
-  // 初回読み込み時：ダミーとlocalStorageの公開投稿を読み込む
   useEffect(() => {
-    const publicPosts = JSON.parse(localStorage.getItem('posts') || '[]').filter(
-      (p) => p.isPublic
-    );
-    const dummyPosts = generateDummyPosts(1);
-    setPosts([...publicPosts, ...dummyPosts]);
-    setPage(2);
+    const savedPosts = JSON.parse(localStorage.getItem('posts') || '[]');
+    const publicPosts = savedPosts.filter((p) => p.isPublic);
+    setPosts([...dummyPosts, ...publicPosts]);
   }, []);
 
-  // 無限スクロール
   useEffect(() => {
-    const scrollContainer = document.getElementById('center-scroll');
+    const target = containerRef.current;
+    if (!target) return;
+
     const handleScroll = () => {
       if (
-        scrollContainer.scrollTop + scrollContainer.clientHeight >=
-        scrollContainer.scrollHeight - 200
+        window.innerHeight + window.scrollY >=
+        document.body.offsetHeight - 500
       ) {
-        const newPosts = generateDummyPosts(page);
-        setPosts((prev) => [...prev, ...newPosts]);
-        setPage((prev) => prev + 1);
+        // ダミー追加（ページネーション未実装）
+        const moreDummy = dummyPosts.map((p) => ({
+          ...p,
+          id: Date.now() + Math.random(),
+        }));
+        setPosts((prev) => [...prev, ...moreDummy]);
       }
     };
 
-    if (scrollContainer) {
-      scrollContainer.addEventListener('scroll', handleScroll);
-    }
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);   return (
+    <div className="flex bg-white text-gray-800 min-h-screen" ref={containerRef}>
+      {/* 左カラム */}
+      <aside className="hidden lg:block w-[260px] border-r p-6 space-y-4">
+        <h2 className="text-xl font-bold text-pink-500">WM SYSTEM</h2>
+        <p className="text-sm text-gray-500">ようこそ、動画と商品が集まるプラットフォームへ！</p>
+      </aside>
 
-    return () => {
-      if (scrollContainer) {
-        scrollContainer.removeEventListener('scroll', handleScroll);
-      }
-    };
-  }, [page]);
-
-  // 再生コントロール（IntersectionObserver）
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const video = entry.target;
-          if (entry.isIntersecting) {
-            video.play().catch(() => {});
-          } else {
-            video.pause();
-          }
-        });
-      },
-      { threshold: 0.6 }
-    );
-
-    videoRefs.current.forEach((video) => {
-      if (video) observer.observe(video);
-    });
-
-    return () => {
-      videoRefs.current.forEach((video) => {
-        if (video) observer.unobserve(video);
-      });
-    };
-  }, [posts]);
-
-  return (
-    <div className="flex h-screen bg-white text-gray-900 font-sans">
-      {/* 左サイドバー */}
-      <div className="hidden sm:block w-[20%] min-w-[200px] bg-white border-r border-gray-200 p-6">
-        <h2 className="text-xl font-bold mb-6">TOA</h2>
-        <nav className="space-y-4 text-gray-600 font-medium">
-          <div className="hover:text-blue-500 cursor-pointer">ホーム</div>
-          <div className="hover:text-blue-500 cursor-pointer">検索</div>
-          <div className="hover:text-blue-500 cursor-pointer">通知</div>
-        </nav>
-      </div>
-
-      {/* 中央スクロールコンテナ */}
-      <div
-        id="center-scroll"
-        className="flex-1 overflow-y-scroll h-screen px-2 sm:px-6 py-8 bg-gray-50"
-      >
-        <h1 className="text-2xl font-bold text-center mb-6">タイムライン</h1>
-        <div className="space-y-10">
-          {posts.map((post, index) => (
-            <div key={post.id} className="bg-white rounded-xl shadow-md overflow-hidden">
-              {/* メディア表示 */}
-              {post.type === 'image' && (
-                <img src={post.mediaUrl} alt="" className="w-full object-cover" />
-              )}
-              {post.type === 'video' && (
-                <video
-                  src={post.mediaUrl}
-                  controls
-                  muted
-                  loop
-                  playsInline
-                  className="w-full object-cover bg-black h-72 sm:h-96"
-                  ref={(el) => (videoRefs.current[index] = el)}
-                />
-              )}
-              {post.type === 'text' && (
-                <div className="p-6 text-lg">{post.description}</div>
-              )}
-
-              {/* 投稿情報 */}
-              <div className="p-4 sm:p-5">
-                <div className="flex items-center mb-3">
-                  <img
-                    src={post.user.avatar}
-                    alt={post.user.name}
-                    className="w-10 h-10 rounded-full mr-3"
-                  />
-                  <div>
-                    <p className="font-semibold">{post.user.name}</p>
-                    <p className="text-xs text-gray-500">
-                      {post.stats?.views?.toLocaleString() || 0} views ・{' '}
-                      {post.stats?.likes?.toLocaleString() || 0} likes
-                    </p>
-                  </div>
-                </div>
-                <h2 className="text-lg font-bold mb-2">{post.title}</h2>
-                <p className="text-gray-600 text-sm">{post.description}</p>
+      {/* 中央カラム */}
+      <main className="flex-1 max-w-2xl mx-auto p-4 space-y-6">
+        {posts.map((post) => (
+          <div key={post.id} className="border rounded-lg shadow p-4 bg-white space-y-4">
+            <div className="flex items-center space-x-3">
+              <img
+                src={post.user?.avatar || 'https://i.pravatar.cc/150?img=1'}
+                alt="avatar"
+                className="w-10 h-10 rounded-full"
+              />
+              <div>
+                <h4 className="font-semibold">{post.user?.name || '匿名ユーザー'}</h4>
+                <p className="text-xs text-gray-400">{post.type}</p>
               </div>
             </div>
+            <h3 className="text-lg font-bold">{post.title}</h3>
+            <p className="text-sm text-gray-600">{post.description}</p>
+            {post.type === 'image' && (
+              <img src={post.mediaUrl} alt="media" className="rounded w-full" />
+            )}
+            {post.type === 'video' && (
+              <video src={post.mediaUrl} controls className="rounded w-full" />
+            )}
+            <ReactionButtons post={post} />
+          </div>
+        ))}
+      </main>
+
+      {/* 右カラム */}
+      <aside className="hidden xl:block w-[300px] border-l p-6 space-y-4">
+        <h4 className="font-semibold text-pink-500">おすすめタグ</h4>
+        <div className="flex flex-wrap gap-2 text-sm">
+          {['#動画', '#画像', '#人気', '#限定', '#フォロー中'].map((tag) => (
+            <span key={tag} className="bg-gray-100 px-3 py-1 rounded-full">
+              {tag}
+            </span>
           ))}
         </div>
-      </div>
-
-      {/* 右サイドバー */}
-      <div className="hidden sm:block w-[20%] min-w-[200px] bg-white border-l border-gray-200 p-6">
-        <h2 className="text-xl font-bold mb-6">おすすめ</h2>
-        <div className="space-y-4 text-gray-700">
-          <div className="hover:underline cursor-pointer">人気ユーザー</div>
-          <div className="hover:underline cursor-pointer">トレンド</div>
-        </div>
-      </div>
+      </aside>
     </div>
   );
 };
