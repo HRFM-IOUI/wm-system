@@ -1,35 +1,33 @@
 import React, { useState } from 'react';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, LineElement, CategoryScale, LinearScale, PointElement } from 'chart.js';
+import ProductPost from '../components/ProductPost';
+import { Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
 
-ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('投稿管理');
+  const [activeTab, setActiveTab] = useState('posts');
 
-  const [productName, setProductName] = useState('');
-  const [productPrice, setProductPrice] = useState('');
-  const [productPreview, setProductPreview] = useState(null);
-
-  const handleProductSubmit = (e) => {
-    e.preventDefault();
-    alert(`商品 "${productName}" を ¥${productPrice} で出品しました！`);
-    setProductName('');
-    setProductPrice('');
-    setProductPreview(null);
-  };
-
-  const totalEarnings = 254000;
+  const dummyPosts = [
+    { id: 1, title: '初めての投稿', type: '動画', sales: 12, revenue: 3600 },
+    { id: 2, title: '2作目のコンテンツ', type: '画像', sales: 8, revenue: 2400 },
+  ];
 
   const chartData = {
-    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+    labels: ['1月', '2月', '3月', '4月'],
     datasets: [
       {
-        label: '売上',
-        data: [40000, 55000, 30000, 70000, 50000, 60000],
-        borderColor: '#f472b6',
-        backgroundColor: 'rgba(236, 72, 153, 0.2)',
-        tension: 0.4,
+        label: '売上 (¥)',
+        data: [12000, 19000, 3000, 5000],
+        backgroundColor: 'rgba(236, 72, 153, 0.6)',
       },
     ],
   };
@@ -37,93 +35,74 @@ const Dashboard = () => {
   const chartOptions = {
     responsive: true,
     plugins: {
-      legend: { display: false },
-    },
-    scales: {
-      y: { beginAtZero: true },
+      legend: { position: 'top' },
+      title: { display: true, text: '月別売上推移' },
     },
   };
 
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'posts':
+        return (
+          <div className="space-y-4">
+            {dummyPosts.map(post => (
+              <div key={post.id} className="border rounded p-4 shadow-sm bg-white">
+                <h3 className="text-lg font-bold">{post.title}</h3>
+                <p className="text-sm text-gray-600">{post.type}</p>
+                <div className="text-sm mt-2">
+                  販売数: <span className="font-semibold">{post.sales}</span><br />
+                  売上: <span className="font-semibold">¥{post.revenue}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      case 'product':
+        return <ProductPost />;
+      case 'withdraw':
+        return (
+          <div className="bg-white p-4 rounded shadow">
+            <p className="mb-2">現在の出金可能額:</p>
+            <h3 className="text-2xl font-bold text-pink-600 mb-4">¥12,400</h3>
+            <button className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 transition">
+              出金申請する
+            </button>
+          </div>
+        );
+      case 'analytics':
+        return (
+          <div className="bg-white p-4 rounded shadow">
+            <Bar data={chartData} options={chartOptions} />
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-pink-600">オーナーダッシュボード</h1>
+    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+      {/* 左タブ */}
+      <aside className="w-full md:w-1/4 bg-white shadow p-4 space-y-4">
+        <h2 className="text-xl font-bold mb-4">ダッシュボード</h2>
+        <button onClick={() => setActiveTab('posts')} className={`block w-full text-left px-4 py-2 rounded ${activeTab === 'posts' ? 'bg-pink-500 text-white' : 'hover:bg-gray-100'}`}>
+          投稿管理
+        </button>
+        <button onClick={() => setActiveTab('product')} className={`block w-full text-left px-4 py-2 rounded ${activeTab === 'product' ? 'bg-pink-500 text-white' : 'hover:bg-gray-100'}`}>
+          商品出品
+        </button>
+        <button onClick={() => setActiveTab('withdraw')} className={`block w-full text-left px-4 py-2 rounded ${activeTab === 'withdraw' ? 'bg-pink-500 text-white' : 'hover:bg-gray-100'}`}>
+          出金管理
+        </button>
+        <button onClick={() => setActiveTab('analytics')} className={`block w-full text-left px-4 py-2 rounded ${activeTab === 'analytics' ? 'bg-pink-500 text-white' : 'hover:bg-gray-100'}`}>
+          アナリティクス
+        </button>
+      </aside>
 
-      {/* タブメニュー */}
-      <div className="flex gap-4 mb-6">
-        {['投稿管理', '商品出品', '出金管理', 'アナリティクス'].map((tab) => (
-          <button
-            key={tab}
-            className={`px-4 py-2 rounded ${
-              activeTab === tab ? 'bg-pink-500 text-white' : 'bg-gray-200 text-gray-700'
-            }`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      {/* タブコンテンツ */}
-      {activeTab === '投稿管理' && (
-  <div className="space-y-4">
-    <h2 className="text-xl font-bold text-pink-600">投稿管理セクション</h2>
-    <div className="border p-4 rounded bg-gray-50 shadow">
-      <p className="text-gray-700">サンプル投稿タイトル</p>
-      <p className="text-sm text-gray-500">2025年3月25日 投稿</p>
-    </div>
-  </div>
-)}
-
-
-      {activeTab === '商品出品' && (
-        <form onSubmit={handleProductSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="商品名"
-            value={productName}
-            onChange={(e) => setProductName(e.target.value)}
-            className="w-full border p-2 rounded"
-            required
-          />
-          <input
-            type="number"
-            placeholder="価格（円）"
-            value={productPrice}
-            onChange={(e) => setProductPrice(e.target.value)}
-            className="w-full border p-2 rounded"
-            required
-          />
-          <input
-            type="file"
-            accept="image/*,video/*"
-            onChange={(e) => setProductPreview(e.target.files[0])}
-            className="w-full border p-2 rounded"
-          />
-          {productPreview && (
-            <div className="mt-2">
-              <p className="text-sm text-gray-600">プレビュー:</p>
-              <p className="text-xs">{productPreview.name}</p>
-            </div>
-          )}
-          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-            出品する
-          </button>
-        </form>
-      )}
-
-      {activeTab === '出金管理' && (
-        <div className="space-y-4">
-          <p>出金可能額: <span className="text-lg font-semibold text-green-600">¥{totalEarnings.toLocaleString()}</span></p>
-          <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">出金申請</button>
-        </div>
-      )}
-
-      {activeTab === 'アナリティクス' && (
-        <div className="bg-white rounded-lg shadow p-4 mt-4">
-          <h2 className="text-lg font-semibold mb-2">売上推移</h2>
-          <Line data={chartData} options={chartOptions} />
-        </div>
-      )}
+      {/* メイン表示エリア */}
+      <main className="flex-1 p-6">
+        {renderContent()}
+      </main>
     </div>
   );
 };

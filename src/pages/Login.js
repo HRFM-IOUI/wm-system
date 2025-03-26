@@ -1,47 +1,75 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, provider } from '../firebase';
 
 const Login = () => {
-  const [id, setId] = useState('');
-  const [pass, setPass] = useState('');
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
+  // デモ用ログイン認証
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log("現在の入力ID:", id, "PASS:", pass);
-    if (id.trim() === '0000@demo.com' && pass === '0000') {
-      console.log("ログイン成功 → /toppage に遷移");
+    if (email === '0000@demo.com' && password === '0000') {
       navigate('/toppage');
     } else {
-      alert('ログイン失敗：IDまたはパスワードが違います');
+      alert('ログイン情報が正しくありません。');
+    }
+  };
+
+  // Googleログイン
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+      navigate('/toppage');
+    } catch (error) {
+      console.error('Googleログインエラー:', error);
+      alert('Googleログインに失敗しました');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 to-orange-100">
-      <form onSubmit={handleLogin} className="bg-white p-8 rounded shadow-md w-full max-w-sm space-y-4">
-        <h2 className="text-2xl font-bold text-center">ログイン</h2>
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
+      <h1 className="text-3xl font-bold mb-6">ログイン</h1>
+      <form onSubmit={handleLogin} className="w-full max-w-sm space-y-4">
         <input
-          type="text"
-          placeholder="メールアドレス（例: 0000@demo.com）"
-          value={id}
-          onChange={(e) => setId(e.target.value)}
-          className="w-full border border-gray-300 p-2 rounded"
+          type="email"
+          placeholder="メールアドレス"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border px-4 py-2 rounded"
+          required
         />
         <input
           type="password"
-          placeholder="パスワード（0000）"
-          value={pass}
-          onChange={(e) => setPass(e.target.value)}
-          className="w-full border border-gray-300 p-2 rounded"
+          placeholder="パスワード"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border px-4 py-2 rounded"
+          required
         />
         <button
           type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded"
+          className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 rounded"
         >
           ログイン
         </button>
       </form>
+
+      <div className="my-6">または</div>
+
+      <button
+        onClick={handleGoogleLogin}
+        className="flex items-center gap-2 bg-white border hover:bg-gray-100 px-4 py-2 rounded shadow"
+      >
+        <img
+          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+          alt="Google"
+          className="w-5 h-5"
+        />
+        <span className="text-sm font-semibold">Googleでログイン</span>
+      </button>
     </div>
   );
 };
