@@ -7,23 +7,75 @@ const Toppage = () => {
   const [posts, setPosts] = useState([]);
   const [visiblePosts, setVisiblePosts] = useState([]);
   const observer = useRef();
+  const videoRefs = useRef([]);
 
   useEffect(() => {
-    const dummyPosts = Array.from({ length: 20 }).map((_, i) => ({
-      id: i,
-      owner: `ユーザー${i + 1}`,
-      content: 'これはダミー投稿です。',
-      video: 'https://cdn.coverr.co/videos/coverr-lonely-palm-tree-9426/1080p.mp4',
-      isPublic: true,
-    }));
+    const dummyPosts = [
+      {
+        id: 1,
+        owner: "cafe_lover",
+        content: "代官山のカフェラテ最高だった… #カフェ巡り #ラテアート",
+        video: "https://cdn.coverr.co/videos/coverr-pouring-coffee-1610/1080p.mp4",
+        isPublic: true,
+      },
+      {
+        id: 2,
+        owner: "tokyo_vlog",
+        content: "【Vlog】浅草〜秋葉原をぶらり旅。映えスポットも紹介！",
+        video: "https://cdn.coverr.co/videos/coverr-tokyo-nightlife-1612/1080p.mp4",
+        isPublic: true,
+      },
+      {
+        id: 3,
+        owner: "fitness_japan",
+        content: "宅トレ1ヶ月経過！腹筋割れてきた気がする…？",
+        video: "https://cdn.coverr.co/videos/coverr-working-out-1614/1080p.mp4",
+        isPublic: true,
+      },
+      {
+        id: 4,
+        owner: "daily_cat",
+        content: "うちの猫、テレビ見ながら寝落ちしてた #猫のいる暮らし",
+        video: "https://cdn.coverr.co/videos/coverr-sleeping-cat-1597/1080p.mp4",
+        isPublic: true,
+      },
+      {
+        id: 5,
+        owner: "fashion_snap",
+        content: "原宿スナップ。今日のOOTD！#ストリートファッション",
+        video: "https://cdn.coverr.co/videos/coverr-fashion-district-1603/1080p.mp4",
+        isPublic: true,
+      },
+      {
+        id: 6,
+        owner: "lofi_days",
+        content: "Lofi流しながら作業してる人、仲間だよね？ #作業用BGM",
+        video: "https://cdn.coverr.co/videos/coverr-lofi-beats-1606/1080p.mp4",
+        isPublic: true,
+      },
+      {
+        id: 7,
+        owner: "sushi_girl",
+        content: "銀座の寿司、感動レベル。#寿司活 #食べログ4超え",
+        video: "https://cdn.coverr.co/videos/coverr-japanese-sushi-1605/1080p.mp4",
+        isPublic: true,
+      },
+      {
+        id: 8,
+        owner: "kyoto_trip",
+        content: "京都の桜が満開で心洗われた。来年も来たい。#春旅",
+        video: "https://cdn.coverr.co/videos/coverr-cherry-blossoms-1609/1080p.mp4",
+        isPublic: true,
+      },
+    ];
     setPosts(dummyPosts);
     setVisiblePosts(dummyPosts.slice(0, 5));
   }, []);
 
+  // 無限スクロール
   const lastPostRef = useRef(null);
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
-
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) {
         setVisiblePosts(prev => {
@@ -32,20 +84,52 @@ const Toppage = () => {
         });
       }
     });
-
     if (lastPostRef.current) {
       observer.current.observe(lastPostRef.current);
     }
-  }, [visiblePosts, posts]);
+  }, [visiblePosts, posts]);   // 動画の自動再生制御（1つだけ再生）
+  useEffect(() => {
+    const options = {
+      threshold: 0.6,
+    };
 
-  return (
+    const handlePlayOnView = (entries) => {
+      entries.forEach((entry) => {
+        const video = entry.target;
+        if (entry.isIntersecting) {
+          // すでに再生中の動画を止める
+          videoRefs.current.forEach((v) => {
+            if (v !== video) {
+              v.pause();
+            }
+          });
+          video.play().catch((e) => console.error('再生エラー:', e));
+        } else {
+          video.pause();
+        }
+      });
+    };
+
+    const videoObserver = new IntersectionObserver(handlePlayOnView, options);
+
+    videoRefs.current.forEach((video) => {
+      if (video) videoObserver.observe(video);
+    });
+
+    return () => {
+      videoRefs.current.forEach((video) => {
+        if (video) videoObserver.unobserve(video);
+      });
+    };
+  }, [visiblePosts]);   return (
     <div className="flex flex-col md:flex-row w-full min-h-screen bg-gray-50 text-black">
       {/* 左サイドバー */}
       <aside className="hidden md:block md:w-1/5 p-4 bg-white shadow h-screen sticky top-0">
         <nav className="flex flex-col gap-4">
           <Link to="/toppage" className="font-semibold hover:underline">ホーム</Link>
+          <Link to="/search" className="hover:underline">検索</Link>
+          <Link to="/mypage" className="hover:underline">マイページ</Link>
           <Link to="/gacha" className="hover:underline">ガチャ</Link>
-          <Link to="/vendor" className="hover:underline">出品</Link>
         </nav>
       </aside>
 
@@ -64,6 +148,7 @@ const Toppage = () => {
               controls
               preload="metadata"
               muted
+              ref={(el) => (videoRefs.current[index] = el)}
             />
             <p>{post.content}</p>
             <ReactionButtons postId={post.id} />
@@ -91,10 +176,23 @@ const Toppage = () => {
       </Link>
 
       {/* モバイル固定フッター */}
-      <footer className="md:hidden fixed bottom-0 w-full bg-white shadow-md flex justify-around py-2 border-t z-40">
-        <Link to="/toppage" className="text-center text-xs">ホーム</Link>
-        <Link to="/gacha" className="text-center text-xs">ガチャ</Link>
-        <Link to="/vendor" className="text-center text-xs">出品</Link>
+      <footer className="md:hidden fixed bottom-0 w-full bg-white shadow-md flex justify-around py-2 border-t z-40 text-xs">
+        <Link to="/toppage" className="flex flex-col items-center">
+          <svg className="w-5 h-5 mb-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2L2 9h2v9h5v-6h2v6h5V9h2L10 2z" /></svg>
+          ホーム
+        </Link>
+        <Link to="/search" className="flex flex-col items-center">
+          <svg className="w-5 h-5 mb-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387-1.414 1.414-4.387-4.387zM10 16a6 6 0 100-12 6 6 0 000 12z" /></svg>
+          検索
+        </Link>
+        <Link to="/mypage" className="flex flex-col items-center">
+          <svg className="w-5 h-5 mb-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 10a4 4 0 100-8 4 4 0 000 8zM2 18a8 8 0 1116 0H2z" /></svg>
+          マイページ
+        </Link>
+        <Link to="/gacha" className="flex flex-col items-center">
+          <svg className="w-5 h-5 mb-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3h12v2H4V3zm0 4h12v2H4V7zm0 4h12v2H4v-2zm0 4h12v2H4v-2z" /></svg>
+          ガチャ
+        </Link>
       </footer>
     </div>
   );
