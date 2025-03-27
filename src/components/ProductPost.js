@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 
 const ProductPost = () => {
@@ -8,13 +7,6 @@ const ProductPost = () => {
   const [productDescription, setProductDescription] = useState('');
   const [productCategory, setProductCategory] = useState('');
   const [isPublic, setIsPublic] = useState(true);
-
-  const handleMediaChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProductPreview(URL.createObjectURL(file));
-    }
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -42,7 +34,8 @@ const ProductPost = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">新規出品</h2>       <form onSubmit={handleSubmit} className="space-y-4">
+      <h2 className="text-2xl font-bold text-gray-800">新規出品</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">商品名</label>
           <input
@@ -94,7 +87,9 @@ const ProductPost = () => {
             placeholder="商品の説明文を入力してください"
             required
           />
-        </div>         <div>
+        </div>
+
+        <div>
           <label className="block text-sm font-medium text-gray-700">プレビュー画像 / 商品メディア</label>
           <input
             type="file"
