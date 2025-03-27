@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import GachaTicketPurchase from '../components/GachaTicketPurchase';
 import GachaResultModal from '../components/GachaResultModal';
 import { motion } from 'framer-motion';
@@ -10,10 +10,6 @@ const Gacha = () => {
   const [showAnimation, setShowAnimation] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [results, setResults] = useState([]);
-
-  // ↓ 今後使う予定なので、今はコメントアウト
-  // const [selectedType, setSelectedType] = useState('');
-  // const [selectedGenre, setSelectedGenre] = useState('');
 
   const handleOpenTicketModal = () => setShowTicketModal(true);
   const handleCloseTicketModal = () => setShowTicketModal(false);
@@ -39,7 +35,7 @@ const Gacha = () => {
 
       {/* ガチャ3列 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-        {['流星ギフトパック(小)', '流星ギフトパック(中)', '流星ギフトパック(大)'].map((genre) => (
+        {['流星ギフトパック小', '流星ギフトパック中', '流星ギフトパック大'].map((genre) => (
           <div
             key={genre}
             className="bg-white bg-opacity-10 p-4 rounded-lg shadow-md text-center"
@@ -55,7 +51,7 @@ const Gacha = () => {
                 onClick={() => handleStartGacha('1', genre)}
                 className="bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-4 rounded"
               >
-                1連ガチャ/チケット3枚消費 <span className="ml-2">🪙</span>
+                1連ガチャ <span className="ml-2">🪙</span>
               </button>
               <button
                 onClick={() => handleStartGacha('10', genre)}
