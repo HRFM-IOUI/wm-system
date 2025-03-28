@@ -1,117 +1,123 @@
-// src/pages/Gacha.js
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, db } from '../firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { auth } from '../firebase';
+import GachaHeader from '../components/GachaHeader';
+import GachaStatusOverlay from '../components/GachaStatusOverlay';
+import GachaTicketModal from '../components/GachaTicketModal';
 import GachaStageRenderer from '../components/GachaStageRenderer';
 import GachaResultModal from '../components/GachaResultModal';
-import GachaTicketModal from '../components/GachaTicketModal';
-import GachaStatusOverlay from '../components/GachaStatusOverlay';
-import { drawGacha, saveGachaResult } from '../utils/gachaUtils';
-import { getUserVipStatus } from '../utils/vipUtils';
+import {
+  drawGacha,
+  fetchGachaItems,
+  saveGachaResult,
+} from '../utils/gachaUtils';
+import '../assets/animatedBackground.css';
 
 const Gacha = () => {
   const [user] = useAuthState(auth);
-  const [gachaResults, setGachaResults] = useState([]);
+  const navigate = useNavigate();
+  const [gachaItems, setGachaItems] = useState([]);
+  const [drawResults, setDrawResults] = useState([]);
+  const [gachaCount, setGachaCount] = useState(1);
+  const [showTicketModal, setShowTicketModal] = useState(false);
+  const [showStage, setShowStage] = useState(false);
   const [showResult, setShowResult] = useState(false);
-  const [showAnimation, setShowAnimation] = useState(false);
-  const [drawCount, setDrawCount] = useState(1);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [vipRank, setVipRank] = useState('');
-  const [ticketCount, setTicketCount] = useState(100);
-  const [showNoTicketModal, setShowNoTicketModal] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [skipAnimation, setSkipAnimation] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      getUserVipStatus(user.uid).then(setVipRank);
-    }
-  }, [user]);
+    if (!user) return navigate('/login');
+    const fetchData = async () => {
+      const items = await fetchGachaItems();
+      setGachaItems(items);
+    };
+    fetchData();
+  }, [user, navigate]);
+
+  const handleDraw = (count) => {
+    setGachaCount(count);
+    setShowTicketModal(true);
+  };
 
   const executeDraw = async () => {
     if (!user) return;
-    if (ticketCount < drawCount) {
-      setShowNoTicketModal(true);
-      return;
-    }
-    setShowConfirm(false);
-    setShowAnimation(true);
+    setShowTicketModal(false);
+    setShowStage(true);
+    setIsDrawing(true);
 
-    setTimeout(async () => {
-      const results = await drawGacha(drawCount, 'default_gacha_2025');
-      setTicketCount(prev => prev - drawCount);
-      await saveGachaResult(user.uid, results);
-      setGachaResults(results);
-      setShowAnimation(false);
+    const results = await drawGacha(gachaItems, gachaCount);
+    await saveGachaResult(user.uid, results);
+    setDrawResults(results);
+
+    if (!skipAnimation) {
+      setTimeout(() => {
+        setShowStage(false);
+        setShowResult(true);
+        setIsDrawing(false);
+        setSkipAnimation(false);
+      }, 6000);
+    } else {
+      setShowStage(false);
       setShowResult(true);
-    }, 6000);
+      setIsDrawing(false);
+      setSkipAnimation(false);
+    }
   };
 
-  const handleDrawClick = (count) => {
-    if (!user) {
-      alert('ログインが必要です');
-      return;
-    }
-    setDrawCount(count);
-    setShowConfirm(true);
+  const handleSkip = () => {
+    setSkipAnimation(true);
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-black via-gray-900 to-yellow-900 text-white overflow-hidden">
-      <GachaStatusOverlay user={user} ticketCount={ticketCount} vipRank={vipRank} />
+    <div className="relative min-h-screen bg-black text-white overflow-hidden">
+      <div className="absolute inset-0 z-0 animated-background"></div>
 
-      <div className="flex flex-col items-center justify-center pt-32">
-        <div className="flex gap-4 mb-6">
-          <button onClick={() => handleDrawClick(1)} className="bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded-lg">
-            1連ガチャ
-          </button>
-          <button onClick={() => handleDrawClick(10)} className="bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-lg">
-            10連ガチャ
-          </button>
-          <button onClick={() => handleDrawClick(100)} className="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded-lg">
-            100連ガチャ
-          </button>
+      <GachaHeader />
+      <GachaStatusOverlay />
+
+      <div className="relative z-10 pt-24 flex flex-col items-center gap-4">
+        <div className="flex gap-4">
+          <button className="bg-pink-600 px-4 py-2 rounded" onClick={() => handleDraw(1)}>1回</button>
+          <button className="bg-pink-600 px-4 py-2 rounded" onClick={() => handleDraw(10)}>10回</button>
+          <button className="bg-pink-600 px-4 py-2 rounded" onClick={() => handleDraw(100)}>100回</button>
         </div>
+
+        {showTicketModal && (
+          <GachaTicketModal
+            count={gachaCount}
+            onConfirm={executeDraw}
+            onClose={() => setShowTicketModal(false)}
+          />
+        )}
+
+        {showStage && (
+          <GachaStageRenderer
+            onComplete={executeDraw}
+            onSkip={handleSkip}
+            skip={skipAnimation}
+          />
+        )}
+
+        {showResult && (
+          <GachaResultModal
+            results={drawResults}
+            onClose={() => setShowResult(false)}
+          />
+        )}
       </div>
-
-      {showConfirm && (
-        <GachaTicketModal
-          count={drawCount}
-          onConfirm={executeDraw}
-          onClose={() => setShowConfirm(false)}
-        />
-      )}
-
-      {showAnimation && (
-        <GachaStageRenderer
-          username={user?.displayName || '冒険者'}
-          onSkip={() => {
-            setShowAnimation(false);
-            executeDraw();
-          }}
-          onComplete={() => {
-            setShowAnimation(false);
-            setShowResult(true);
-          }}
-        />
-      )}
-
-      {showResult && (
-        <GachaResultModal
-          results={gachaResults}
-          onClose={() => setShowResult(false)}
-        />
-      )}
-
-      {showNoTicketModal && (
-        <GachaTicketModal
-          noTicket
-          onClose={() => setShowNoTicketModal(false)}
-        />
-      )}
     </div>
   );
 };
 
 export default Gacha;
+
+
+
+
+
+
+
+
 
 

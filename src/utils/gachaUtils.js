@@ -1,71 +1,97 @@
-// src/utils/gachaUtils.js
 import { db } from '../firebase';
 import {
-  doc,
-  getDoc,
-  setDoc,
   collection,
-  addDoc,
-  Timestamp,
+  getDoc,
+  doc,
+  setDoc,
+  getDocs,
+  updateDoc,
+  serverTimestamp,
 } from 'firebase/firestore';
 
-// ガチャアイテム取得（Firestoreから）
-export const fetchGachaItems = async (gachaId = 'default_gacha_2025') => {
-  const gachaDocRef = doc(db, 'gachaMasters', gachaId);
-  const gachaDocSnap = await getDoc(gachaDocRef);
+/**
+ * Firestore の default_gacha_2025 ドキュメントから items を配列として取得
+ */
+export const fetchGachaItems = async () => {
+  try {
+    const docRef = doc(db, 'gachaMasters', 'default_gacha_2025');
+    const docSnap = await getDoc(docRef);
 
-  if (!gachaDocSnap.exists()) {
-    throw new Error('ガチャデータが存在しません。');
-  }
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const itemsObj = data.items || {};
 
-  const gachaData = gachaDocSnap.data();
-  const items = gachaData.items;
+      const itemsArray = Object.values(itemsObj).map((item, index) => ({
+        id: index,
+        ...item,
+      }));
 
-  if (!items || !Array.isArray(items)) {
-    throw new Error('ガチャアイテムが正しく取得できませんでした。Firestoreの items フィールドを確認してください。');
-  }
-
-  return items;
-};
-
-// 重み付け抽選
-const weightedRandom = (items) => {
-  const totalWeight = items.reduce((acc, item) => acc + item.weight, 0);
-  const rand = Math.random() * totalWeight;
-  let sum = 0;
-  for (const item of items) {
-    sum += item.weight;
-    if (rand < sum) {
-      return item;
+      return itemsArray;
+    } else {
+      console.error('default_gacha_2025 ドキュメントが存在しません');
+      return [];
     }
+  } catch (error) {
+    console.error('ガチャアイテムの取得エラー:', error);
+    return [];
   }
-  return items[items.length - 1];
 };
 
-// ガチャ実行
-export const drawGacha = async (count = 1, gachaId = 'default_gacha_2025') => {
-  const items = await fetchGachaItems(gachaId);
+/**
+ * 簡易ガチャロジック（重み付け）
+ */
+export const drawGacha = (items, count) => {
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new Error('ガチャアイテムがありません');
+  }
+
   const results = [];
 
+  const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
+
   for (let i = 0; i < count; i++) {
-    results.push(weightedRandom(items));
+    const rand = Math.random() * totalWeight;
+    let acc = 0;
+
+    for (const item of items) {
+      acc += item.weight;
+      if (rand <= acc) {
+        results.push(item);
+        break;
+      }
+    }
   }
 
   return results;
 };
 
-// ガチャ結果保存
+/**
+ * Firestore にガチャ結果を保存
+ */
 export const saveGachaResult = async (userId, results) => {
-  const historyRef = collection(db, `gachaResults/${userId}/history`);
-  await addDoc(historyRef, {
+  const timestamp = Date.now();
+  const historyRef = doc(db, `gachaResults/${userId}/history/${timestamp}`);
+
+  await setDoc(historyRef, {
     results,
-    createdAt: Timestamp.now(),
+    createdAt: serverTimestamp(),
   });
 };
 
-// ガチャ履歴取得
+/**
+ * マイページで表示するガチャ履歴取得（最新10件）
+ */
 export const getGachaHistory = async (userId) => {
-  const historyRef = collection(db, `gachaResults/${userId}/history`);
-  const historySnap = await getDoc(historyRef);
-  return historySnap.exists() ? historySnap.data() : [];
+  const resultsRef = collection(db, `gachaResults/${userId}/history`);
+  const snapshot = await getDocs(resultsRef);
+
+  const history = [];
+  snapshot.forEach((doc) => {
+    history.push({ id: doc.id, ...doc.data() });
+  });
+
+  // 日付で並べ替え（新着順）
+  return history.sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds).slice(0, 10);
 };
+
+

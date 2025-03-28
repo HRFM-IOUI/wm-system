@@ -1,39 +1,25 @@
-import React, { useState } from 'react';
-import GachaTicketModal from './GachaTicketModal';
+import React from "react";
 
-const GachaCard = ({ gacha, onStart }) => {
-  const [showModal, setShowModal] = useState(false);
-  const [drawCount, setDrawCount] = useState(1);
+const rarityColors = {
+  SSR: "border-yellow-400 shadow-yellow-400",
+  SR: "border-purple-400 shadow-purple-400",
+  R: "border-blue-400 shadow-blue-400",
+  N: "border-gray-400 shadow-gray-400",
+};
 
-  const handleDraw = (count) => {
-    setDrawCount(count);
-    setShowModal(true);
-  };
+const GachaCard = ({ item }) => {
+  if (!item || !item.name || !item.rarity) return null;
 
-  const confirmDraw = () => {
-    setShowModal(false);
-    onStart(gacha.id, drawCount);
-  };
+  const borderColor = rarityColors[item.rarity] || "border-gray-200";
 
   return (
-    <div className="bg-white text-black rounded-lg shadow-lg p-4 w-full max-w-xs">
-      <img src={gacha.image} alt={gacha.title} className="w-full h-40 object-cover rounded" />
-      <h3 className="text-lg font-bold mt-4">{gacha.title}</h3>
-      <p className="text-sm text-gray-700">{gacha.description}</p>
-
-      <div className="mt-4 flex flex-col gap-2">
-        <button onClick={() => handleDraw(1)} className="bg-pink-500 hover:bg-pink-600 text-white py-2 rounded font-semibold">1連</button>
-        <button onClick={() => handleDraw(10)} className="bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded font-semibold">10連</button>
-        <button onClick={() => handleDraw(100)} className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded font-semibold">100連</button>
+    <div
+      className={`bg-white rounded-xl p-3 shadow-md border-2 ${borderColor} animate-fade-in`}
+    >
+      <div className="text-center">
+        <div className="text-sm text-gray-600">{item.rarity}</div>
+        <div className="text-xl font-bold text-gray-800 mt-1">{item.name}</div>
       </div>
-
-      {showModal && (
-        <GachaTicketModal
-          drawCount={drawCount}
-          onConfirm={confirmDraw}
-          onCancel={() => setShowModal(false)}
-        />
-      )}
     </div>
   );
 };
