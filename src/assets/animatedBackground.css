@@ -1,0 +1,23 @@
+.animated-stars {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(#444, #000);
+    animation: fade 20s ease-in-out infinite;
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  .animated-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(4px);
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  @keyframes fade {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }

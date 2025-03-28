@@ -8,7 +8,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // デモ用ログイン認証
+  // デモ用ログイン認証（テスト用）
   const handleLogin = (e) => {
     e.preventDefault();
     if (email === '0000@demo.com' && password === '0000') {
@@ -18,11 +18,24 @@ const Login = () => {
     }
   };
 
-  // Googleログイン
+  // Googleログイン（セッション待機あり）
   const handleGoogleLogin = async () => {
     try {
-      await signInWithPopup(auth, provider);
-      navigate('/toppage');
+      const result = await signInWithPopup(auth, provider);
+      console.log('ログイン成功:', result.user);
+
+      if (auth.currentUser) {
+        navigate('/toppage');
+      } else {
+        setTimeout(() => {
+          if (auth.currentUser) {
+            navigate('/toppage');
+          } else {
+            alert('ログインセッションが確立されていません。再度お試しください。');
+          }
+        }, 1000);
+      }
+
     } catch (error) {
       console.error('Googleログインエラー:', error);
       alert('Googleログインに失敗しました');
