@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase';
-import GachaCard from '../components/GachaCard';
+//import GachaCard from '../components/GachaCard';//
 import GachaResultModal from '../components/GachaResultModal';
 import GachaStageRenderer from '../components/GachaStageRenderer';
 import GachaStatusOverlay from '../components/GachaStatusOverlay';
@@ -22,7 +22,7 @@ const Gacha = () => {
   const navigate = useNavigate();
   const [gachaItems, setGachaItems] = useState([]);
   const [drawResults, setDrawResults] = useState([]);
-  const [isDrawing, setIsDrawing] = useState(false);
+  //const [isDrawing, setIsDrawing] = useState(false);//
   const [showResult, setShowResult] = useState(false);
   const [showTicketModal, setShowTicketModal] = useState(false);
   const [gachaCount, setGachaCount] = useState(1);
@@ -59,7 +59,7 @@ const Gacha = () => {
       setTicketCount(prev => prev - gachaCount);
 
       setShowTicketModal(false);
-      setIsDrawing(true);
+      
       setShowStage(true);
     } catch (err) {
       console.error('チケット消費エラー:', err);
@@ -76,7 +76,7 @@ const Gacha = () => {
     } catch (err) {
       console.error('ガチャ実行エラー:', err);
     } finally {
-      setIsDrawing(false);
+
       setShowStage(false);
       setSkipAnimation(false);
     }
