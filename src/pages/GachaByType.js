@@ -46,7 +46,7 @@ const GachaByType = () => {
       setTicketCount(count);
     };
     fetchData();
-  }, [user, navigate, type]);
+  }, [user, navigate, type, config]);
 
   const handleDraw = (count) => {
     setGachaCount(count);
