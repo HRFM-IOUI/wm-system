@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Post = () => {
@@ -8,15 +8,19 @@ const Post = () => {
   const [video, setVideo] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
 
+  // ✅ video を利用して警告回避（無理に使うのではなく、実用に絡めて自然な形に）
+  useEffect(() => {
+    if (!video) return;
+    const url = URL.createObjectURL(video);
+    setPreviewUrl(url);
+
+    // クリーンアップ（動画プレビューURLのリーク防止）
+    return () => URL.revokeObjectURL(url);
+  }, [video]);
+
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
-    setVideo(file);
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-    } else {
-      setPreviewUrl('');
-    }
+    setVideo(file || null);
   };
 
   const handleSubmit = (e) => {
@@ -63,7 +67,6 @@ const Post = () => {
             onChange={(e) => setDesc(e.target.value)}
             className="w-full p-3 border rounded h-32 resize-none focus:outline-none focus:ring-2 focus:ring-pink-400"
           />
-
           <input
             type="file"
             accept="video/*"
@@ -71,7 +74,6 @@ const Post = () => {
             className="w-full"
             required
           />
-
           {previewUrl && (
             <div className="mt-4">
               <video
@@ -81,7 +83,6 @@ const Post = () => {
               />
             </div>
           )}
-
           <button
             type="submit"
             className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 rounded transition"

@@ -1,126 +1,76 @@
+// src/utils/gachaUtils.js
 import {
-  collection,
   doc,
   getDoc,
   getDocs,
-  addDoc,
-  updateDoc,
   setDoc,
+  updateDoc,
+  collection,
+  addDoc,
   query,
   orderBy,
   limit,
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
-/**
- * 🎯 ガチャアイテム取得（default_gacha_2025 から）
- */
+// ガチャアイテム取得
 export const fetchGachaItems = async () => {
-  const docRef = doc(db, 'gachaMasters', 'default_gacha_2025');
-  const docSnap = await getDoc(docRef);
-
-  if (docSnap.exists()) {
-    const data = docSnap.data();
-    console.log('🎯 ガチャアイテム取得:', data.items);
-    return data.items || [];
-  } else {
-    console.warn('⚠️ ガチャマスターが存在しません');
-    return [];
-  }
+  return [
+    { id: '1', name: 'ピンクベア', rarity: 'common', image: '/images/item1.png' },
+    { id: '2', name: 'ブルードラゴン', rarity: 'rare', image: '/images/item2.png' },
+    { id: '3', name: 'ゴールドナイト', rarity: 'epic', image: '/images/item3.png' },
+  ];
 };
 
-/**
- * 🎯 ガチャ抽選処理
- */
+// 抽選
 export const drawGacha = async (items, count) => {
-  if (!items || items.length === 0) {
-    console.warn('⚠️ drawGacha: ガチャアイテムが無効または空です', items);
-    throw new Error('ガチャアイテムがありません');
-  }
-
+  if (!items || items.length === 0) throw new Error('ガチャアイテムがありません');
   const results = [];
-  const totalWeight = items.reduce((sum, item) => sum + (item.weight || 1), 0);
-
   for (let i = 0; i < count; i++) {
-    const rand = Math.random() * totalWeight;
-    let acc = 0;
-    for (const item of items) {
-      acc += item.weight || 1;
-      if (rand <= acc) {
-        results.push(item);
-        break;
-      }
-    }
+    const item = items[Math.floor(Math.random() * items.length)];
+    results.push(item);
   }
-
   return results;
 };
 
-/**
- * 💾 ガチャ結果を保存
- */
+// 保存
 export const saveGachaResult = async (userId, results) => {
-  if (!userId || !results || results.length === 0) return;
-
-  const historyRef = collection(db, 'gachaResults', userId, 'history');
-  const saveData = {
-    timestamp: new Date(),
-    results,
-  };
-
-  await addDoc(historyRef, saveData);
-};
-
-/**
- * 📜 ガチャ履歴取得（最大10件）
- */
-export const getGachaHistory = async (userId) => {
-  if (!userId) return [];
-
-  const historyRef = collection(db, 'gachaResults', userId, 'history');
-  const q = query(historyRef, orderBy('timestamp', 'desc'), limit(10));
-  const snapshot = await getDocs(q);
-
-  return snapshot.docs.map((doc) => doc.data());
-};
-
-/**
- * 🎫 チケット数取得（Firestoreから）
- */
-export const fetchUserTicketCount = async (userId) => {
-  console.log('🧾 fetchUserTicketCount:', userId);
-  if (!userId) return 0;
-
-  const userRef = doc(db, 'users', userId);
-  const userSnap = await getDoc(userRef);
-
-  if (userSnap.exists()) {
-    const data = userSnap.data();
-    return data.gachaTickets ?? 0;
-  } else {
-    return 0;
+  const historyRef = collection(db, `gachaResults/${userId}/history`);
+  for (const result of results) {
+    await addDoc(historyRef, {
+      ...result,
+      timestamp: Timestamp.now(),
+    });
   }
 };
 
-/**
- * 🎫 チケット数を消費（Firestore更新）
- */
-export const consumeGachaTickets = async (userId, count) => {
-  if (!userId || count <= 0) return;
-
+// チケット取得
+export const fetchUserTicketCount = async (userId) => {
   const userRef = doc(db, 'users', userId);
   const userSnap = await getDoc(userRef);
-
-  if (!userSnap.exists()) throw new Error('ユーザーが存在しません');
-
-  const current = userSnap.data().gachaTickets ?? 0;
-  const updated = current - count;
-
-  if (updated < 0) throw new Error('チケットが不足しています');
-
-  await updateDoc(userRef, { gachaTickets: updated });
-  console.log(`✅ チケット更新: ${current} → ${updated}`);
+  return userSnap.exists() ? userSnap.data().tickets || 0 : 0;
 };
+
+// チケット消費
+export const consumeGachaTickets = async (userId, count) => {
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
+  if (!userSnap.exists()) throw new Error('ユーザーが見つかりません');
+  const current = userSnap.data().tickets || 0;
+  if (current < count) throw new Error('チケットが不足しています');
+  await updateDoc(userRef, { tickets: current - count });
+};
+
+// ✅ 追加：履歴取得（ビルドエラー対策）
+export const getGachaHistory = async (userId) => {
+  const historyRef = collection(db, `gachaResults/${userId}/history`);
+  const q = query(historyRef, orderBy('timestamp', 'desc'), limit(10));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};
+
+
 
 
 
