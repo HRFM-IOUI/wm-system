@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductPost from '../components/ProductPost';
+import VideoUploader from '../components/video/VideoUploader';
+import VideoPlayer from '../components/video/VideoPlayer';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -10,11 +12,14 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
+import { db } from '../firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('posts');
+  const [videoList, setVideoList] = useState([]);
 
   const dummyPosts = [
     { id: 1, title: '初めての投稿', type: '動画', sales: 12, revenue: 3600 },
@@ -39,6 +44,17 @@ const Dashboard = () => {
       title: { display: true, text: '月別売上推移' },
     },
   };
+
+  useEffect(() => {
+    if (activeTab === 'video') {
+      const fetchVideos = async () => {
+        const querySnapshot = await getDocs(collection(db, 'videos'));
+        const videos = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setVideoList(videos);
+      };
+      fetchVideos();
+    }
+  }, [activeTab]);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -75,6 +91,20 @@ const Dashboard = () => {
             <Bar data={chartData} options={chartOptions} />
           </div>
         );
+      case 'video':
+        return (
+          <div className="space-y-6">
+            <VideoUploader ownerId="dummyOwnerId" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {videoList.map(video => (
+                <div key={video.id} className="bg-white p-4 rounded shadow">
+                  <h3 className="font-bold text-lg">{video.title}</h3>
+                  <VideoPlayer playbackUrl={video.playbackUrl} />
+                </div>
+              ))}
+            </div>
+          </div>
+        );
       default:
         return null;
     }
@@ -96,6 +126,9 @@ const Dashboard = () => {
         </button>
         <button onClick={() => setActiveTab('analytics')} className={`block w-full text-left px-4 py-2 rounded ${activeTab === 'analytics' ? 'bg-pink-500 text-white' : 'hover:bg-gray-100'}`}>
           アナリティクス
+        </button>
+        <button onClick={() => setActiveTab('video')} className={`block w-full text-left px-4 py-2 rounded ${activeTab === 'video' ? 'bg-pink-500 text-white' : 'hover:bg-gray-100'}`}>
+          動画投稿
         </button>
       </aside>
 

@@ -15,8 +15,8 @@ import Search from './pages/Search';
 import Lounge from './pages/Lounge';
 import Subscribe from './pages/Subscribe';
 import TicketShop from './pages/TicketShop';
-
-import HomeRedirect from './components/HomeRedirect'; // ← 新規追加
+import VideoList from './pages/VideoList'; // ← 追加
+import HomeRedirect from './components/HomeRedirect'; // ← 既存
 
 // 認証ガード付きルート
 const ProtectedRoute = ({ element }) => {
@@ -45,9 +45,12 @@ function App() {
       <Route path="/subscribe" element={<ProtectedRoute element={<Subscribe />} />} />
       <Route path="/ticket-shop" element={<ProtectedRoute element={<TicketShop />} />} />
 
-      {/* ガチャ選択ページ・タイプ別ページ */}
+      {/* ガチャ関連 */}
       <Route path="/gacha-select" element={<ProtectedRoute element={<GachaSelect />} />} />
       <Route path="/gacha/:type" element={<ProtectedRoute element={<GachaByType />} />} />
+
+      {/* 動画一覧ページ */}
+      <Route path="/videos" element={<ProtectedRoute element={<VideoList />} />} />
 
       {/* 不明なパスはログインへ */}
       <Route path="*" element={<Navigate to="/" />} />
@@ -56,6 +59,7 @@ function App() {
 }
 
 export default App;
+
 
 
 
