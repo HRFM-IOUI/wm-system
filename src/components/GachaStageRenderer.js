@@ -5,65 +5,65 @@ import stage1 from '../assets/lottie/stage1.json';
 import stage2 from '../assets/lottie/stage2.json';
 import stage3 from '../assets/lottie/stage3.json';
 
-const stages = [
-  {
-    animation: stage1,
-    message: '宝の商人は占っています...',
-  },
-  {
-    animation: stage2,
-    message: 'これには一晩待つ必要があります...',
-  },
-  {
-    animation: stage3,
-    message: (userName) => `${userName}様！ご覧ください、お宝です！`,
-  },
-];
-
-const GachaStageRenderer = ({ onComplete, skip, onSkip, userName }) => {
-  const [stageIndex, setStageIndex] = useState(0);
+const GachaStageRenderer = ({ onComplete, skip, onSkip }) => {
+  const [stage, setStage] = useState(1);
 
   useEffect(() => {
     if (skip) {
-      onComplete?.(); // 即時完了
+      onComplete?.(); // スキップ時は即完了
       return;
     }
 
-    const interval = setInterval(() => {
-      if (stageIndex < stages.length - 1) {
-        setStageIndex((prev) => prev + 1);
-      } else {
-        clearInterval(interval);
-        onComplete?.(); // 最終演出後に実行
-      }
-    }, 2000); // 各ステージ2秒
+    const timers = [
+      setTimeout(() => setStage(2), 2000),
+      setTimeout(() => setStage(3), 4000),
+      setTimeout(() => {
+        onComplete?.(); // 演出完了後に onComplete 呼び出し
+      }, 6000),
+    ];
 
-    return () => clearInterval(interval);
-  }, [stageIndex, skip, onComplete]);
+    return () => timers.forEach(clearTimeout);
+  }, [skip, onComplete]);
 
-  const currentStage = stages[stageIndex];
+  const getAnimation = () => {
+    switch (stage) {
+      case 1:
+        return stage1;
+      case 2:
+        return stage2;
+      case 3:
+        return stage3;
+      default:
+        return stage1;
+    }
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black bg-opacity-90 text-white">
-      <div className="relative w-80 h-80">
-        <Lottie animationData={currentStage.animation} loop={false} />
-        <div className="absolute bottom-0 w-full text-center text-lg font-bold animate-pulse">
-          {typeof currentStage.message === 'function'
-            ? currentStage.message(userName)
-            : currentStage.message}
-        </div>
-      </div>
+    <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center flex-col">
       <button
         onClick={onSkip}
-        className="absolute top-4 right-4 px-3 py-1 bg-gray-800 text-sm rounded shadow hover:bg-gray-700"
+        className="absolute top-4 right-4 text-white bg-gray-700 hover:bg-red-600 px-3 py-1 rounded"
       >
         スキップ
       </button>
+      <div className="w-72 md:w-96">
+        <Lottie animationData={getAnimation()} loop={false} />
+      </div>
+      <div className="mt-4 text-white text-lg">演出中…</div>
     </div>
   );
 };
 
 export default GachaStageRenderer;
+
+
+
+
+
+
+
+
+
 
 
 

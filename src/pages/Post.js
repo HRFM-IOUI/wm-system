@@ -56,7 +56,8 @@ const Post = () => {
             onChange={(e) => setTitle(e.target.value)}
             className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-pink-400"
             required
-          />           <textarea
+          />
+          <textarea
             placeholder="説明文"
             value={desc}
             onChange={(e) => setDesc(e.target.value)}

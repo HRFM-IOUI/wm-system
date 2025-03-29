@@ -1,41 +1,51 @@
+// src/components/GachaResultModal.js
 import React from 'react';
+import '../assets/GachaResultModal.css';
 
-const GachaResultModal = ({ results, onClose }) => {
-  if (!Array.isArray(results)) return null;
-
-  const getColorByRarity = (rarity) => {
-    switch (rarity) {
-      case 'UR':
-        return 'bg-yellow-300 border-yellow-500';
-      case 'SR':
-        return 'bg-purple-300 border-purple-500';
-      case 'R':
-        return 'bg-blue-300 border-blue-500';
-      default:
-        return 'bg-gray-200 border-gray-400';
-    }
-  };
+const GachaResultModal = ({ results = [], onClose }) => {
+  if (!Array.isArray(results) || results.length === 0) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 text-white">
+        <div className="bg-gray-800 p-6 rounded shadow-lg max-w-md text-center space-y-4">
+          <h2 className="text-lg font-bold">ガチャ結果</h2>
+          <p>結果がありません</p>
+          <button
+            onClick={onClose}
+            className="mt-4 bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded shadow"
+          >
+            閉じる
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center px-4">
-      <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto relative">
-        <h2 className="text-xl font-bold text-center mb-4">🎉 ガチャ結果 🎉</h2>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 text-white">
+      <div className="bg-gray-900 p-6 rounded shadow-lg max-w-xl w-full space-y-4">
+        <h2 className="text-lg font-bold">ガチャ結果</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {results.map((item, index) => (
             <div
               key={index}
-              className={`p-4 rounded shadow text-center border-2 ${getColorByRarity(item.rarity)}`}
+              className={`rounded p-3 text-center ${
+                item.rarity === 'SSR'
+                  ? 'bg-gradient-to-r from-yellow-400 to-red-500'
+                  : item.rarity === 'SR'
+                  ? 'bg-purple-600'
+                  : item.rarity === 'R'
+                  ? 'bg-blue-600'
+                  : 'bg-gray-700'
+              }`}
             >
-              <div className="text-lg font-semibold">{item.name}</div>
-              <div className="text-sm italic text-gray-600">{item.rarity}</div>
+              <div className="font-bold">{item.name || '???'}</div>
+              <div className="text-sm opacity-80">{item.rarity}</div>
             </div>
           ))}
         </div>
-
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-white bg-pink-600 hover:bg-pink-700 px-3 py-1 rounded"
+          className="block mx-auto mt-4 bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded shadow"
         >
           閉じる
         </button>
@@ -45,5 +55,13 @@ const GachaResultModal = ({ results, onClose }) => {
 };
 
 export default GachaResultModal;
+
+
+
+
+
+
+
+
 
 
