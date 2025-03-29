@@ -1,26 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Post = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
-  const [video, setVideo] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
-
-  // ✅ video を利用して警告回避（無理に使うのではなく、実用に絡めて自然な形に）
-  useEffect(() => {
-    if (!video) return;
-    const url = URL.createObjectURL(video);
-    setPreviewUrl(url);
-
-    // クリーンアップ（動画プレビューURLのリーク防止）
-    return () => URL.revokeObjectURL(url);
-  }, [video]);
 
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
-    setVideo(file || null);
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    } else {
+      setPreviewUrl('');
+    }
   };
 
   const handleSubmit = (e) => {
@@ -96,3 +90,4 @@ const Post = () => {
 };
 
 export default Post;
+
