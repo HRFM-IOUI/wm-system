@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, query, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, } from 'firebase/firestore';
 import { db } from '../firebase';
 
 // ✅ 常に100枚保持（プロト用途）

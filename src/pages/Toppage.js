@@ -52,32 +52,41 @@ const Toppage = () => {
   }, [visiblePosts, posts]);
 
   useEffect(() => {
-    const options = { threshold: 0.6 };
-
-    const videoObserver = new IntersectionObserver((entries) => {
+    const options = {
+      threshold: 0.6,
+    };
+  
+    const handlePlayOnView = (entries) => {
       entries.forEach((entry) => {
         const video = entry.target;
         if (entry.isIntersecting) {
-          videoRefs.current.forEach((v) => {
-            if (v !== video) v.pause();
+          videoRefSnapshot.forEach((v) => {
+            if (v !== video) {
+              v.pause();
+            }
           });
           video.play().catch((e) => console.error('再生エラー:', e));
         } else {
           video.pause();
         }
       });
-    }, options);
-
-    videoRefs.current.forEach((video) => {
+    };
+  
+    const videoRefSnapshot = [...videoRefs.current]; // ← ローカルに複製！
+  
+    const videoObserver = new IntersectionObserver(handlePlayOnView, options);
+  
+    videoRefSnapshot.forEach((video) => {
       if (video) videoObserver.observe(video);
     });
-
+  
     return () => {
-      videoRefs.current.forEach((video) => {
+      videoRefSnapshot.forEach((video) => {
         if (video) videoObserver.unobserve(video);
       });
     };
   }, [visiblePosts]);
+  
 
   return (
     <div className="flex flex-col md:flex-row w-full min-h-screen bg-gray-50 text-black">
