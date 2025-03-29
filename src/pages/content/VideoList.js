@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../firebase";
+import { db } from "../../firebase"; // ← 修正済み
 import { collection, getDocs } from "firebase/firestore";
-import VideoPlayer from "../components/video/VideoPlayer";
+import VideoPlayer from "../../components/video/VideoPlayer"; // ← 修正済み
 
 const VideoList = () => {
   const [videos, setVideos] = useState([]);
@@ -39,4 +39,5 @@ const VideoList = () => {
 };
 
 export default VideoList;
+
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import ReactionButtons from '../components/ReactionButtons';
-import CommentSection from '../components/CommentSection';
+import ReactionButtons from '../../components/common/ReactionButtons';
+import CommentSection from '../../components/common/CommentSection';
 
 const Toppage = () => {
   const [posts, setPosts] = useState([]);
@@ -56,12 +56,12 @@ const Toppage = () => {
     };
 
     const handlePlayOnView = (entries) => {
-      const snapshot = [...videoRefs.current]; // 安全コピー
+      const snapshot = [...videoRefs.current];
       entries.forEach((entry) => {
         const video = entry.target;
         if (entry.isIntersecting) {
           snapshot.forEach((v) => {
-            if (v && v !== video) v.pause(); // null ガード付き
+            if (v && v !== video) v.pause();
           });
           video?.play().catch((e) => console.error('再生エラー:', e));
         } else {
@@ -91,7 +91,7 @@ const Toppage = () => {
           <Link to="/toppage" className="font-semibold hover:underline">ホーム</Link>
           <Link to="/search" className="hover:underline">検索</Link>
           <Link to="/mypage" className="hover:underline">マイページ</Link>
-          <Link to="/gacha" className="hover:underline">ガチャ</Link>
+          <Link to="/gacha-select" className="hover:underline">ガチャ</Link>
         </nav>
       </aside>
 
@@ -130,7 +130,7 @@ const Toppage = () => {
       </aside>
 
       <Link
-        to="/gacha"
+        to="/gacha-select"
         className="fixed bottom-20 right-5 bg-gradient-to-r from-pink-500 to-red-500 text-white px-4 py-2 rounded-full shadow-lg hover:scale-105 transition-transform z-50"
       >
         ガチャ
@@ -149,7 +149,7 @@ const Toppage = () => {
           <svg className="w-5 h-5 mb-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 10a4 4 0 100-8 4 4 0 000 8zM2 18a8 8 0 1116 0H2z" /></svg>
           マイページ
         </Link>
-        <Link to="/gacha" className="flex flex-col items-center">
+        <Link to="/gacha-select" className="flex flex-col items-center">
           <svg className="w-5 h-5 mb-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3h12v2H4V3zm0 4h12v2H4V7zm0 4h12v2H4v-2zm0 4h12v2H4v-2z" /></svg>
           ガチャ
         </Link>
@@ -159,6 +159,8 @@ const Toppage = () => {
 };
 
 export default Toppage;
+
+
 
 
 

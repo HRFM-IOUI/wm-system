@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import ProductPost from '../components/ProductPost';
-import VideoUploader from '../components/video/VideoUploader';
-import VideoPlayer from '../components/video/VideoPlayer';
+import ProductPost from '../../components/common/ProductPost';
+import VideoUploader from '../../components/video/VideoUploader';
+import VideoPlayer from '../../components/video/VideoPlayer';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -12,7 +12,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
-import { db } from '../firebase';
+import { db } from '../../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);

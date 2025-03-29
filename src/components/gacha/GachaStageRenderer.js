@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Lottie from 'lottie-react';
-import stage1 from '../assets/lottie/stage1.json';
-import stage2 from '../assets/lottie/stage2.json';
-import stage3 from '../assets/lottie/stage3.json';
+import stage1 from '../../assets/lottie/stage1.json';
+import stage2 from '../../assets/lottie/stage2.json';
+import stage3 from '../../assets/lottie/stage3.json';
 
 const GachaStageRenderer = ({ onComplete, skip, onSkip }) => {
   const [stage, setStage] = useState(1);

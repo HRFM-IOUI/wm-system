@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Lottie from 'lottie-react';
-import gachaAnimationData from '../assets/gacha-animation.json'; // あなたのLottie JSONに置き換えてください
+import gachaAnimationData from '../../assets/gacha-animation.json'; // あなたのLottie JSONに置き換えてください
 
 const GachaAnimation = ({ onComplete }) => {
   return (

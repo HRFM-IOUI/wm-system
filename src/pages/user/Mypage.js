@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../firebase';
-import { getGachaHistory } from '../utils/gachaUtils';
+import { auth } from '../../firebase';
+import { getGachaHistory } from '../../utils/gachaUtils';
 import { useNavigate } from 'react-router-dom';
 
 const Mypage = () => {

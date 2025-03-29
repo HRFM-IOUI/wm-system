@@ -1,7 +1,7 @@
 // src/components/GachaTicketPurchase.js
 
 import React, { useState, useEffect } from 'react';
-import { addVipPointsForTicketPurchase } from '../utils/vipUtils';
+import { addVipPointsForTicketPurchase } from '../../utils/vipUtils';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const GachaTicketPurchase = ({ onClose }) => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import sampleImage from '../assets/gacha-machine.png'; // グレー系のサンプル画像を使用
+import sampleImage from '../../assets/gacha-machine.png'; // グレー系のサンプル画像を使用
 
 const GachaAnimationStage = ({ message = "ガチャ演出中…" }) => {
   return (

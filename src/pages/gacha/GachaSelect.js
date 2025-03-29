@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import gachaConfigs from '../utils/gachaConfigs';
+import gachaConfigs from '../../utils/gachaConfigs';
 
 const GachaSelect = () => {
   const navigate = useNavigate();

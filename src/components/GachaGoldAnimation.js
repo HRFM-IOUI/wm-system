@@ -1,6 +1,6 @@
 import React from 'react';
 import Lottie from 'lottie-react';
-import goldAnimation from '../assets/lottie/gold-animation.json';
+import goldAnimation from '../../assets/lottie/gold-animation.json';
 
 const GachaGoldAnimation = ({ onComplete }) => {
   return (

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Lottie from 'lottie-react';
-import specialAnimation from '../assets/special-animation-1.json';
+import specialAnimation from '../../assets/special-animation-1.json';
 
 const GachaSpecialAnimation = ({ message }) => {
   return (

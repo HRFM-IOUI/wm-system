@@ -1,21 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../firebase';
-import GachaResultModal from '../components/GachaResultModal';
-import GachaStageRenderer from '../components/GachaStageRenderer';
-import GachaStatusOverlay from '../components/GachaStatusOverlay';
-import GachaTicketModal from '../components/GachaTicketModal';
-import GachaHeader from '../components/GachaHeader';
+import { auth } from '../../firebase';
+import GachaResultModal from '../../components/gacha/GachaResultModal';
+import GachaStageRenderer from '../../components/gacha/GachaStageRenderer';
+import GachaStatusOverlay from '../../components/gacha/GachaStatusOverlay';
+import GachaTicketModal from '../../components/gacha/GachaTicketModal';
+import GachaHeader from '../../components/gacha/GachaHeader';
 import {
   drawGacha,
   fetchGachaItems,
   saveGachaResult,
   fetchUserTicketCount,
   consumeGachaTickets,
-} from '../utils/gachaUtils';
-import gachaConfigs from '../utils/gachaConfigs';
-import '../assets/animatedBackground.css';
+} from '../../utils/gachaUtils';
+import gachaConfigs from '../../utils/gachaConfigs';
+import '../../assets/animatedBackground.css';
 
 const GachaByType = () => {
   const [user] = useAuthState(auth);
@@ -115,7 +115,7 @@ const GachaByType = () => {
       {/* 🎵 BGM 再生 */}
       <audio
         ref={audioRef}
-        src={require('../assets/bgm/vip_theme_sample.mp3')}
+        src={require('../../assets/bgm/vip_theme_sample.mp3')}
         loop
       />
 

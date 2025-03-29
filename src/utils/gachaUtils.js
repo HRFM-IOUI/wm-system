@@ -10,7 +10,7 @@ import {
   orderBy,
   limit,
 } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db } from '../firebase'; // ✅ 修正済みパス
 
 // 🎯 ガチャアイテムを取得（タイプ別対応）
 export const fetchGachaItems = async (type = 'default') => {
@@ -80,6 +80,7 @@ export const getGachaHistory = async (userId, maxItems = 10) => {
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map(doc => doc.data());
 };
+
 
 
 
