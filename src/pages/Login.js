@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '../firebase';
 
 const Login = () => {
@@ -8,34 +8,22 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // デモ用ログイン認証（テスト用）
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (email === '0000@demo.com' && password === '0000') {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
       navigate('/toppage');
-    } else {
-      alert('ログイン情報が正しくありません。');
+    } catch (error) {
+      alert('ログインに失敗しました: ' + error.message);
+      console.error('Login error:', error);
     }
   };
 
-  // Googleログイン（セッション待機あり）
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
       console.log('ログイン成功:', result.user);
-
-      if (auth.currentUser) {
-        navigate('/toppage');
-      } else {
-        setTimeout(() => {
-          if (auth.currentUser) {
-            navigate('/toppage');
-          } else {
-            alert('ログインセッションが確立されていません。再度お試しください。');
-          }
-        }, 1000);
-      }
-
+      navigate('/toppage');
     } catch (error) {
       console.error('Googleログインエラー:', error);
       alert('Googleログインに失敗しました');

@@ -1,4 +1,3 @@
-// src/components/GachaStageRenderer.js
 import React, { useEffect, useState } from 'react';
 import Lottie from 'lottie-react';
 import stage1 from '../assets/lottie/stage1.json';
@@ -10,51 +9,64 @@ const GachaStageRenderer = ({ onComplete, skip, onSkip }) => {
 
   useEffect(() => {
     if (skip) {
-      onComplete?.(); // スキップ時は即完了
-      return;
+      onComplete();
+    } else {
+      const timers = [
+        setTimeout(() => setStage(2), 2000),
+        setTimeout(() => setStage(3), 4000),
+        setTimeout(() => onComplete(), 6000),
+      ];
+
+      return () => timers.forEach(clearTimeout);
     }
-
-    const timers = [
-      setTimeout(() => setStage(2), 2000),
-      setTimeout(() => setStage(3), 4000),
-      setTimeout(() => {
-        onComplete?.(); // 演出完了後に onComplete 呼び出し
-      }, 6000),
-    ];
-
-    return () => timers.forEach(clearTimeout);
   }, [skip, onComplete]);
 
-  const getAnimation = () => {
+  const renderStage = () => {
     switch (stage) {
       case 1:
-        return stage1;
+        return (
+          <>
+            <Lottie animationData={stage1} className="w-80 h-80" />
+            <p className="text-lg font-bold text-white animate-pulse">召喚陣が現れた…</p>
+          </>
+        );
       case 2:
-        return stage2;
+        return (
+          <>
+            <Lottie animationData={stage2} className="w-80 h-80" />
+            <p className="text-lg font-bold text-white animate-pulse">時の精霊が動き出す…</p>
+          </>
+        );
       case 3:
-        return stage3;
+        return (
+          <>
+            <Lottie animationData={stage3} className="w-80 h-80" />
+            <p className="text-xl font-extrabold text-yellow-300 animate-pulse">
+              「朱雀の加護」が宿る！
+            </p>
+          </>
+        );
       default:
-        return stage1;
+        return null;
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity z-50 flex items-center justify-center flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex flex-col items-center justify-center">
+      {renderStage()}
+
       <button
         onClick={onSkip}
-        className="absolute top-4 right-4 text-white bg-gray-700 hover:bg-red-600 px-3 py-1 rounded"
+        className="absolute top-4 right-6 text-white bg-black bg-opacity-40 px-4 py-1 rounded hover:bg-opacity-60"
       >
-        演出をスキップ
+        スキップ
       </button>
-      <div className="w-72 md:w-96">
-        <Lottie animationData={getAnimation()} loop={false} />
-      </div>
-      <div className="mt-4 text-white text-lg">宝の商人の秘法は貴方に祝福を授けます…</div>
     </div>
   );
 };
 
 export default GachaStageRenderer;
+
 
 
 

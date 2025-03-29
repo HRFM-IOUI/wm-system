@@ -1,62 +1,91 @@
-import { collection, addDoc, getDocs, query, } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  addDoc,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  query,
+  orderBy,
+  limit,
+} from 'firebase/firestore';
 import { db } from '../firebase';
 
-// ✅ 常に100枚保持（プロト用途）
+// 🎯 ガチャアイテムを取得（タイプ別対応）
+export const fetchGachaItems = async (type = 'default') => {
+  const targetCollection = type ? `gachaItems_${type}` : 'gachaItems';
+  const querySnapshot = await getDocs(collection(db, targetCollection));
+  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};
+
+// 🎫 ユーザーのチケット数を取得
 export const fetchUserTicketCount = async (userId) => {
-  console.log('🧾 fetchUserTicketCount:', userId);
-  return 100; // 常に100枚所持として扱う
-};
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
 
-// ✅ チケット消費はスキップ
-export const consumeGachaTickets = async (userId, count) => {
-  console.log('🚫 consumeGachaTickets: スキップ（プロトタイプ）');
-};
-
-// ✅ 仮のガチャアイテムデータ
-export const fetchGachaItems = async () => {
-  const items = [
-    { id: '1', name: 'ゴールドコイン', rarity: 'N', imageUrl: '/sample1.png' },
-    { id: '2', name: 'シルバーソード', rarity: 'R', imageUrl: '/sample2.png' },
-    { id: '3', name: 'マジックスタッフ', rarity: 'SR', imageUrl: '/sample3.png' },
-    { id: '4', name: 'ドラゴンアーマー', rarity: 'SSR', imageUrl: '/sample4.png' },
-  ];
-  return items;
-};
-
-// ✅ ランダム抽選
-export const drawGacha = async (items, count) => {
-  console.log('⚙️ drawGacha called. items:', items);
-  if (!items || items.length === 0) {
-    throw new Error('ガチャアイテムがありません');
+  if (userSnap.exists()) {
+    const data = userSnap.data();
+    return data.tickets || 0;
+  } else {
+    await setDoc(userRef, { tickets: 100 });
+    return 100;
   }
+};
+
+// 🎫 チケット消費
+export const consumeGachaTickets = async (userId, count) => {
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) {
+    const data = userSnap.data();
+    const current = data.tickets || 0;
+
+    if (current < count) throw new Error('チケットが不足しています');
+
+    await updateDoc(userRef, { tickets: current - count });
+  } else {
+    throw new Error('ユーザー情報が存在しません');
+  }
+};
+
+// 🎰 ガチャを回す処理（ランダム抽選）
+export const drawGacha = async (items, count) => {
+  if (!Array.isArray(items) || items.length === 0) return [];
 
   const results = [];
   for (let i = 0; i < count; i++) {
-    const item = items[Math.floor(Math.random() * items.length)];
-    results.push(item);
+    const randomIndex = Math.floor(Math.random() * items.length);
+    results.push(items[randomIndex]);
   }
   return results;
 };
 
-// ✅ Firestoreに結果保存
+// 📦 ガチャ結果を保存
 export const saveGachaResult = async (userId, results) => {
-  const historyRef = collection(db, `gachaResults/${userId}/history`);
-  await addDoc(historyRef, {
-    timestamp: new Date(),
+  const timestamp = new Date();
+
+  const historyCollection = collection(db, `gachaResults/${userId}/history`);
+  await addDoc(historyCollection, {
     results,
+    timestamp,
   });
 };
 
-// ✅ 履歴取得（マイページ用）
-export const getGachaHistory = async (userId) => {
-  const q = query(collection(db, `gachaResults/${userId}/history`));
+// 📖 ガチャ履歴を取得（最大 maxItems 件）
+export const getGachaHistory = async (userId, maxItems = 10) => {
+  const historyRef = collection(db, `gachaResults/${userId}/history`);
+  const q = query(historyRef, orderBy('timestamp', 'desc'), limit(maxItems));
   const querySnapshot = await getDocs(q);
-  const history = [];
-  querySnapshot.forEach((doc) => {
-    history.push({ id: doc.id, ...doc.data() });
-  });
-  return history;
+  return querySnapshot.docs.map(doc => doc.data());
 };
+
+
+
+
+
+
 
 
 

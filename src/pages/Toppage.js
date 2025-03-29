@@ -27,7 +27,6 @@ const Toppage = () => {
         video: "https://cdn.coverr.co/videos/coverr-tokyo-nightlife-1612/1080p.mp4",
         isPublic: true,
       },
-      // 必要に応じて追加
     ];
 
     const combinedPosts = [...localPosts, ...dummyPosts];
@@ -55,42 +54,38 @@ const Toppage = () => {
     const options = {
       threshold: 0.6,
     };
-  
+
     const handlePlayOnView = (entries) => {
+      const snapshot = [...videoRefs.current]; // 安全コピー
       entries.forEach((entry) => {
         const video = entry.target;
         if (entry.isIntersecting) {
-          videoRefSnapshot.forEach((v) => {
-            if (v !== video) {
-              v.pause();
-            }
+          snapshot.forEach((v) => {
+            if (v && v !== video) v.pause(); // null ガード付き
           });
-          video.play().catch((e) => console.error('再生エラー:', e));
+          video?.play().catch((e) => console.error('再生エラー:', e));
         } else {
-          video.pause();
+          video?.pause();
         }
       });
     };
-  
-    const videoRefSnapshot = [...videoRefs.current]; // ← ローカルに複製！
-  
+
+    const snapshot = [...videoRefs.current];
     const videoObserver = new IntersectionObserver(handlePlayOnView, options);
-  
-    videoRefSnapshot.forEach((video) => {
+
+    snapshot.forEach((video) => {
       if (video) videoObserver.observe(video);
     });
-  
+
     return () => {
-      videoRefSnapshot.forEach((video) => {
+      snapshot.forEach((video) => {
         if (video) videoObserver.unobserve(video);
       });
     };
   }, [visiblePosts]);
-  
 
   return (
     <div className="flex flex-col md:flex-row w-full min-h-screen bg-gray-50 text-black">
-      {/* 左サイドバー */}
       <aside className="hidden md:block md:w-1/5 p-4 bg-white shadow h-screen sticky top-0">
         <nav className="flex flex-col gap-4">
           <Link to="/toppage" className="font-semibold hover:underline">ホーム</Link>
@@ -100,7 +95,6 @@ const Toppage = () => {
         </nav>
       </aside>
 
-      {/* メイン */}
       <main className="flex-1 p-4 space-y-8">
         {visiblePosts.map((post, index) => (
           <div
@@ -126,7 +120,6 @@ const Toppage = () => {
         ))}
       </main>
 
-      {/* 右サイドバー */}
       <aside className="hidden md:block md:w-1/5 p-4 bg-white shadow h-screen sticky top-0">
         <h3 className="font-bold mb-2">おすすめ</h3>
         <ul className="text-sm space-y-2">
@@ -136,7 +129,6 @@ const Toppage = () => {
         </ul>
       </aside>
 
-      {/* ガチャ導線 */}
       <Link
         to="/gacha"
         className="fixed bottom-20 right-5 bg-gradient-to-r from-pink-500 to-red-500 text-white px-4 py-2 rounded-full shadow-lg hover:scale-105 transition-transform z-50"
@@ -144,7 +136,6 @@ const Toppage = () => {
         ガチャ
       </Link>
 
-      {/* モバイル固定フッター */}
       <footer className="md:hidden fixed bottom-0 w-full bg-white shadow-md flex justify-around py-2 border-t z-40 text-xs">
         <Link to="/toppage" className="flex flex-col items-center">
           <svg className="w-5 h-5 mb-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2L2 9h2v9h5v-6h2v6h5V9h2L10 2z" /></svg>
@@ -168,5 +159,6 @@ const Toppage = () => {
 };
 
 export default Toppage;
+
 
 
