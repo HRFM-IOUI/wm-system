@@ -88,13 +88,13 @@ const Gacha = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-black overflow-hidden">
+    <div className="relative min-h-screen w-full bg-white overflow-hidden">
       <div className="absolute inset-0 z-0 animated-background"></div>
       <GachaHeader />
       <GachaStatusOverlay />
 
       <div className="relative z-10 flex flex-col items-center justify-start pt-24 space-y-4">
-        <div className="text-white">🎫 残りチケット: {ticketCount}</div>
+        <div className="text-black">🎫 残りチケット: {ticketCount}</div>
         <div className="flex gap-4">
           <button
             className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded shadow"

@@ -39,17 +39,17 @@ const GachaStageRenderer = ({ onComplete, skip, onSkip }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity z-50 flex items-center justify-center flex-col">
       <button
         onClick={onSkip}
         className="absolute top-4 right-4 text-white bg-gray-700 hover:bg-red-600 px-3 py-1 rounded"
       >
-        スキップ
+        演出をスキップ
       </button>
       <div className="w-72 md:w-96">
         <Lottie animationData={getAnimation()} loop={false} />
       </div>
-      <div className="mt-4 text-white text-lg">演出中…</div>
+      <div className="mt-4 text-white text-lg">宝の商人の秘法は貴方に祝福を授けます…</div>
     </div>
   );
 };
