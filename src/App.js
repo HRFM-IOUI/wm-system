@@ -1,5 +1,8 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from './firebase';
+
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Toppage from './pages/Toppage';
@@ -12,23 +15,37 @@ import Lounge from './pages/Lounge';
 import Subscribe from './pages/Subscribe';
 import TicketShop from './pages/TicketShop';
 
+// 認証ガード付きのルート
+const ProtectedRoute = ({ element }) => {
+  const [user, loading] = useAuthState(auth);
+  if (loading) return null;
+  return user ? element : <Navigate to="/" />;
+};
+
 function App() {
   return (
     <Routes>
+      {/* パブリックルート */}
       <Route path="/" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-      <Route path="/toppage" element={<Toppage />} />
-      <Route path="/gacha" element={<Gacha />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/mypage" element={<Mypage />} />
-      <Route path="/post" element={<Post />} />
-      <Route path="/search" element={<Search />} />
-      <Route path="/lounge" element={<Lounge />} />
-      <Route path="/subscribe" element={<Subscribe />} />
-      <Route path="/ticket-shop" element={<TicketShop />} />
+
+      {/* 認証が必要なページ */}
+      <Route path="/toppage" element={<ProtectedRoute element={<Toppage />} />} />
+      <Route path="/gacha" element={<ProtectedRoute element={<Gacha />} />} />
+      <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
+      <Route path="/mypage" element={<ProtectedRoute element={<Mypage />} />} />
+      <Route path="/post" element={<ProtectedRoute element={<Post />} />} />
+      <Route path="/search" element={<ProtectedRoute element={<Search />} />} />
+      <Route path="/lounge" element={<ProtectedRoute element={<Lounge />} />} />
+      <Route path="/subscribe" element={<ProtectedRoute element={<Subscribe />} />} />
+      <Route path="/ticket-shop" element={<ProtectedRoute element={<TicketShop />} />} />
+
+      {/* 万一不明ルートに飛んだとき */}
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }
 
 export default App;
+
 
