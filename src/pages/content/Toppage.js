@@ -1,5 +1,3 @@
-// 完全ブラッシュアップ対応済み Toppage.js
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../../firebase';
@@ -60,7 +58,7 @@ const Toppage = () => {
     };
 
     const observer = new IntersectionObserver(callback, options);
-    videoRefs.current.forEach(video => video && observer.observe(video));
+    videoRefs.current.forEach((video) => video && observer.observe(video));
 
     return () => observer.disconnect();
   }, [visiblePosts]);
@@ -101,17 +99,18 @@ const Toppage = () => {
         ))}
       </main>
 
-      <footer className="md:hidden fixed bottom-0 w-full bg-white shadow-md flex justify-around py-2 border-t z-60 text-sm">
-        <Link to="/toppage" className="flex flex-col items-center">ホーム</Link>
-        <Link to="/search" className="flex flex-col items-center">検索</Link>
-        <Link to="/mypage" className="flex flex-col items-center">マイページ</Link>
-        <Link to="/gacha-select" className="flex flex-col items-center">ガチャ</Link>
+      <footer className="md:hidden fixed bottom-0 w-full bg-white shadow-md flex justify-around py-4 border-t z-60 text-lg">
+        <Link to="/toppage" className="flex flex-col items-center text-lg">ホーム</Link>
+        <Link to="/search" className="flex flex-col items-center text-lg">検索</Link>
+        <Link to="/mypage" className="flex flex-col items-center text-lg">マイページ</Link>
+        <Link to="/gacha-select" className="flex flex-col items-center text-lg">ガチャ</Link>
       </footer>
     </div>
   );
 };
 
 export default Toppage;
+
 
 
 
