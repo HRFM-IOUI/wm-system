@@ -101,7 +101,7 @@ const Toppage = () => {
         ))}
       </main>
 
-      <footer className="md:hidden fixed bottom-0 w-full bg-white shadow-md flex justify-around py-2 border-t z-40 text-xs">
+      <footer className="md:hidden fixed bottom-0 w-full bg-white shadow-md flex justify-around py-2 border-t z-60 text-sm">
         <Link to="/toppage" className="flex flex-col items-center">ホーム</Link>
         <Link to="/search" className="flex flex-col items-center">検索</Link>
         <Link to="/mypage" className="flex flex-col items-center">マイページ</Link>
