@@ -1,11 +1,15 @@
+// src/components/video/VideoUploader.js
 import React, { useState } from "react";
-import { uploadVideoToBunny } from "../../utils/bunnyUtils";
+import { uploadVideoToBunny, checkVideoStatus } from "../../utils/bunnyUtils";
 import { db } from "../../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const VideoUploader = ({ ownerId }) => {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
+  const [tags, setTags] = useState("");
+  const [category, setCategory] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -15,23 +19,54 @@ const VideoUploader = ({ ownerId }) => {
       return;
     }
 
+    if (!process.env.REACT_APP_BUNNY_CDN_HOST) {
+      console.error("環境変数 REACT_APP_BUNNY_CDN_HOST が定義されていません。");
+      setMessage("CDN設定が正しくありません。管理者に連絡してください。");
+      return;
+    }
+
     setUploading(true);
     setMessage("アップロード中...");
 
     try {
-      const { videoId, playbackUrl } = await uploadVideoToBunny(file, title);
+      const { videoId } = await uploadVideoToBunny(file, title);
+
+      setMessage("エンコード確認中...");
+      let status = null;
+      for (let i = 0; i < 10; i++) {
+        await new Promise((res) => setTimeout(res, 3000));
+        const check = await checkVideoStatus(videoId);
+        if (check?.encodeProgress === 100 && check?.thumbnailFileName) {
+          status = check;
+          break;
+        }
+      }
+
+      if (!status || status.encodeProgress < 100) {
+        throw new Error("エンコードが完了しませんでした");
+      }
+
+      const playbackUrl = `https://${process.env.REACT_APP_BUNNY_CDN_HOST}/${videoId}/playlist.m3u8`;
+      const thumbnailUrl = `https://${process.env.REACT_APP_BUNNY_CDN_HOST}/${videoId}/thumbnails/${status.thumbnailFileName}`;
 
       await addDoc(collection(db, "videos"), {
         ownerId,
         title,
+        tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
+        category,
+        isPrivate,
         videoId,
         playbackUrl,
+        thumbnailUrl,
         createdAt: serverTimestamp(),
       });
 
-      setMessage("アップロード成功！");
+      setMessage("アップロード完了！");
       setFile(null);
       setTitle("");
+      setTags("");
+      setCategory("");
+      setIsPrivate(false);
     } catch (error) {
       console.error("アップロード失敗:", error);
       setMessage("アップロード失敗");
@@ -41,21 +76,43 @@ const VideoUploader = ({ ownerId }) => {
   };
 
   return (
-    <div className="p-4 border rounded-xl shadow-md bg-white">
-      <h2 className="text-lg font-bold mb-2">動画アップロード</h2>
+    <div className="p-4 border rounded-xl shadow-md bg-white space-y-3">
+      <h2 className="text-lg font-bold">動画アップロード</h2>
       <input
         type="text"
         placeholder="タイトル"
-        className="w-full p-2 mb-2 border rounded"
+        className="w-full p-2 border rounded"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
       <input
         type="file"
-        accept="video/mp4"
+        accept="video/mp4,video/mov"
         onChange={(e) => setFile(e.target.files[0])}
-        className="mb-2"
+        className="w-full"
       />
+      <input
+        type="text"
+        placeholder="タグ（カンマ区切り）"
+        className="w-full p-2 border rounded"
+        value={tags}
+        onChange={(e) => setTags(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="カテゴリ"
+        className="w-full p-2 border rounded"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+      />
+      <label className="flex items-center space-x-2">
+        <input
+          type="checkbox"
+          checked={isPrivate}
+          onChange={(e) => setIsPrivate(e.target.checked)}
+        />
+        <span>非公開（自分のみ視聴可）</span>
+      </label>
       <button
         onClick={handleUpload}
         disabled={uploading}
@@ -63,10 +120,16 @@ const VideoUploader = ({ ownerId }) => {
       >
         {uploading ? "アップロード中..." : "アップロード"}
       </button>
-      {message && <p className="mt-2 text-sm text-gray-700">{message}</p>}
+      {message && <p className="text-sm mt-2 text-gray-700">{message}</p>}
     </div>
   );
 };
 
 export default VideoUploader;
+
+
+
+
+
+
 

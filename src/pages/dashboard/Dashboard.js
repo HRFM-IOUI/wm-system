@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import ProductPost from '../../components/common/ProductPost';
-import VideoUploader from '../../components/video/VideoUploader';
-import VideoPlayer from '../../components/video/VideoPlayer';
-import { Bar } from 'react-chartjs-2';
+// src/pages/Dashboard.js
+import React, { useState, useEffect } from "react";
+import ProductPost from "../../components/common/ProductPost";
+import VideoUploader from "../../components/video/VideoUploader";
+import VideoPlayer from "../../components/video/VideoPlayer";
+import { deleteVideoFromBunny } from "../../utils/bunnyUtils";
+import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,58 +12,138 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend
-} from 'chart.js';
-import { db } from '../../firebase';
-import { collection, getDocs } from 'firebase/firestore';
+  Legend,
+} from "chart.js";
+import { db } from "../../firebase";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc,
+  query,
+  where,
+  serverTimestamp,
+} from "firebase/firestore";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../firebase";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('posts');
+  const [activeTab, setActiveTab] = useState("posts");
   const [videoList, setVideoList] = useState([]);
+  const [withdrawableAmount, setWithdrawableAmount] = useState(0);
+  const [requesting, setRequesting] = useState(false);
+  const [withdrawStatus, setWithdrawStatus] = useState("");
+  const [chartData, setChartData] = useState({ labels: [], datasets: [] });
+  const [user] = useAuthState(auth);
 
   const dummyPosts = [
-    { id: 1, title: '初めての投稿', type: '動画', sales: 12, revenue: 3600 },
-    { id: 2, title: '2作目のコンテンツ', type: '画像', sales: 8, revenue: 2400 },
+    { id: 1, title: "初めての投稿", type: "動画", sales: 12, revenue: 3600 },
+    { id: 2, title: "2作目のコンテンツ", type: "画像", sales: 8, revenue: 2400 },
   ];
 
-  const chartData = {
-    labels: ['1月', '2月', '3月', '4月'],
-    datasets: [
-      {
-        label: '売上 (¥)',
-        data: [12000, 19000, 3000, 5000],
-        backgroundColor: 'rgba(236, 72, 153, 0.6)',
-      },
-    ],
+  const fetchVideos = async () => {
+    const querySnapshot = await getDocs(collection(db, "videos"));
+    const videos = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    setVideoList(videos);
   };
 
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: { position: 'top' },
-      title: { display: true, text: '月別売上推移' },
-    },
+  const handleDeleteVideo = async (video) => {
+    try {
+      if (!window.confirm("本当に削除しますか？")) return;
+      await deleteDoc(doc(db, "videos", video.id));
+      await deleteVideoFromBunny(video.videoId);
+      await fetchVideos();
+    } catch (err) {
+      console.error("動画削除エラー:", err);
+      alert("削除に失敗しました");
+    }
   };
 
   useEffect(() => {
-    if (activeTab === 'video') {
-      const fetchVideos = async () => {
-        const querySnapshot = await getDocs(collection(db, 'videos'));
-        const videos = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setVideoList(videos);
-      };
+    if (activeTab === "video") {
       fetchVideos();
     }
   }, [activeTab]);
 
+  useEffect(() => {
+    const fetchWithdrawableAmount = async () => {
+      if (!user) return;
+      const snapshot = await getDocs(
+        query(collection(db, "orders"), where("ownerId", "==", user.uid), where("status", "==", "paid"))
+      );
+      const total = snapshot.docs.reduce((sum, doc) => sum + (doc.data().amount || 0), 0);
+      setWithdrawableAmount(total);
+    };
+    fetchWithdrawableAmount();
+  }, [user]);
+
+  useEffect(() => {
+    const fetchChartData = async () => {
+      if (!user) return;
+      const snapshot = await getDocs(
+        query(collection(db, "orders"), where("ownerId", "==", user.uid), where("status", "==", "paid"))
+      );
+
+      const monthlyTotal = {};
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        const ts = data.createdAt?.toDate();
+        if (!ts || isNaN(ts)) return;
+        const monthKey = `${ts.getFullYear()}年${ts.getMonth() + 1}月`;
+        if (!monthlyTotal[monthKey]) monthlyTotal[monthKey] = 0;
+        monthlyTotal[monthKey] += data.amount || 0;
+      });
+
+      const sortedKeys = Object.keys(monthlyTotal).sort((a, b) => {
+        const getNum = (k) => parseInt(k.replace(/[^0-9]/g, ""), 10);
+        return getNum(a) - getNum(b);
+      });
+
+      setChartData({
+        labels: sortedKeys,
+        datasets: [
+          {
+            label: "売上合計 (¥)",
+            data: sortedKeys.map(key => monthlyTotal[key]),
+            backgroundColor: "rgba(236, 72, 153, 0.6)",
+          },
+        ],
+      });
+    };
+    if (activeTab === "analytics") {
+      fetchChartData();
+    }
+  }, [activeTab, user]);
+
+  const handleWithdrawRequest = async () => {
+    if (!user || withdrawableAmount === 0) return;
+    try {
+      setRequesting(true);
+      await addDoc(collection(db, "withdrawRequests"), {
+        ownerId: user.uid,
+        amount: withdrawableAmount,
+        requestedAt: serverTimestamp(),
+        status: "pending",
+      });
+      setWithdrawStatus("申請を受け付けました。");
+      setWithdrawableAmount(0);
+    } catch (error) {
+      console.error("出金申請エラー:", error);
+      setWithdrawStatus("出金申請に失敗しました。");
+    } finally {
+      setRequesting(false);
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
-      case 'posts':
+      case "posts":
         return (
           <div className="space-y-4">
-            {dummyPosts.map(post => (
+            {dummyPosts.map((post) => (
               <div key={post.id} className="border rounded p-4 shadow-sm bg-white">
                 <h3 className="text-lg font-bold">{post.title}</h3>
                 <p className="text-sm text-gray-600">{post.type}</p>
@@ -73,33 +155,45 @@ const Dashboard = () => {
             ))}
           </div>
         );
-      case 'product':
+      case "product":
         return <ProductPost />;
-      case 'withdraw':
+      case "withdraw":
         return (
-          <div className="bg-white p-4 rounded shadow">
-            <p className="mb-2">現在の出金可能額:</p>
-            <h3 className="text-2xl font-bold text-pink-600 mb-4">¥12,400</h3>
-            <button className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 transition">
-              出金申請する
+          <div className="bg-white p-4 rounded shadow space-y-4">
+            <p className="text-lg font-bold">現在の出金可能額:</p>
+            <h3 className="text-2xl font-bold text-pink-600">¥{withdrawableAmount}</h3>
+            <button
+              onClick={handleWithdrawRequest}
+              disabled={withdrawableAmount === 0 || requesting}
+              className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 transition"
+            >
+              {requesting ? "申請中..." : "出金申請する"}
             </button>
+            {withdrawStatus && <p className="text-sm text-gray-700">{withdrawStatus}</p>}
           </div>
         );
-      case 'analytics':
+      case "analytics":
         return (
           <div className="bg-white p-4 rounded shadow">
-            <Bar data={chartData} options={chartOptions} />
+            <h2 className="text-lg font-bold mb-4">月別売上推移</h2>
+            <Bar data={chartData} options={{ responsive: true, plugins: { legend: { position: "top" }, title: { display: true, text: "月別売上推移" } } }} />
           </div>
         );
-      case 'video':
+      case "video":
         return (
           <div className="space-y-6">
-            <VideoUploader ownerId="dummyOwnerId" />
+            <VideoUploader ownerId={user?.uid || "unknown"} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {videoList.map(video => (
+              {videoList.map((video) => (
                 <div key={video.id} className="bg-white p-4 rounded shadow">
                   <h3 className="font-bold text-lg">{video.title}</h3>
                   <VideoPlayer playbackUrl={video.playbackUrl} />
+                  <button
+                    onClick={() => handleDeleteVideo(video)}
+                    className="mt-2 text-sm text-red-600 hover:underline"
+                  >
+                    この動画を削除
+                  </button>
                 </div>
               ))}
             </div>
@@ -112,32 +206,34 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
-      {/* 左タブ */}
       <aside className="w-full md:w-1/4 bg-white shadow p-4 space-y-4">
         <h2 className="text-xl font-bold mb-4">ダッシュボード</h2>
-        <button onClick={() => setActiveTab('posts')} className={`block w-full text-left px-4 py-2 rounded ${activeTab === 'posts' ? 'bg-pink-500 text-white' : 'hover:bg-gray-100'}`}>
-          投稿管理
-        </button>
-        <button onClick={() => setActiveTab('product')} className={`block w-full text-left px-4 py-2 rounded ${activeTab === 'product' ? 'bg-pink-500 text-white' : 'hover:bg-gray-100'}`}>
-          商品出品
-        </button>
-        <button onClick={() => setActiveTab('withdraw')} className={`block w-full text-left px-4 py-2 rounded ${activeTab === 'withdraw' ? 'bg-pink-500 text-white' : 'hover:bg-gray-100'}`}>
-          出金管理
-        </button>
-        <button onClick={() => setActiveTab('analytics')} className={`block w-full text-left px-4 py-2 rounded ${activeTab === 'analytics' ? 'bg-pink-500 text-white' : 'hover:bg-gray-100'}`}>
-          アナリティクス
-        </button>
-        <button onClick={() => setActiveTab('video')} className={`block w-full text-left px-4 py-2 rounded ${activeTab === 'video' ? 'bg-pink-500 text-white' : 'hover:bg-gray-100'}`}>
-          動画投稿
-        </button>
+        {["posts", "product", "withdraw", "analytics", "video"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`block w-full text-left px-4 py-2 rounded ${
+              activeTab === tab ? "bg-pink-500 text-white" : "hover:bg-gray-100"
+            }`}
+          >
+            {{
+              posts: "投稿管理",
+              product: "商品出品",
+              withdraw: "出金管理",
+              analytics: "アナリティクス",
+              video: "動画投稿",
+            }[tab]}
+          </button>
+        ))}
       </aside>
-
-      {/* メイン表示エリア */}
-      <main className="flex-1 p-6">
-        {renderContent()}
-      </main>
+      <main className="flex-1 p-6">{renderContent()}</main>
     </div>
   );
 };
 
 export default Dashboard;
+
+
+
+
+
