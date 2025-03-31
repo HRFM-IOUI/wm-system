@@ -22,7 +22,7 @@ const Toppage = () => {
   const tabItems = [
     { key: 'video', label: 'メディア' },
     { key: 'goods', label: 'グッズ' },
-    { key: 'gacha', label: 'ガチャ' },
+    { key: 'gacha', label: 'ガチャ', recommended: true },
   ];
 
   useEffect(() => {
@@ -115,19 +115,25 @@ const Toppage = () => {
         <MenuPanel />
 
         {/* タブ切り替え - X風スタイル */}
-        <div className="flex border-b border-gray-300 mb-4">
+        <div className="flex border-b border-gray-300 mb-4 relative">
           {tabItems.map(tab => (
-            <button
-              key={tab.key}
-              className={`flex-1 pb-2 text-sm font-medium text-center border-b-2 transition-all duration-200 ease-in-out ${
-                activeTab === tab.key
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-blue-600 hover:border-blue-300'
-              }`}
-              onClick={() => setActiveTab(tab.key)}
-            >
-              {tab.label}
-            </button>
+            <div key={tab.key} className="relative flex-1">
+              <button
+                className={`w-full pb-2 text-sm font-medium text-center border-b-2 transition-all duration-200 ease-in-out ${
+                  activeTab === tab.key
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-blue-600 hover:border-blue-300'
+                }`}
+                onClick={() => setActiveTab(tab.key)}
+              >
+                {tab.label}
+              </button>
+              {tab.recommended && (
+                <span className="absolute -top-2 right-4 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full shadow-md animate-bounce z-10">
+                  オススメ！
+                </span>
+              )}
+            </div>
           ))}
         </div>
 
@@ -142,6 +148,7 @@ const Toppage = () => {
 };
 
 export default Toppage;
+
 
 
 
