@@ -111,7 +111,7 @@ const Toppage = () => {
         <SidebarLeft />
       </aside>
 
-      <main className="flex-1 p-4 space-y-4 overflow-y-auto">
+      <main className="flex-1 p-4 space-y-4 overflow-y-auto pb-16">
         <MenuPanel />
 
         {/* タブ切り替え - X風スタイル */}
