@@ -1,10 +1,14 @@
+// src/pages/content/Toppage.js
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+
 import { db } from '../../firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import VideoPlayer from '../../components/video/VideoPlayer';
 import ReactionButtons from '../../components/common/ReactionButtons';
 import CommentSection from '../../components/common/CommentSection';
+import SidebarLeft from '../../components/common/SidebarLeft';
+import SidebarRight from '../../components/common/SidebarRight';
+import MenuPanel from '../../components/common/MenuPanel';
 
 const Toppage = () => {
   const [posts, setPosts] = useState([]);
@@ -19,7 +23,6 @@ const Toppage = () => {
       const q = query(collection(db, 'videos'), orderBy('createdAt', 'desc'));
       const snapshot = await getDocs(q);
       const fetched = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
       setPosts(fetched);
       setVisiblePosts(fetched.slice(0, 5));
     };
@@ -56,25 +59,19 @@ const Toppage = () => {
         }
       });
     };
-
     const observer = new IntersectionObserver(callback, options);
-    videoRefs.current.forEach((video) => video && observer.observe(video));
-
+    videoRefs.current.forEach(video => video && observer.observe(video));
     return () => observer.disconnect();
   }, [visiblePosts]);
 
   return (
-    <div className="flex flex-col md:flex-row w-full min-h-screen bg-gray-50 text-black">
+    <div className="flex w-full min-h-screen bg-gray-50 text-black">
       <aside className="hidden md:block md:w-1/5 p-4 bg-white shadow h-screen sticky top-0">
-        <nav className="flex flex-col gap-4">
-          <Link to="/toppage" className="font-semibold hover:underline">ホーム</Link>
-          <Link to="/search" className="hover:underline">検索</Link>
-          <Link to="/mypage" className="hover:underline">マイページ</Link>
-          <Link to="/gacha-select" className="hover:underline">ガチャ</Link>
-        </nav>
+        <SidebarLeft />
       </aside>
 
-      <main className="flex-1 p-4 space-y-8">
+      <main className="flex-1 p-4 space-y-8 overflow-y-auto">
+        <MenuPanel />
         {visiblePosts.map((post, index) => (
           <div
             key={post.id}
@@ -99,17 +96,16 @@ const Toppage = () => {
         ))}
       </main>
 
-      <footer className="md:hidden fixed bottom-0 w-full bg-white shadow-md flex justify-around py-4 border-t z-60 text-lg">
-        <Link to="/toppage" className="flex flex-col items-center text-lg">ホーム</Link>
-        <Link to="/search" className="flex flex-col items-center text-lg">検索</Link>
-        <Link to="/mypage" className="flex flex-col items-center text-lg">マイページ</Link>
-        <Link to="/gacha-select" className="flex flex-col items-center text-lg">ガチャ</Link>
-      </footer>
+      <aside className="hidden lg:block lg:w-1/5 p-4 bg-white shadow h-screen sticky top-0">
+        <SidebarRight />
+      </aside>
     </div>
   );
 };
 
 export default Toppage;
+
+
 
 
 

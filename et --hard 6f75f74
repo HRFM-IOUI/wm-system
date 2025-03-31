@@ -1,0 +1,46 @@
+[33m0cb02bf[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m ver1.0
+[33m134fa74[m ver1.0
+[33m6f75f74[m ver1.0
+[33maa22202[m ver1.0
+[33m5dd1dd7[m ver1.2
+[33m14d756a[m ver1.1
+[33m1969592[m ver1.1
+[33md61bd83[m ver1.0
+[33m99da010[m verup
+[33m9de2299[m verup
+[33mc5077a4[m verup
+[33m50680cc[m verup1.0
+[33m9d3d3ba[m verup
+[33m5874f0f[m verup
+[33mc0de6d5[m ガチャアプデ
+[33mbd61675[m ガチャ更新
+[33m7bc5714[m aAfix
+[33m59e9391[m fix ipa
+[33m5b1d9e5[m Trigger rebuild: Google login fix
+[33m200972d[m Fix: build-pass guaranteed version of ProductPost and Gacha
+[33ma01fb43[m Fix: remove unused variables to fix build error
+[33mca2cfbc[m Gacha UI update
+[33mad1809a[m Gacha UI update
+[33mce9e5de[m Gacha UI update
+[33mc10a130[m fix: build script corrected for Cloudflare
+[33m343fecd[m fix: 投稿管理タブに仮表示を追加
+[33m652e479[m fix: Cloudflare Pages用CIビルド設定修正
+[33m056033f[m fix: Cloudflare Pages用CIビルド設定修正
+[33m598e916[m fix: 投稿機能・出品UI・Toppageモバイル対応の統合
+[33mbb19152[m fix: ReactionButtons追加 & warning修正
+[33m1f799d3[m fix: Dashboard.js完全構文＆全機能修正
+[33m146f6a5[m fix: Dashboard.js完全構文＆全機能修正
+[33m7cab3e7[m fix: useCallbackでCloudflare対応
+[33m2113f27[m 投稿機能追加、Toppage更新
+[33m7eb68bd[m Update all files for Tailwind-styled lounge
+[33mb152ae8[m Update build for deploy
+[33m66b0a71[m Add lounge design
+[33mfb6fea7[m Fix: install react-router-dom
+[33m0caa627[m LoungeページをReactで作成
+[33m0d89258[m Force include build output after pull
+[33m12f3318[m Update config.json
+[33ma2e6169[m Fix: enforce Create React App framework via config.json
+[33m2448d60[m Add Cloudflare Pages explicit configuration (CRA)
+[33mf886f86[m Force Cloudflare framework detection to none via _config.yml
+[33m1d0aacd[m Force framework preset to none
+[33mf77579e[m Initialize project using Create React App

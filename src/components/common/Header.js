@@ -1,41 +1,47 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth, db } from "../../firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 const Header = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [user] = useAuthState(auth);
+  const [isOwner, setIsOwner] = useState(false);
+
+  useEffect(() => {
+    const checkOwnerStatus = async () => {
+      if (user) {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        setIsOwner(docSnap.exists() && docSnap.data().isOwner === true);
+      }
+    };
+
+    checkOwnerStatus();
+  }, [user]);
 
   return (
-    <header className="bg-white shadow-md fixed w-full top-0 left-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/lounge" className="text-xl font-bold text-pink-600">
-          TOAラウンジ
-        </Link>
-        <div className="md:hidden">
-          <button onClick={() => setIsOpen(!isOpen)}>
-            {isOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
-        </div>
-        <nav className="hidden md:flex space-x-6">
-          <Link to="/login" className="hover:text-pink-600 transition">ログイン</Link>
-          <Link to="/subscribe" className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-xl transition">入会</Link>
-        </nav>
-      </div>
+    <header className="bg-white shadow px-4 py-2 flex justify-between items-center">
+      <Link to="/" className="text-xl font-bold">Toa Fans Shop</Link>
+      <nav className="space-x-4">
+        <Link to="/toppage">ホーム</Link>
+        <Link to="/mypage">マイページ</Link>
+        <Link to="/gacha-select">ガチャ</Link>
+        <Link to="/lounge">ラウンジ</Link>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.nav
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="md:hidden bg-white shadow-md px-4 pt-2 pb-4 space-y-3"
-          >
-            <Link to="/login" className="block text-gray-700 hover:text-pink-600" onClick={() => setIsOpen(false)}>ログイン</Link>
-            <Link to="/subscribe" className="block text-pink-600 font-semibold" onClick={() => setIsOpen(false)}>入会</Link>
-          </motion.nav>
+        {isOwner && (
+          <>
+            <Link to="/dashboard">管理</Link>
+            <Link to="/post">投稿管理</Link>
+          </>
         )}
-      </AnimatePresence>
+
+        {user ? (
+          <button onClick={() => auth.signOut()}>ログアウト</button>
+        ) : (
+          <Link to="/login">ログイン</Link>
+        )}
+      </nav>
     </header>
   );
 };
