@@ -5,6 +5,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import OwnerRoute from './components/common/OwnerRoute';
 import Header from './components/common/Header';
+import HeaderMobile from './components/common/HeaderMobile'; // ★ 追加
 
 // 認証ページ
 import Login from './pages/auth/Login';
@@ -32,7 +33,14 @@ function App() {
 
   return (
     <>
-      {!shouldHideHeader && <Header />}
+      {!shouldHideHeader && (
+        <>
+          <div className="hidden md:block">
+            <Header />
+          </div>
+          <HeaderMobile /> {/* ★ モバイル用追尾ヘッダー */}
+        </>
+      )}
 
       <Routes>
         {/* 公開ページ */}
@@ -63,6 +71,7 @@ function App() {
 }
 
 export default App;
+
 
 
 
