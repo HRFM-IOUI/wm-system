@@ -1,7 +1,7 @@
 // src/components/common/HeaderMobile.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Bell, Search } from 'lucide-react';
+import { Bell, Search } from 'lucide-react'; // ← Home を削除
 
 const HeaderMobile = () => {
   const navigate = useNavigate();
@@ -20,3 +20,4 @@ const HeaderMobile = () => {
 };
 
 export default HeaderMobile;
+
