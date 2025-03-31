@@ -1,27 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../../firebase';
+import { auth, db } from '../../firebase';
 import { getGachaHistory } from '../../utils/gachaUtils';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { doc, getDoc } from 'firebase/firestore';
 
 const Mypage = () => {
   const [user] = useAuthState(auth);
   const navigate = useNavigate();
   const [history, setHistory] = useState([]);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     if (!user) return navigate('/login');
 
-    const fetchHistory = async () => {
+    const fetchData = async () => {
       try {
         const results = await getGachaHistory(user.uid);
         setHistory(results);
+
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        console.log("ユーザードキュメント:", docSnap.data());
+        if (docSnap.exists() && docSnap.data().isOwner) {
+          setIsOwner(true);
+        }
       } catch (err) {
-        console.error('履歴取得エラー:', err);
+        console.error('データ取得エラー:', err);
       }
     };
 
-    fetchHistory();
+    fetchData();
   }, [user, navigate]);
 
   return (
@@ -34,6 +43,14 @@ const Mypage = () => {
           <div className="space-y-2">
             <p><strong>表示名:</strong> {user.displayName || '名無しユーザー'}</p>
             <p><strong>メール:</strong> {user.email}</p>
+
+            {isOwner && (
+              <div className="mt-4">
+                <Link to="/dashboard" className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                  管理画面へ
+                </Link>
+              </div>
+            )}
           </div>
         ) : (
           <p>ログイン情報が取得できませんでした。</p>
@@ -75,4 +92,5 @@ const Mypage = () => {
 };
 
 export default Mypage;
+
 

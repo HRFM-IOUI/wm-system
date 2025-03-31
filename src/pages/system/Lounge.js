@@ -26,7 +26,7 @@ const Lounge = () => {
             playsInline
           />
           <div className="relative z-10 text-center text-white px-4">
-            <h5 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">TOA-FANS.SHOPは、クリエイターTOAが提供するエンタメプロジェクトを、メンバーと一緒に作り、共有する、会員制オンラインサロンです。</h5>
+            <h6 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">TOA-FANS.SHOPは、クリエイターTOAが提供するエンタメプロジェクトを、メンバーと一緒に楽しめる会員制オンラインサロンです。</h6>
             <p className="text-lg md:text-xl mb-6 drop-shadow-md">※クライアントが絡む公開前のプロジェクトをたくさん抱えておりますので、サロンの内容は秘密厳守とさせていただきます。 上記ルールをお守り頂けない場合は法的処置をとらせていただくことがございます。ご容赦ください。</p>
             <Link
               to="/signup"
