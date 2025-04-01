@@ -6,12 +6,12 @@ const MenuPanel = () => {
   const location = useLocation();
 
   const menuItems = [
-    { label: "ご利用ガイド仮", path: "/guide-temp", icon: PlaySquare },
-    { label: "グッズ仮", path: "/goods-temp", icon: Package },
+    { label: "動画", path: "/guide-temp", icon: PlaySquare },
+    { label: "グッズ", path: "/goods-temp", icon: Package },
     { label: "ガチャ", path: "/gacha-select", icon: Gift, recommended: true },
     { label: "マイページ", path: "/mypage", icon: User },
     { label: "チケット", path: "/ticket-shop", icon: Ticket },
-    { label: "VIP仮", path: "/vip-temp", icon: Star },
+    { label: "💎VIP💎", path: "/vip-temp", icon: Star },
   ];
 
   return (

@@ -1,3 +1,4 @@
+// src/pages/content/Toppage.js
 import React, { useEffect, useRef, useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
 import { db } from '../../firebase';
@@ -76,7 +77,7 @@ const Toppage = () => {
             className="bg-white shadow rounded-lg p-4"
           >
             <div className="text-xs text-pink-500 font-bold mb-1">🎉 New Arrival!!</div>
-            <div className="text-[11px] text-gray-500 mb-2">更新日: {post.createdAt?.toDate?.().toLocaleDateString() || '不明'}</div>
+            <div className="text-[11px] text-gray-500 mb-1">更新日: {post.createdAt?.toDate?.().toLocaleDateString() || '不明'}</div>
             <div className="text-xs text-gray-400 mb-2">#タグ #カテゴリ</div>
             {post.playbackUrl ? (
               <VideoPlayer
@@ -102,20 +103,16 @@ const Toppage = () => {
 
   return (
     <div className="flex w-full min-h-screen bg-gray-50 text-black flex-col">
-      {isMobile && (
-        <HeaderMobile activeTab={activeTab} setActiveTab={setActiveTab} />
-      )}
+      {isMobile && <HeaderMobile activeTab={activeTab} setActiveTab={setActiveTab} />}
 
-      <div className="flex flex-1 w-full">
+      <div className="flex flex-1 w-full overflow-hidden">
         <aside className="hidden md:block md:w-1/5 p-4 bg-white shadow h-screen sticky top-0">
           <SidebarLeft />
         </aside>
 
-        <main className="flex-1 p-4 pt-20 md:pt-4 space-y-4 overflow-y-auto">
+        <main className="flex-1 p-4 pt-16 md:pt-4 space-y-4 overflow-y-auto">
           <MenuPanel />
-          {!isMobile && (
-            <TabSwitcher activeTab={activeTab} setActiveTab={setActiveTab} />
-          )}
+          {!isMobile && <TabSwitcher activeTab={activeTab} setActiveTab={setActiveTab} />}
           {renderTabContent()}
         </main>
 
@@ -124,15 +121,12 @@ const Toppage = () => {
         </aside>
       </div>
 
-      {isMobile && (
-        <FooterTabMobile activeTab={activeTab} setActiveTab={setActiveTab} />
-      )}
+      {isMobile && <FooterTabMobile activeTab={activeTab} setActiveTab={setActiveTab} />}
     </div>
   );
 };
 
 export default Toppage;
-
 
 
 

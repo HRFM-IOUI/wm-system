@@ -17,7 +17,7 @@ import GachaByType from './pages/gacha/GachaByType';
 import Mypage from './pages/user/Mypage';
 import Post from './pages/content/Post';
 import Search from './pages/system/Search';
-import Lounge from './pages/system/Lounge'; // ← ここは誰でもOKに変更
+import Lounge from './pages/system/Lounge';
 import Subscribe from './pages/user/Subscribe';
 import TicketShop from './pages/system/TicketShop';
 import VideoList from './pages/content/VideoList';
@@ -29,20 +29,20 @@ function App() {
   const location = useLocation();
   const hideHeaderPaths = ["/login", "/signup"];
   const isToppage = location.pathname === "/toppage";
+  const isLounge = location.pathname === "/lounge";
 
   return (
     <>
       {/* 💻 PC用ヘッダー */}
-      {!hideHeaderPaths.includes(location.pathname) && !isToppage && <Header />}
+      {!hideHeaderPaths.includes(location.pathname) && !isToppage && !isLounge && <Header />}
 
-      {/* 📱 モバイル用追尾ヘッダー：/toppage のみ */}
-      {isToppage && <HeaderMobile />}
+      {/* 📱 モバイル用追尾ヘッダー：toppageとloungeのみ */}
+      {(isToppage || isLounge) && <HeaderMobile />}
 
       <Routes>
-        {/* 公開ページ（ログイン不要） */}
+        {/* 公開ページ */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/lounge" element={<Lounge />} />
 
         {/* 一般ユーザー用（ログイン必須） */}
         <Route path="/toppage" element={<ProtectedRoute element={<Toppage />} />} />
@@ -54,22 +54,21 @@ function App() {
         <Route path="/videos" element={<ProtectedRoute element={<VideoList />} />} />
         <Route path="/gacha-select" element={<ProtectedRoute element={<GachaSelect />} />} />
         <Route path="/gacha/:type" element={<ProtectedRoute element={<GachaByType />} />} />
+        <Route path="/lounge" element={<Lounge />} />
 
-        {/* 管理者専用ページ */}
+        {/* 管理者専用 */}
         <Route path="/dashboard" element={<OwnerRoute element={<Dashboard />} />} />
 
-        {/* デフォルトルート */}
+        {/* デフォルト */}
         <Route path="/" element={<Navigate to="/lounge" />} />
         <Route path="*" element={<Navigate to="/lounge" replace />} />
       </Routes>
-
-      {/* 📱 モバイル用追尾フッター：/toppage のみ */}
-     
     </>
   );
 }
 
 export default App;
+
 
 
 
