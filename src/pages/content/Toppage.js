@@ -10,6 +10,7 @@ import SidebarRight from '../../components/common/SidebarRight';
 import MenuPanel from '../../components/common/MenuPanel';
 import DummyGoods from '../../components/common/DummyGoods';
 import DummyGacha from '../../components/common/DummyGacha';
+import HeaderMobile from '../../components/common/HeaderMobile';
 
 const Toppage = () => {
   const [activeTab, setActiveTab] = useState('video');
@@ -22,7 +23,7 @@ const Toppage = () => {
   const tabItems = [
     { key: 'video', label: 'メディア' },
     { key: 'goods', label: 'グッズ' },
-    { key: 'gacha', label: 'ガチャ', recommended: true },
+    { key: 'gacha', label: 'ガチャ' },
   ];
 
   useEffect(() => {
@@ -107,36 +108,14 @@ const Toppage = () => {
 
   return (
     <div className="flex w-full min-h-screen bg-gray-50 text-black">
+      <HeaderMobile activeTab={activeTab} setActiveTab={setActiveTab} />
+
       <aside className="hidden md:block md:w-1/5 p-4 bg-white shadow h-screen sticky top-0">
         <SidebarLeft />
       </aside>
 
-      <main className="flex-1 p-4 space-y-4 overflow-y-auto pb-16">
+      <main className="flex-1 p-4 pt-20 md:pt-4 space-y-4 overflow-y-auto">
         <MenuPanel />
-
-        {/* タブ切り替え - X風スタイル */}
-        <div className="flex border-b border-gray-300 mb-4 relative">
-          {tabItems.map(tab => (
-            <div key={tab.key} className="relative flex-1">
-              <button
-                className={`w-full pb-2 text-sm font-medium text-center border-b-2 transition-all duration-200 ease-in-out ${
-                  activeTab === tab.key
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-blue-600 hover:border-blue-300'
-                }`}
-                onClick={() => setActiveTab(tab.key)}
-              >
-                {tab.label}
-              </button>
-              {tab.recommended && (
-                <span className="absolute -top-2 right-4 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full shadow-md animate-bounce z-10">
-                  オススメ！
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-
         {renderTabContent()}
       </main>
 
@@ -148,6 +127,7 @@ const Toppage = () => {
 };
 
 export default Toppage;
+
 
 
 
