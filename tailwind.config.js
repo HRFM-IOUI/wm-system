@@ -7,6 +7,7 @@ module.exports = {
     extend: {
       animation: {
         moveSlow: 'moveSlow 30s linear infinite',
+        'ping-slow': 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
       },
       keyframes: {
         moveSlow: {
@@ -18,4 +19,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
+};
