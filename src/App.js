@@ -29,13 +29,17 @@ import Dashboard from './pages/dashboard/Dashboard';
 
 function App() {
   const location = useLocation();
-  const hideHeaderPaths = ["/login", "/signup"];
+  const hideHeaderPaths = ["/login", "/signup", "/toppage"];
   const shouldHideHeader = hideHeaderPaths.includes(location.pathname);
 
   return (
     <>
+      {/* PC・モバイル共通：特定ページではヘッダー非表示 */}
       {!shouldHideHeader && <Header />}
       {!shouldHideHeader && <HeaderMobile />}
+
+      {/* モバイル専用フッター */}
+      <FooterMobile />
 
       <Routes>
         {/* 公開ページ */}
@@ -61,13 +65,13 @@ function App() {
         <Route path="/" element={<Navigate to="/lounge" />} />
         <Route path="*" element={<Navigate to="/lounge" replace />} />
       </Routes>
-
-      {!shouldHideHeader && <FooterMobile />}
     </>
   );
 }
 
 export default App;
+
+
 
 
 
