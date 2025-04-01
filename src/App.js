@@ -1,4 +1,3 @@
-// src/App.js
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
@@ -29,17 +28,18 @@ import Dashboard from './pages/dashboard/Dashboard';
 
 function App() {
   const location = useLocation();
-  const hideHeaderPaths = ["/login", "/signup", "/toppage"];
+  const hideHeaderPaths = ["/login", "/signup"];
+  const hideHeaderMobilePaths = ["/login", "/signup"];
+
   const shouldHideHeader = hideHeaderPaths.includes(location.pathname);
+  const shouldHideHeaderMobile = hideHeaderMobilePaths.includes(location.pathname);
 
   return (
     <>
-      {/* PC・モバイル共通：特定ページではヘッダー非表示 */}
-      {!shouldHideHeader && <Header />}
-      {!shouldHideHeader && <HeaderMobile />}
-
-      {/* モバイル専用フッター */}
-      <FooterMobile />
+      {/* ヘッダー（PC） */}
+      {!shouldHideHeader && location.pathname !== '/toppage' && <Header />}
+      {/* ヘッダー（モバイル） */}
+      {!shouldHideHeaderMobile && <HeaderMobile />}
 
       <Routes>
         {/* 公開ページ */}
@@ -65,11 +65,15 @@ function App() {
         <Route path="/" element={<Navigate to="/lounge" />} />
         <Route path="*" element={<Navigate to="/lounge" replace />} />
       </Routes>
+
+      {/* フッター（モバイル） */}
+      <FooterMobile />
     </>
   );
 }
 
 export default App;
+
 
 
 
