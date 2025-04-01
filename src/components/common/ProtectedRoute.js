@@ -9,7 +9,8 @@ const ProtectedRoute = ({ element }) => {
 
   if (loading) return <div>読み込み中...</div>;
 
-  return user ? element : <Navigate to="/login" replace />;
+  return user ? element : <Navigate to="/lounge" replace />;
 };
 
 export default ProtectedRoute;
+
