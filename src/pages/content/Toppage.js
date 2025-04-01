@@ -16,7 +16,7 @@ import FooterMobile from '../../components/common/FooterMobile';
 import TabSwitcher from '../../components/common/TabSwitcher';
 
 const Toppage = () => {
-  const [activeTab, setActiveTab] = useState('video');
+  const [activeTab, setActiveTab] = useState('videos');
   const [posts, setPosts] = useState([]);
   const [visiblePosts, setVisiblePosts] = useState([]);
   const observer = useRef();
@@ -71,7 +71,7 @@ const Toppage = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'video':
+      case 'videos':
         return visiblePosts.map((post, index) => (
           <div
             key={post.id}
@@ -80,7 +80,7 @@ const Toppage = () => {
           >
             <div className="text-xs text-pink-500 font-bold mb-1">🎉 New Arrival!!</div>
             <div className="text-[11px] text-gray-500 mb-2">更新日: {post.createdAt?.toDate?.().toLocaleDateString() || '不明'}</div>
-
+            <div className="text-xs text-gray-400 mb-2">#タグ #カテゴリ</div>
             {post.playbackUrl ? (
               <VideoPlayer
                 playbackUrl={post.playbackUrl}

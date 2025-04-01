@@ -1,12 +1,15 @@
 import React from 'react';
 import { Bell, Search } from 'lucide-react';
-import logo from '../../assets/images/logo.svg.jpg'; // 画像名が正しければOK
+import logo from '../../assets/images/logo.svg.jpg';
+import { useMediaQuery } from 'react-responsive';
 
 const HeaderMobile = ({ activeTab, setActiveTab }) => {
+  const isMobile = useMediaQuery({ maxWidth: 767 });
+
   const tabItems = [
-    { key: 'videos', label: 'メディア' },
+    { key: 'video', label: 'メディア' },
     { key: 'goods', label: 'グッズ' },
-    { key: 'gacha', label: 'ガチャ' }, // 「オススメ！」は下で制御
+    { key: 'gacha', label: 'ガチャ' },
   ];
 
   return (
@@ -21,22 +24,21 @@ const HeaderMobile = ({ activeTab, setActiveTab }) => {
         </div>
       </div>
 
-      {/* タブナビゲーション */}
+      {/* 下部タブ切り替え */}
       <div className="flex border-b border-gray-300">
         {tabItems.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex-1 pb-2 text-sm font-medium text-center border-b-2 transition-all duration-200 ease-in-out ${
-              activeTab === tab.key
+            className={`flex-1 pt-3 pb-3 text-base font-bold text-center border-b-2 transition-all duration-200 ease-in-out
+              ${activeTab === tab.key
                 ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-blue-600 hover:border-blue-300'
-            }`}
+                : 'border-transparent text-gray-500 hover:text-blue-600 hover:border-blue-300'}`}
           >
             <div className="flex items-center justify-center">
               {tab.label}
               {tab.key === 'gacha' && (
-                <span className="ml-1 text-xs text-red-600 font-semibold animate-bounce">
+                <span className="ml-1 text-xs text-red-600 font-semibold animate-bounce hidden md:inline">
                   オススメ！
                 </span>
               )}
@@ -49,6 +51,7 @@ const HeaderMobile = ({ activeTab, setActiveTab }) => {
 };
 
 export default HeaderMobile;
+
 
 
 
