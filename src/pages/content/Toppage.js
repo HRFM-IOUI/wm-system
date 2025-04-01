@@ -1,3 +1,4 @@
+// src/pages/content/Toppage.js
 import React, { useEffect, useRef, useState } from 'react';
 import { db } from '../../firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
@@ -12,6 +13,7 @@ import DummyGoods from '../../components/common/DummyGoods';
 import DummyGacha from '../../components/common/DummyGacha';
 import FooterTabMobile from '../../components/common/FooterTabMobile';
 import HeaderMobile from '../../components/common/HeaderMobile';
+import TabSwitcher from '../../components/common/TabSwitcher';
 import { useMediaQuery } from 'react-responsive';
 
 const Toppage = () => {
@@ -103,7 +105,9 @@ const Toppage = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-black">
-      {isMobile && <HeaderMobile activeTab={activeTab} setActiveTab={setActiveTab} />}
+      {isMobile && (
+        <HeaderMobile activeTab={activeTab} setActiveTab={setActiveTab} />
+      )}
 
       <div className="flex flex-1">
         {/* 左サイドバー */}
@@ -111,34 +115,12 @@ const Toppage = () => {
           <SidebarLeft />
         </aside>
 
-        {/* 中央カラム（スクロール対象） */}
-        <main className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+        {/* 中央カラム */}
+        <main className="flex-1 overflow-y-auto px-4 pb-20 pt-[80px] md:pt-4 space-y-4">
           <MenuPanel />
-
-          {/* PC表示用タブ */}
           {!isMobile && (
-            <div className="flex space-x-4 mb-4">
-              <button
-                className={`px-4 py-2 rounded-full text-sm font-semibold ${activeTab === 'videos' ? 'bg-pink-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-                onClick={() => setActiveTab('videos')}
-              >
-                メディア
-              </button>
-              <button
-                className={`px-4 py-2 rounded-full text-sm font-semibold ${activeTab === 'goods' ? 'bg-pink-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-                onClick={() => setActiveTab('goods')}
-              >
-                グッズ
-              </button>
-              <button
-                className={`px-4 py-2 rounded-full text-sm font-semibold ${activeTab === 'gacha' ? 'bg-pink-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-                onClick={() => setActiveTab('gacha')}
-              >
-                ガチャ
-              </button>
-            </div>
+            <TabSwitcher activeTab={activeTab} setActiveTab={setActiveTab} />
           )}
-
           {renderTabContent()}
         </main>
 
@@ -148,12 +130,15 @@ const Toppage = () => {
         </aside>
       </div>
 
-      {isMobile && <FooterTabMobile activeTab={activeTab} setActiveTab={setActiveTab} />}
+      {isMobile && (
+        <FooterTabMobile activeTab={activeTab} setActiveTab={setActiveTab} />
+      )}
     </div>
   );
 };
 
 export default Toppage;
+
 
 
 
