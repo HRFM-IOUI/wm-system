@@ -1,4 +1,3 @@
-// src/pages/content/Toppage.js
 import React, { useEffect, useRef, useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
 import { db } from '../../firebase';
@@ -7,14 +6,11 @@ import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import VideoPlayer from '../../components/video/VideoPlayer';
 import ReactionButtons from '../../components/common/ReactionButtons';
 import CommentSection from '../../components/common/CommentSection';
-import SidebarLeft from '../../components/common/SidebarLeft';
-import SidebarRight from '../../components/common/SidebarRight';
 import MenuPanel from '../../components/common/MenuPanel';
 import DummyGoods from '../../components/common/DummyGoods';
 import DummyGacha from '../../components/common/DummyGacha';
-import HeaderMobile from '../../components/common/HeaderMobile';
-import TabSwitcher from '../../components/common/TabSwitcher';
 import FooterTabMobile from '../../components/common/FooterTabMobile';
+import MainLayout from '../../components/common/MainLayout';
 
 const Toppage = () => {
   const [activeTab, setActiveTab] = useState('videos');
@@ -102,31 +98,17 @@ const Toppage = () => {
   };
 
   return (
-    <div className="flex w-full min-h-screen bg-gray-50 text-black flex-col">
-      {isMobile && <HeaderMobile activeTab={activeTab} setActiveTab={setActiveTab} />}
-
-      <div className="flex flex-1 w-full overflow-hidden">
-        <aside className="hidden md:block md:w-1/5 p-4 bg-white shadow h-screen sticky top-0">
-          <SidebarLeft />
-        </aside>
-
-        <main className="flex-1 p-4 pt-16 md:pt-4 space-y-4 overflow-y-auto">
-          <MenuPanel />
-          {!isMobile && <TabSwitcher activeTab={activeTab} setActiveTab={setActiveTab} />}
-          {renderTabContent()}
-        </main>
-
-        <aside className="hidden lg:block lg:w-1/5 p-4 bg-white shadow h-screen sticky top-0">
-          <SidebarRight />
-        </aside>
+    <MainLayout activeTab={activeTab} setActiveTab={setActiveTab}>
+      <div className="space-y-4">
+        <MenuPanel />
+        {renderTabContent()}
       </div>
-
-      {isMobile && <FooterTabMobile activeTab={activeTab} setActiveTab={setActiveTab} />}
-    </div>
+    </MainLayout>
   );
 };
 
 export default Toppage;
+
 
 
 
