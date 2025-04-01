@@ -28,25 +28,24 @@ import Dashboard from './pages/dashboard/Dashboard';
 
 function App() {
   const location = useLocation();
-  const hideHeaderPaths = ["/login", "/signup"];
-  const hideHeaderMobilePaths = ["/login", "/signup"];
 
-  const shouldHideHeader = hideHeaderPaths.includes(location.pathname);
-  const shouldHideHeaderMobile = hideHeaderMobilePaths.includes(location.pathname);
+  const hideHeaderPaths = ["/login", "/signup"];
+  const isToppage = location.pathname === "/toppage";
 
   return (
     <>
-      {/* ヘッダー（PC） */}
-      {!shouldHideHeader && location.pathname !== '/toppage' && <Header />}
-      {/* ヘッダー（モバイル） */}
-      {!shouldHideHeaderMobile && <HeaderMobile />}
+      {/* 💻 PC用ヘッダー */}
+      {!hideHeaderPaths.includes(location.pathname) && !isToppage && <Header />}
+
+      {/* 📱 モバイル用追尾ヘッダー：/toppage のみ */}
+      {isToppage && <HeaderMobile />}
 
       <Routes>
         {/* 公開ページ */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* 一般ユーザー用（要ログイン） */}
+        {/* 一般ユーザー用（ログイン必須） */}
         <Route path="/toppage" element={<ProtectedRoute element={<Toppage />} />} />
         <Route path="/mypage" element={<ProtectedRoute element={<Mypage />} />} />
         <Route path="/post" element={<ProtectedRoute element={<Post />} />} />
@@ -61,18 +60,19 @@ function App() {
         {/* 管理者専用 */}
         <Route path="/dashboard" element={<OwnerRoute element={<Dashboard />} />} />
 
-        {/* デフォルトルート */}
+        {/* デフォルト */}
         <Route path="/" element={<Navigate to="/lounge" />} />
         <Route path="*" element={<Navigate to="/lounge" replace />} />
       </Routes>
 
-      {/* フッター（モバイル） */}
-      <FooterMobile />
+      {/* 📱 モバイル用追尾フッター：/toppage のみ */}
+      {isToppage && <FooterMobile />}
     </>
   );
 }
 
 export default App;
+
 
 
 
