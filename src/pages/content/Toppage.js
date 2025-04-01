@@ -13,6 +13,7 @@ import DummyGoods from '../../components/common/DummyGoods';
 import DummyGacha from '../../components/common/DummyGacha';
 import HeaderMobile from '../../components/common/HeaderMobile';
 import TabSwitcher from '../../components/common/TabSwitcher';
+import FooterTabMobile from '../../components/common/FooterTabMobile';
 
 const Toppage = () => {
   const [activeTab, setActiveTab] = useState('videos');
@@ -23,7 +24,6 @@ const Toppage = () => {
   const lastPostRef = useRef(null);
   const isMobile = useMediaQuery({ maxWidth: 767 });
 
-  // 投稿取得（初回マウント時に一度だけ）
   useEffect(() => {
     const fetchPosts = async () => {
       const q = query(collection(db, 'videos'), orderBy('createdAt', 'desc'));
@@ -35,7 +35,6 @@ const Toppage = () => {
     fetchPosts();
   }, []);
 
-  // 無限スクロール処理
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver(entries => {
@@ -49,7 +48,6 @@ const Toppage = () => {
     if (lastPostRef.current) observer.current.observe(lastPostRef.current);
   }, [visiblePosts, posts]);
 
-  // 動画の自動再生制御
   useEffect(() => {
     const options = { threshold: 0.6 };
     const callback = entries => {
@@ -126,6 +124,9 @@ const Toppage = () => {
         </aside>
       </div>
 
+      {isMobile && (
+        <FooterTabMobile activeTab={activeTab} setActiveTab={setActiveTab} />
+      )}
     </div>
   );
 };
