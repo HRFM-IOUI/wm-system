@@ -24,6 +24,7 @@ const Toppage = () => {
   const lastPostRef = useRef(null);
   const isMobile = useMediaQuery({ maxWidth: 767 });
 
+  // 投稿取得（初回マウント時に一度だけ）
   useEffect(() => {
     const fetchPosts = async () => {
       const q = query(collection(db, 'videos'), orderBy('createdAt', 'desc'));
@@ -32,9 +33,10 @@ const Toppage = () => {
       setPosts(fetched);
       setVisiblePosts(fetched.slice(0, 5));
     };
-    if (activeTab === 'video') fetchPosts();
-  }, [activeTab]);
+    fetchPosts();
+  }, []);
 
+  // 無限スクロール処理
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver(entries => {
@@ -48,6 +50,7 @@ const Toppage = () => {
     if (lastPostRef.current) observer.current.observe(lastPostRef.current);
   }, [visiblePosts, posts]);
 
+  // 動画の自動再生制御
   useEffect(() => {
     const options = { threshold: 0.6 };
     const callback = entries => {
@@ -75,9 +78,9 @@ const Toppage = () => {
             ref={index === visiblePosts.length - 1 ? lastPostRef : null}
             className="bg-white shadow rounded-lg p-4"
           >
-            <div className="text-sm text-gray-600 mb-2">
-              {post.ownerId?.slice(0, 6) || 'ゲスト'} さんの投稿
-            </div>
+            <div className="text-xs text-pink-500 font-bold mb-1">🎉 New Arrival!!</div>
+            <div className="text-[11px] text-gray-500 mb-2">更新日: {post.createdAt?.toDate?.().toLocaleDateString() || '不明'}</div>
+
             {post.playbackUrl ? (
               <VideoPlayer
                 playbackUrl={post.playbackUrl}
@@ -112,15 +115,10 @@ const Toppage = () => {
         </aside>
 
         <main className="flex-1 p-4 pt-20 md:pt-4 space-y-4 overflow-y-auto">
-          {/* 💙 Step 1: メニューパネル（上に表示） */}
           <MenuPanel />
-
-          {/* 💙 Step 2: タブ切り替え（下に表示） */}
           {!isMobile && (
             <TabSwitcher activeTab={activeTab} setActiveTab={setActiveTab} />
           )}
-
-          {/* 💙 Step 3: 各タブのコンテンツ */}
           {renderTabContent()}
         </main>
 
@@ -135,6 +133,8 @@ const Toppage = () => {
 };
 
 export default Toppage;
+
+
 
 
 

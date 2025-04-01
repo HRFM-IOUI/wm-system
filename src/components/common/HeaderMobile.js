@@ -1,17 +1,17 @@
 import React from 'react';
 import { Bell, Search } from 'lucide-react';
-import logo from '../../assets/images/logo.svg.jpg'; // ← ファイル名OKならそのまま
+import logo from '../../assets/images/logo.svg.jpg'; // 画像名が正しければOK
 
 const HeaderMobile = ({ activeTab, setActiveTab }) => {
-
   const tabItems = [
-    { key: 'video', label: 'メディア' },
+    { key: 'videos', label: 'メディア' },
     { key: 'goods', label: 'グッズ' },
-    { key: 'gacha', label: 'ガチャ' }, // ← 「おすすめ」は表示側で制御するわ
+    { key: 'gacha', label: 'ガチャ' }, // 「オススメ！」は下で制御
   ];
 
   return (
     <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur shadow px-4 pt-2 pb-0">
+      {/* 上部ロゴとアイコン */}
       <div className="flex justify-between items-center mb-2">
         <div className="w-6" />
         <img src={logo} alt="Logo" className="w-6 h-6" />
@@ -21,6 +21,7 @@ const HeaderMobile = ({ activeTab, setActiveTab }) => {
         </div>
       </div>
 
+      {/* タブナビゲーション */}
       <div className="flex border-b border-gray-300">
         {tabItems.map((tab) => (
           <button
@@ -48,6 +49,7 @@ const HeaderMobile = ({ activeTab, setActiveTab }) => {
 };
 
 export default HeaderMobile;
+
 
 
 

@@ -1,12 +1,12 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { PlaySquare, Gift, Package, User, Ticket, Star } from "lucide-react";
+import { BookOpen, Gift, Package, User, Ticket, Star } from "lucide-react"; // 動画→ご利用ガイドは BookOpen
 
 const MenuPanel = () => {
   const location = useLocation();
 
   const menuItems = [
-    { label: "動画", path: "/toppage", icon: PlaySquare },
+    { label: "ご利用ガイド", path: "/lounge", icon: BookOpen },
     { label: "グッズ", path: "/search", icon: Package },
     { label: "ガチャ", path: "/mypage", icon: Gift, recommended: true },
     { label: "マイルーム", path: "/gacha-select", icon: User },
@@ -48,5 +48,6 @@ const MenuPanel = () => {
 };
 
 export default MenuPanel;
+
 
 
