@@ -1,52 +1,42 @@
-import React, { useState } from 'react';
-import VideoList from '@/components/video/VideoList';
-import DummyGoods from '@/components/common/DummyGoods';
-import DummyGacha from '@/components/common/DummyGacha';
+// src/components/common/TabSwitcher.js
+import React from 'react';
+import DummyGoods from './DummyGoods';
+import DummyGacha from './DummyGacha';
+import VideoList from '../video/VideoList';
 
-const tabs = [
-  { key: 'videos', label: '動画' },
-  { key: 'goods', label: 'グッズ' },
-  { key: 'gacha', label: 'ガチャ' },
-];
-
-const TabSwitcher = () => {
-  const [activeTab, setActiveTab] = useState('videos');
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'videos':
-        return <VideoList />;
-      case 'goods':
-        return <DummyGoods />;
-      case 'gacha':
-        return <DummyGacha />;
-      default:
-        return null;
-    }
-  };
+const TabSwitcher = ({ activeTab, setActiveTab }) => {
+  const tabs = [
+    { key: 'video', label: 'メディア' },
+    { key: 'goods', label: 'グッズ' },
+    { key: 'gacha', label: 'ガチャ' },
+  ];
 
   return (
     <div className="w-full">
-      <div className="flex justify-around border-b border-gray-300">
+      <div className="flex justify-around border-b border-gray-300 bg-white rounded-md overflow-hidden">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex-1 text-center py-3 font-semibold transition-colors duration-200 ${
-              activeTab === tab.key
-                ? 'border-b-4 border-blue-500 text-blue-600'
-                : 'text-gray-500 hover:text-gray-800'
-            }`}
+            className={`flex-1 py-3 text-center font-semibold text-sm transition-all duration-150
+              ${activeTab === tab.key
+                ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50'
+                : 'text-gray-500 hover:text-blue-600'}`}
           >
-            {tab.label}
+            <div className="flex items-center justify-center">
+              {tab.label}
+              {tab.key === 'gacha' && (
+                <span className="ml-1 text-xs text-red-600 font-semibold animate-bounce">
+                  オススメ！
+                </span>
+              )}
+            </div>
           </button>
         ))}
-      </div>
-      <div className="mt-4">
-        {renderContent()}
       </div>
     </div>
   );
 };
 
 export default TabSwitcher;
+

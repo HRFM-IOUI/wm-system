@@ -1,10 +1,8 @@
 import React from 'react';
 import { Bell, Search } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/images/logo.svg.jpg'; // ← ファイル名OKならそのまま
 
 const HeaderMobile = ({ activeTab, setActiveTab }) => {
-  const navigate = useNavigate();
 
   const tabItems = [
     { key: 'video', label: 'メディア' },
