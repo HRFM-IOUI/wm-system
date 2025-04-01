@@ -9,7 +9,6 @@ import CommentSection from '../../components/common/CommentSection';
 import MenuPanel from '../../components/common/MenuPanel';
 import DummyGoods from '../../components/common/DummyGoods';
 import DummyGacha from '../../components/common/DummyGacha';
-import FooterTabMobile from '../../components/common/FooterTabMobile';
 import MainLayout from '../../components/common/MainLayout';
 
 const Toppage = () => {
@@ -19,7 +18,6 @@ const Toppage = () => {
   const observer = useRef();
   const videoRefs = useRef([]);
   const lastPostRef = useRef(null);
-  const isMobile = useMediaQuery({ maxWidth: 767 });
 
   useEffect(() => {
     const fetchPosts = async () => {
