@@ -5,7 +5,6 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import OwnerRoute from './components/common/OwnerRoute';
 import Header from './components/common/Header';
 import HeaderMobile from './components/common/HeaderMobile';
-import FooterMobile from './components/common/FooterMobile';
 
 // 認証ページ
 import Login from './pages/auth/Login';
@@ -65,7 +64,7 @@ function App() {
       </Routes>
 
       {/* 📱 モバイル用追尾フッター：/toppage のみ */}
-      {isToppage && <FooterMobile />}
+     
     </>
   );
 }

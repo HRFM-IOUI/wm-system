@@ -12,7 +12,6 @@ import MenuPanel from '../../components/common/MenuPanel';
 import DummyGoods from '../../components/common/DummyGoods';
 import DummyGacha from '../../components/common/DummyGacha';
 import HeaderMobile from '../../components/common/HeaderMobile';
-import FooterMobile from '../../components/common/FooterMobile';
 import TabSwitcher from '../../components/common/TabSwitcher';
 
 const Toppage = () => {
@@ -127,7 +126,6 @@ const Toppage = () => {
         </aside>
       </div>
 
-      {isMobile && <FooterMobile />}
     </div>
   );
 };
