@@ -1,48 +1,42 @@
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { PlaySquare, Gift, Package, User, Ticket, Star } from "lucide-react";
+// ✅ 3×2パネル（MenuPanel.js）のモバイル時アイコン非表示＆レスポンシブ最適化版
+import React from 'react';
+import { useMediaQuery } from 'react-responsive';
+import { Link } from 'react-router-dom';
+import { PlaySquare, Package, Gift, User, Ticket, ShieldCheck } from 'lucide-react';
+
+const items = [
+  { icon: PlaySquare, label: 'ご利用ガイド仮', to: '/guide' },
+  { icon: Package, label: 'グッズ仮', to: '/goods' },
+  { icon: Gift, label: 'ガチャ', to: '/gacha-select', badge: 'オススメ！' },
+  { icon: User, label: 'マイページ', to: '/mypage' },
+  { icon: Ticket, label: 'チケット', to: '/ticket-shop' },
+  { icon: ShieldCheck, label: 'VIP仮', to: '/vip' },
+];
 
 const MenuPanel = () => {
-  const location = useLocation();
-
-  const menuItems = [
-    { label: "動画", path: "/guide-temp", icon: PlaySquare },
-    { label: "グッズ", path: "/goods-temp", icon: Package },
-    { label: "ガチャ", path: "/gacha-select", icon: Gift, recommended: true },
-    { label: "マイページ", path: "/mypage", icon: User },
-    { label: "チケット", path: "/ticket-shop", icon: Ticket },
-    { label: "💎VIP💎", path: "/vip-temp", icon: Star },
-  ];
+  const isMobile = useMediaQuery({ maxWidth: 767 });
 
   return (
-    <div className="grid grid-cols-3 gap-3 p-4 bg-white shadow rounded-xl mb-4 relative">
-      {menuItems.map((item, index) => {
-        const isActive = location.pathname === item.path;
-        const Icon = item.icon;
+    <div className="grid grid-cols-3 gap-2 sm:gap-4">
+      {items.map(({ icon: Icon, label, to, badge }) => (
+        <Link
+          to={to}
+          key={label}
+          className="relative bg-white hover:bg-pink-50 rounded-2xl border shadow flex flex-col items-center justify-center py-3 px-2 transition-all"
+        >
+          {/* コーチマーク付きバッジ */}
+          {badge && (
+            <span className="absolute -top-1.5 right-1.5 bg-gradient-to-r from-pink-500 to-yellow-400 text-white text-[9px] font-bold px-2 py-[1px] rounded-full animate-pulse shadow-lg z-10">
+              {badge}
+            </span>
+          )}
 
-        return (
-          <div key={index} className="relative">
-            <Link
-              to={item.path}
-              className={`flex flex-col items-center justify-center p-3 rounded-xl text-sm font-semibold shadow-sm transition-all duration-200 w-full h-full ${
-                isActive
-                  ? "bg-blue-100 text-blue-600"
-                  : "bg-gray-100 hover:bg-gray-200 text-gray-800"
-              }`}
-            >
-              <Icon className="w-5 h-5 mb-1" />
-              {item.label}
-            </Link>
-
-            {item.recommended && (
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-white border border-gray-300 rounded-full shadow text-xs text-pink-600 font-semibold whitespace-nowrap z-10">
-                💥 オススメ！
-                <div className="absolute left-1/2 -bottom-1 -translate-x-1/2 w-2 h-2 bg-white border-l border-b border-gray-300 rotate-45" />
-              </div>
-            )}
-          </div>
-        );
-      })}
+          {!isMobile && <Icon className="w-6 h-6 mb-1 text-pink-500" />}
+          <span className="text-[10px] sm:text-xs font-semibold text-center leading-tight break-words">
+            {label}
+          </span>
+        </Link>
+      ))}
     </div>
   );
 };

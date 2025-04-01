@@ -1,6 +1,4 @@
-// src/pages/content/Toppage.js
 import React, { useEffect, useRef, useState } from 'react';
-import { useMediaQuery } from 'react-responsive';
 import { db } from '../../firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 
@@ -12,9 +10,9 @@ import SidebarRight from '../../components/common/SidebarRight';
 import MenuPanel from '../../components/common/MenuPanel';
 import DummyGoods from '../../components/common/DummyGoods';
 import DummyGacha from '../../components/common/DummyGacha';
-import HeaderMobile from '../../components/common/HeaderMobile';
 import FooterTabMobile from '../../components/common/FooterTabMobile';
-import TabSwitcher from '../../components/common/TabSwitcher';
+import HeaderMobile from '../../components/common/HeaderMobile';
+import { useMediaQuery } from 'react-responsive';
 
 const Toppage = () => {
   const [activeTab, setActiveTab] = useState('videos');
@@ -74,11 +72,18 @@ const Toppage = () => {
           <div
             key={post.id}
             ref={index === visiblePosts.length - 1 ? lastPostRef : null}
-            className="bg-white shadow rounded-lg p-4"
+            className="bg-white/80 backdrop-blur-lg shadow rounded-2xl p-4 transition-all duration-300 ease-in-out transform hover:scale-[1.015] hover:ring-2 hover:ring-pink-400/40 hover:shadow-xl"
           >
-            <div className="text-xs text-pink-500 font-bold mb-1">🎉 New Arrival!!</div>
-            <div className="text-[11px] text-gray-500 mb-1">更新日: {post.createdAt?.toDate?.().toLocaleDateString() || '不明'}</div>
-            <div className="text-xs text-gray-400 mb-2">#タグ #カテゴリ</div>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-base font-semibold text-pink-600 truncate">{post.title}</h3>
+              <span className="text-[11px] text-gray-400">
+                {post.createdAt?.toDate?.().toLocaleDateString() || '不明'}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1 text-[10px] text-gray-400 mb-2">
+              <span>#動画</span>
+              <span>#カテゴリ</span>
+            </div>
             {post.playbackUrl ? (
               <VideoPlayer
                 playbackUrl={post.playbackUrl}
@@ -87,9 +92,10 @@ const Toppage = () => {
             ) : (
               <div className="bg-gray-200 h-60 rounded" />
             )}
-            <p className="mt-2 text-sm text-gray-800">{post.title}</p>
-            <ReactionButtons postId={post.id} />
-            <CommentSection postId={post.id} />
+            <div className="mt-2">
+              <ReactionButtons postId={post.id} />
+              <CommentSection postId={post.id} />
+            </div>
           </div>
         ));
       case 'goods':
@@ -102,31 +108,31 @@ const Toppage = () => {
   };
 
   return (
-    <div className="flex w-full min-h-screen bg-gray-50 text-black flex-col">
+    <div className="flex flex-col min-h-screen bg-gray-50 text-black">
       {isMobile && <HeaderMobile activeTab={activeTab} setActiveTab={setActiveTab} />}
-
-      <div className="flex flex-1 w-full overflow-hidden">
-        <aside className="hidden md:block md:w-1/5 p-4 bg-white shadow h-screen sticky top-0">
+      <div className="flex flex-1">
+        <aside className="hidden md:block md:w-1/5 bg-white p-4 h-screen sticky top-0">
           <SidebarLeft />
         </aside>
-
-        <main className="flex-1 p-4 pt-16 md:pt-4 space-y-4 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
           <MenuPanel />
-          {!isMobile && <TabSwitcher activeTab={activeTab} setActiveTab={setActiveTab} />}
           {renderTabContent()}
         </main>
-
-        <aside className="hidden lg:block lg:w-1/5 p-4 bg-white shadow h-screen sticky top-0">
+        <aside className="hidden lg:block lg:w-1/5 bg-white p-4 h-screen sticky top-0">
           <SidebarRight />
         </aside>
       </div>
-
       {isMobile && <FooterTabMobile activeTab={activeTab} setActiveTab={setActiveTab} />}
     </div>
   );
 };
 
 export default Toppage;
+
+
+
+
+
 
 
 
