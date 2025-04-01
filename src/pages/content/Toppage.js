@@ -1,14 +1,20 @@
+// src/pages/content/Toppage.js
 import React, { useEffect, useRef, useState } from 'react';
+import { useMediaQuery } from 'react-responsive';
 import { db } from '../../firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 
 import VideoPlayer from '../../components/video/VideoPlayer';
 import ReactionButtons from '../../components/common/ReactionButtons';
 import CommentSection from '../../components/common/CommentSection';
+import SidebarLeft from '../../components/common/SidebarLeft';
+import SidebarRight from '../../components/common/SidebarRight';
 import MenuPanel from '../../components/common/MenuPanel';
 import DummyGoods from '../../components/common/DummyGoods';
 import DummyGacha from '../../components/common/DummyGacha';
-import MainLayout from '../../components/common/MainLayout';
+import HeaderMobile from '../../components/common/HeaderMobile';
+import FooterTabMobile from '../../components/common/FooterTabMobile';
+import TabSwitcher from '../../components/common/TabSwitcher';
 
 const Toppage = () => {
   const [activeTab, setActiveTab] = useState('videos');
@@ -17,6 +23,7 @@ const Toppage = () => {
   const observer = useRef();
   const videoRefs = useRef([]);
   const lastPostRef = useRef(null);
+  const isMobile = useMediaQuery({ maxWidth: 767 });
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -95,16 +102,33 @@ const Toppage = () => {
   };
 
   return (
-    <MainLayout activeTab={activeTab} setActiveTab={setActiveTab}>
-      <div className="space-y-4">
-        <MenuPanel />
-        {renderTabContent()}
+    <div className="flex w-full min-h-screen bg-gray-50 text-black flex-col">
+      {isMobile && <HeaderMobile activeTab={activeTab} setActiveTab={setActiveTab} />}
+
+      <div className="flex flex-1 w-full overflow-hidden">
+        <aside className="hidden md:block md:w-1/5 p-4 bg-white shadow h-screen sticky top-0">
+          <SidebarLeft />
+        </aside>
+
+        <main className="flex-1 p-4 pt-16 md:pt-4 space-y-4 overflow-y-auto">
+          <MenuPanel />
+          {!isMobile && <TabSwitcher activeTab={activeTab} setActiveTab={setActiveTab} />}
+          {renderTabContent()}
+        </main>
+
+        <aside className="hidden lg:block lg:w-1/5 p-4 bg-white shadow h-screen sticky top-0">
+          <SidebarRight />
+        </aside>
       </div>
-    </MainLayout>
+
+      {isMobile && <FooterTabMobile activeTab={activeTab} setActiveTab={setActiveTab} />}
+    </div>
   );
 };
 
 export default Toppage;
+
+
 
 
 

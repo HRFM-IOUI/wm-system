@@ -1,16 +1,16 @@
+// src/App.js（修正版）
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import ProtectedRoute from './components/common/ProtectedRoute';
 import OwnerRoute from './components/common/OwnerRoute';
 import Header from './components/common/Header';
-import HeaderMobile from './components/common/HeaderMobile';
 
 // 認証ページ
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 
-// 一般ユーザー向けページ
+// ページ
 import Toppage from './pages/content/Toppage';
 import GachaSelect from './pages/gacha/GachaSelect';
 import GachaByType from './pages/gacha/GachaByType';
@@ -21,30 +21,22 @@ import Lounge from './pages/system/Lounge';
 import Subscribe from './pages/user/Subscribe';
 import TicketShop from './pages/system/TicketShop';
 import VideoList from './pages/content/VideoList';
-
-// 管理者専用ページ
 import Dashboard from './pages/dashboard/Dashboard';
 
 function App() {
   const location = useLocation();
   const hideHeaderPaths = ["/login", "/signup"];
-  const isToppage = location.pathname === "/toppage";
-  const isLounge = location.pathname === "/lounge";
+  const isHeaderVisible = !hideHeaderPaths.includes(location.pathname);
 
   return (
     <>
-      {/* 💻 PC用ヘッダー */}
-      {!hideHeaderPaths.includes(location.pathname) && !isToppage && !isLounge && <Header />}
-
-      {/* 📱 モバイル用追尾ヘッダー：toppageとloungeのみ */}
-      {(isToppage || isLounge) && <HeaderMobile />}
+      {/* 💻 PC専用ヘッダー */}
+      {isHeaderVisible && <Header />}
 
       <Routes>
-        {/* 公開ページ */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* 一般ユーザー用（ログイン必須） */}
         <Route path="/toppage" element={<ProtectedRoute element={<Toppage />} />} />
         <Route path="/mypage" element={<ProtectedRoute element={<Mypage />} />} />
         <Route path="/post" element={<ProtectedRoute element={<Post />} />} />
@@ -56,10 +48,7 @@ function App() {
         <Route path="/gacha/:type" element={<ProtectedRoute element={<GachaByType />} />} />
         <Route path="/lounge" element={<Lounge />} />
 
-        {/* 管理者専用 */}
         <Route path="/dashboard" element={<OwnerRoute element={<Dashboard />} />} />
-
-        {/* デフォルト */}
         <Route path="/" element={<Navigate to="/lounge" />} />
         <Route path="*" element={<Navigate to="/lounge" replace />} />
       </Routes>
@@ -68,6 +57,9 @@ function App() {
 }
 
 export default App;
+
+
+
 
 
 
