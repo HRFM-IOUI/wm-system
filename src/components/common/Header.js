@@ -5,8 +5,9 @@ import { auth, db } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
 
 const Header = () => {
-  const [user] = useAuthState(auth);
+  const [user, loading] = useAuthState(auth);
   const [isOwner, setIsOwner] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     const checkOwnerStatus = async () => {
@@ -15,19 +16,27 @@ const Header = () => {
         const docSnap = await getDoc(docRef);
         setIsOwner(docSnap.exists() && docSnap.data().isOwner === true);
       }
+      setIsChecking(false);
     };
 
-    checkOwnerStatus();
+    if (user) {
+      checkOwnerStatus();
+    } else {
+      setIsChecking(false);
+    }
   }, [user]);
+
+  if (loading || isChecking) {
+    return null; // 読み込み中は一切表示しない（オフローダーは親で表示）
+  }
+
+  if (!isOwner) return null; // オーナーでなければ非表示
 
   return (
     <header className="bg-white shadow px-4 py-2 flex justify-between items-center">
       <Link to="/" className="text-xl font-bold">Toa Fans Shop</Link>
       <nav className="space-x-4">
-        <Link to="/toppage">ホーム</Link>
         <Link to="/mypage">マイページ</Link>
-        <Link to="/gacha-select">ガチャ</Link>
-        <Link to="/lounge">ラウンジ</Link>
 
         {isOwner && (
           <>
@@ -47,3 +56,4 @@ const Header = () => {
 };
 
 export default Header;
+
