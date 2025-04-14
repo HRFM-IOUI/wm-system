@@ -1,5 +1,5 @@
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { db } from '../firebase'; // ← 🔧 ここも修正済み！
 
 /**
  * ユーザーのVIPステータスを取得（ランク・チケット）
@@ -46,4 +46,11 @@ export const checkAndUpdateVipRank = async (userId) => {
   }
 
   return rank;
+};
+
+/**
+ * VIPランクが12以上か判定（例：ディレクターズカット視聴などで使用）
+ */
+export const isVIP12OrHigher = (vipRank) => {
+  return typeof vipRank === 'number' && vipRank >= 12;
 };

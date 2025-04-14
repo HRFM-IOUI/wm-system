@@ -1,35 +1,53 @@
+// src/components/common/ProductPost.js
 import React, { useState } from 'react';
+import { db, storage } from '../../firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../../firebase';
 
 const ProductPost = () => {
+  const [user] = useAuthState(auth);
   const [productName, setProductName] = useState('');
   const [productPrice, setProductPrice] = useState('');
   const [productPreview, setProductPreview] = useState(null);
   const [productDescription, setProductDescription] = useState('');
   const [productCategory, setProductCategory] = useState('');
   const [isPublic, setIsPublic] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newProduct = {
-      id: Date.now(),
-      name: productName,
-      price: productPrice,
-      description: productDescription,
-      category: productCategory,
-      mediaUrl: productPreview,
-      isPublic: isPublic,
-    };
+    if (!user || !productPreview) return;
+    try {
+      setUploading(true);
+      const fileRef = ref(storage, `products/${Date.now()}_${productPreview.name}`);
+      await uploadBytes(fileRef, productPreview);
+      const mediaUrl = await getDownloadURL(fileRef);
 
-    const existing = JSON.parse(localStorage.getItem('products') || '[]');
-    localStorage.setItem('products', JSON.stringify([newProduct, ...existing]));
+      await addDoc(collection(db, 'products'), {
+        title: productName,
+        price: Number(productPrice),
+        description: productDescription,
+        category: productCategory,
+        imageUrl: mediaUrl,
+        isPublic,
+        createdAt: serverTimestamp(),
+        ownerId: user.uid,
+      });
 
-    alert('商品が保存されました！');
-    setProductName('');
-    setProductPrice('');
-    setProductDescription('');
-    setProductCategory('');
-    setProductPreview(null);
-    setIsPublic(true);
+      alert('商品を出品しました！');
+      setProductName('');
+      setProductPrice('');
+      setProductDescription('');
+      setProductCategory('');
+      setProductPreview(null);
+      setIsPublic(true);
+    } catch (error) {
+      console.error('出品エラー:', error);
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -43,11 +61,9 @@ const ProductPost = () => {
             value={productName}
             onChange={(e) => setProductName(e.target.value)}
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            placeholder="例）オリジナルグッズ、限定動画など"
             required
           />
         </div>
-
         <div>
           <label className="block text-sm font-medium text-gray-700">価格（円）</label>
           <input
@@ -55,13 +71,9 @@ const ProductPost = () => {
             value={productPrice}
             onChange={(e) => setProductPrice(e.target.value)}
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            min="0"
-            step="100"
-            placeholder="例）1000"
             required
           />
         </div>
-
         <div>
           <label className="block text-sm font-medium text-gray-700">カテゴリ</label>
           <select
@@ -77,20 +89,17 @@ const ProductPost = () => {
             <option value="other">その他</option>
           </select>
         </div>
-
         <div>
           <label className="block text-sm font-medium text-gray-700">商品説明</label>
           <textarea
             value={productDescription}
             onChange={(e) => setProductDescription(e.target.value)}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2 h-28 resize-none"
-            placeholder="商品の説明文を入力してください"
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2 h-28"
             required
           />
         </div>
-
         <div>
-          <label className="block text-sm font-medium text-gray-700">プレビュー画像 / 商品メディア</label>
+          <label className="block text-sm font-medium text-gray-700">メディアファイル</label>
           <input
             type="file"
             accept="image/*,video/*"
@@ -99,7 +108,6 @@ const ProductPost = () => {
             required
           />
         </div>
-
         <div className="flex items-center space-x-2">
           <input
             type="checkbox"
@@ -112,12 +120,12 @@ const ProductPost = () => {
             公開する（チェックを外すと非公開）
           </label>
         </div>
-
         <button
           type="submit"
+          disabled={uploading}
           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
         >
-          出品する
+          {uploading ? 'アップロード中...' : '出品する'}
         </button>
       </form>
     </div>
@@ -125,3 +133,5 @@ const ProductPost = () => {
 };
 
 export default ProductPost;
+
+

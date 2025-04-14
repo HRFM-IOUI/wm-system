@@ -14,6 +14,7 @@ import DummyGacha from '../../components/common/DummyGacha';
 import FooterTabMobile from '../../components/common/FooterTabMobile';
 import HeaderMobile from '../../components/common/HeaderMobile';
 import TabSwitcher from '../../components/common/TabSwitcher';
+import VideoCard from '../../components/VideoCard';
 import { useMediaQuery } from 'react-responsive';
 
 const Toppage = () => {
@@ -24,6 +25,7 @@ const Toppage = () => {
   const videoRefs = useRef([]);
   const lastPostRef = useRef(null);
   const isMobile = useMediaQuery({ maxWidth: 767 });
+  const isDesktop = useMediaQuery({ minWidth: 768 });
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -71,27 +73,8 @@ const Toppage = () => {
     switch (activeTab) {
       case 'videos':
         return visiblePosts.map((post, index) => (
-          <div
-            key={post.id}
-            ref={index === visiblePosts.length - 1 ? lastPostRef : null}
-            className="bg-white shadow rounded-lg p-4"
-          >
-            <div className="text-xs text-pink-500 font-bold mb-1">🎉 New Arrival!!</div>
-            <div className="text-[11px] text-gray-500 mb-1">
-              更新日: {post.createdAt?.toDate?.().toLocaleDateString() || '不明'}
-            </div>
-            <div className="text-xs text-gray-400 mb-2">#タグ #カテゴリ</div>
-            {post.playbackUrl ? (
-              <VideoPlayer
-                playbackUrl={post.playbackUrl}
-                ref={(el) => (videoRefs.current[index] = el)}
-              />
-            ) : (
-              <div className="bg-gray-200 h-60 rounded" />
-            )}
-            <p className="mt-2 text-sm text-gray-800">{post.title}</p>
-            <ReactionButtons postId={post.id} />
-            <CommentSection postId={post.id} />
+          <div key={post.id} ref={index === visiblePosts.length - 1 ? lastPostRef : null}>
+            <VideoCard video={post} />
           </div>
         ));
       case 'goods':
@@ -105,6 +88,7 @@ const Toppage = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-black">
+      {/* モバイルのみ追尾ヘッダー */}
       {isMobile && (
         <HeaderMobile activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
@@ -116,9 +100,9 @@ const Toppage = () => {
         </aside>
 
         {/* 中央カラム */}
-        <main className="flex-1 overflow-y-auto px-4 pb-20 pt-[80px] md:pt-4 space-y-4">
+        <main className="flex-1 overflow-y-auto px-4 pb-20 pt-4 space-y-4">
           <MenuPanel />
-          {!isMobile && (
+          {isDesktop && (
             <TabSwitcher activeTab={activeTab} setActiveTab={setActiveTab} />
           )}
           {renderTabContent()}
@@ -130,6 +114,7 @@ const Toppage = () => {
         </aside>
       </div>
 
+      {/* モバイルのみ追尾フッター */}
       {isMobile && (
         <FooterTabMobile activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
@@ -138,6 +123,10 @@ const Toppage = () => {
 };
 
 export default Toppage;
+
+
+
+
 
 
 

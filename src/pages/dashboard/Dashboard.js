@@ -1,8 +1,11 @@
-// src/pages/Dashboard.js
+// src/pages/dashboard/Dashboard.js
 import React, { useState, useEffect } from "react";
 import ProductPost from "../../components/common/ProductPost";
+import ProductManager from "../../components/common/ProductManager";
 import VideoUploader from "../../components/video/VideoUploader";
 import VideoPlayer from "../../components/video/VideoPlayer";
+import PurchaseRequestManager from "../../components/dashboard/PurchaseRequestManager";
+import OrderManager from "../../components/dashboard/OrderManager";
 import { deleteVideoFromBunny } from "../../utils/bunnyUtils";
 import { Bar } from "react-chartjs-2";
 import {
@@ -38,11 +41,6 @@ const Dashboard = () => {
   const [withdrawStatus, setWithdrawStatus] = useState("");
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
   const [user] = useAuthState(auth);
-
-  const dummyPosts = [
-    { id: 1, title: "初めての投稿", type: "動画", sales: 12, revenue: 3600 },
-    { id: 2, title: "2作目のコンテンツ", type: "画像", sales: 8, revenue: 2400 },
-  ];
 
   const fetchVideos = async () => {
     const querySnapshot = await getDocs(collection(db, "videos"));
@@ -141,20 +139,7 @@ const Dashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "posts":
-        return (
-          <div className="space-y-4">
-            {dummyPosts.map((post) => (
-              <div key={post.id} className="border rounded p-4 shadow-sm bg-white">
-                <h3 className="text-lg font-bold">{post.title}</h3>
-                <p className="text-sm text-gray-600">{post.type}</p>
-                <div className="text-sm mt-2">
-                  販売数: <span className="font-semibold">{post.sales}</span><br />
-                  売上: <span className="font-semibold">¥{post.revenue}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        );
+        return <ProductManager />;
       case "product":
         return <ProductPost />;
       case "withdraw":
@@ -199,6 +184,10 @@ const Dashboard = () => {
             </div>
           </div>
         );
+      case "payments":
+        return <PurchaseRequestManager />;
+      case "orders":
+        return <OrderManager />;
       default:
         return null;
     }
@@ -208,7 +197,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       <aside className="w-full md:w-1/4 bg-white shadow p-4 space-y-4">
         <h2 className="text-xl font-bold mb-4">ダッシュボード</h2>
-        {["posts", "product", "withdraw", "analytics", "video"].map((tab) => (
+        {["posts", "product", "withdraw", "analytics", "video", "payments", "orders"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -217,11 +206,13 @@ const Dashboard = () => {
             }`}
           >
             {{
-              posts: "投稿管理",
-              product: "商品出品",
+              posts: "出品管理",
+              product: "商品登録",
               withdraw: "出金管理",
               analytics: "アナリティクス",
               video: "動画投稿",
+              payments: "決済リクエスト",
+              orders: "注文管理",
             }[tab]}
           </button>
         ))}
@@ -232,6 +223,13 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+
+
+
+
+
+
 
 
 
