@@ -1,11 +1,9 @@
-// src/pages/content/Toppage.js
+// src/pages/content/Toppage.js（修正済）
+
 import React, { useEffect, useRef, useState } from 'react';
 import { db } from '../../firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 
-import VideoPlayer from '../../components/video/VideoPlayer';
-import ReactionButtons from '../../components/common/ReactionButtons';
-import CommentSection from '../../components/common/CommentSection';
 import SidebarLeft from '../../components/common/SidebarLeft';
 import SidebarRight from '../../components/common/SidebarRight';
 import MenuPanel from '../../components/common/MenuPanel';
@@ -88,18 +86,13 @@ const Toppage = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-black">
-      {/* モバイルのみ追尾ヘッダー */}
       {isMobile && (
         <HeaderMobile activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
-
       <div className="flex flex-1">
-        {/* 左サイドバー */}
         <aside className="hidden md:block md:w-1/5 bg-white p-4 h-screen sticky top-0">
           <SidebarLeft />
         </aside>
-
-        {/* 中央カラム */}
         <main className="flex-1 overflow-y-auto px-4 pb-20 pt-4 space-y-4">
           <MenuPanel />
           {isDesktop && (
@@ -107,14 +100,10 @@ const Toppage = () => {
           )}
           {renderTabContent()}
         </main>
-
-        {/* 右サイドバー */}
         <aside className="hidden lg:block lg:w-1/5 bg-white p-4 h-screen sticky top-0">
           <SidebarRight />
         </aside>
       </div>
-
-      {/* モバイルのみ追尾フッター */}
       {isMobile && (
         <FooterTabMobile activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
@@ -123,6 +112,7 @@ const Toppage = () => {
 };
 
 export default Toppage;
+
 
 
 

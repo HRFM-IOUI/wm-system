@@ -1,6 +1,6 @@
+// src/pages/system/TicketShop.js（修正済）
+
 import React from 'react';
-// QR画像は仮にコメントアウト（未設定時でもエラー回避可能）
-// import QRImage from '../../assets/images/paypay-qr.png';
 
 const TicketShop = () => {
   return (
@@ -10,8 +10,6 @@ const TicketShop = () => {
       {/* PayPay支払い */}
       <section className="border p-4 rounded shadow bg-white">
         <h2 className="font-semibold text-lg mb-2">PayPayで支払う</h2>
-        {/* QR画像がある場合だけ表示 */}
-        {/* <img src={QRImage} alt="PayPay QRコード" className="w-48 mx-auto mb-2" /> */}
         <div className="text-center text-gray-500 italic text-sm mb-2">
           （QRコードは現在準備中です）
         </div>
@@ -41,20 +39,17 @@ const TicketShop = () => {
         <p className="text-sm text-gray-600 mb-2">
           クレジットカード／コンビニ払いにも順次対応予定です。
         </p>
-        <a
-          href="#"
+        <button
           className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-          onClick={(e) => {
-            e.preventDefault();
-            alert('決済リンクは現在準備中です');
-          }}
+          onClick={() => alert('決済リンクは現在準備中です')}
         >
           決済ページへ
-        </a>
+        </button>
       </section>
     </div>
   );
 };
 
 export default TicketShop;
+
 
