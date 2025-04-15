@@ -1,6 +1,7 @@
-// src/pages/Lounge.js
+// src/pages/system/Lounge.js
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Footer from '../../components/common/Footer'; // ✅ 追加
 
 const Lounge = () => {
   return (
@@ -83,9 +84,13 @@ const Lounge = () => {
           </p>
         </section>
       </main>
+
+      {/* ✅ フッターをここに追加 */}
+      <Footer />
     </div>
   );
 };
 
 export default Lounge;
+
 

@@ -1,6 +1,8 @@
 // src/App.js
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
+
 import ProtectedRoute from './components/common/ProtectedRoute';
 import OwnerRoute from './components/common/OwnerRoute';
 import HeaderMobile from './components/common/HeaderMobile';
@@ -29,6 +31,11 @@ import ConfirmAll from './pages/system/ConfirmAll';
 // 管理者専用ページ
 import Dashboard from './pages/dashboard/Dashboard';
 
+// 法務ページ（追加）
+import PrivacyPolicy from './pages/system/PrivacyPolicy';
+import TermsOfService from './pages/system/TermsOfService';
+import LegalNotice from './pages/system/LegalNotice';
+
 function App() {
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -43,39 +50,51 @@ function App() {
   const isLounge = location.pathname === '/lounge';
 
   return (
-    <>
-      {isMobile && (isToppage || isLounge) && <HeaderMobile />}
+    <GoogleReCaptchaProvider reCaptchaKey="6LcB6BgrAAAAAANmgakt5YmGjMMrukwz2FjnHtRi">
+      <>
+        {isMobile && (isToppage || isLounge) && <HeaderMobile />}
 
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/lounge" element={<Lounge />} />
+        <Routes>
+          {/* 認証 */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
 
-        <Route path="/toppage" element={<ProtectedRoute element={<Toppage />} />} />
-        <Route path="/mypage" element={<ProtectedRoute element={<Mypage />} />} />
-        <Route path="/post" element={<ProtectedRoute element={<Post />} />} />
-        <Route path="/search" element={<ProtectedRoute element={<Search />} />} />
-        <Route path="/subscribe" element={<ProtectedRoute element={<Subscribe />} />} />
-        <Route path="/ticket-shop" element={<ProtectedRoute element={<TicketShop />} />} />
-        <Route path="/videos" element={<ProtectedRoute element={<VideoList />} />} />
-        <Route path="/video/:id" element={<ProtectedRoute element={<VideoDetail />} />} />
-        <Route path="/products" element={<ProtectedRoute element={<ProductList />} />} />
-        <Route path="/product/:id" element={<ProtectedRoute element={<ProductDetail />} />} />
-        <Route path="/gacha-select" element={<ProtectedRoute element={<GachaSelect />} />} />
-        <Route path="/gacha/:type" element={<ProtectedRoute element={<GachaByType />} />} />
-        <Route path="/system/payment-request/:productId" element={<ProtectedRoute element={<PaymentRequest />} />} />
-        <Route path="/confirm" element={<ProtectedRoute element={<ConfirmAll />} />} />
+          {/* 一般ページ */}
+          <Route path="/lounge" element={<Lounge />} />
+          <Route path="/toppage" element={<ProtectedRoute element={<Toppage />} />} />
+          <Route path="/mypage" element={<ProtectedRoute element={<Mypage />} />} />
+          <Route path="/post" element={<ProtectedRoute element={<Post />} />} />
+          <Route path="/search" element={<ProtectedRoute element={<Search />} />} />
+          <Route path="/subscribe" element={<ProtectedRoute element={<Subscribe />} />} />
+          <Route path="/ticket-shop" element={<ProtectedRoute element={<TicketShop />} />} />
+          <Route path="/videos" element={<ProtectedRoute element={<VideoList />} />} />
+          <Route path="/video/:id" element={<ProtectedRoute element={<VideoDetail />} />} />
+          <Route path="/products" element={<ProtectedRoute element={<ProductList />} />} />
+          <Route path="/product/:id" element={<ProtectedRoute element={<ProductDetail />} />} />
+          <Route path="/gacha-select" element={<ProtectedRoute element={<GachaSelect />} />} />
+          <Route path="/gacha/:type" element={<ProtectedRoute element={<GachaByType />} />} />
+          <Route path="/system/payment-request/:productId" element={<ProtectedRoute element={<PaymentRequest />} />} />
+          <Route path="/confirm" element={<ProtectedRoute element={<ConfirmAll />} />} />
 
-        <Route path="/dashboard" element={<OwnerRoute element={<Dashboard />} />} />
+          {/* 管理者 */}
+          <Route path="/dashboard" element={<OwnerRoute element={<Dashboard />} />} />
 
-        <Route path="/" element={<Navigate to="/lounge" />} />
-        <Route path="*" element={<Navigate to="/lounge" replace />} />
-      </Routes>
-    </>
+          {/* 法務ページ（誰でもアクセス可） */}
+          <Route path="/system/PrivacyPolicy" element={<PrivacyPolicy />} />
+          <Route path="/system/TermsOfService" element={<TermsOfService />} />
+          <Route path="/system/LegalNotice" element={<LegalNotice />} />
+
+          {/* ルート */}
+          <Route path="/" element={<Navigate to="/lounge" />} />
+          <Route path="*" element={<Navigate to="/lounge" replace />} />
+        </Routes>
+      </>
+    </GoogleReCaptchaProvider>
   );
 }
 
 export default App;
+
 
 
 

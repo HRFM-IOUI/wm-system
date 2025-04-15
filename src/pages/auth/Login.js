@@ -2,15 +2,25 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '../../firebase';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      if (!executeRecaptcha) {
+        alert('reCAPTCHAがまだ準備できていません。しばらくしてから再試行してください。');
+        return;
+      }
+
+      const token = await executeRecaptcha('login');
+      console.log('reCAPTCHA Token (Login):', token);
+
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/toppage');
     } catch (error) {
@@ -76,3 +86,4 @@ const Login = () => {
 };
 
 export default Login;
+

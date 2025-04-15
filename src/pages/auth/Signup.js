@@ -2,15 +2,26 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
+      if (!executeRecaptcha) {
+        alert('reCAPTCHAがまだ準備できていません。しばらくしてから再試行してください。');
+        return;
+      }
+
+      const token = await executeRecaptcha('signup');
+      console.log('reCAPTCHA Token (Signup):', token);
+
+      // 通常のサインアップ処理
       await createUserWithEmailAndPassword(auth, email, password);
       navigate('/toppage');
     } catch (error) {
