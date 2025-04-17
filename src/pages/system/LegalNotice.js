@@ -9,9 +9,9 @@ const LegalNotice = () => {
         <h1 className="text-2xl font-bold text-center">特定商取引法に基づく表記</h1>
 
         <ul className="space-y-2 text-sm bg-gray-50 p-4 rounded shadow">
-          <li><strong>販売業者名：</strong>ワエム システム（仮）</li>
-          <li><strong>運営責任者：</strong>山田 太郎（仮名）</li>
-          <li><strong>所在地：</strong>東京都〇〇区〇〇1-2-3（仮）</li>
+          <li><strong>販売業者名：</strong>ワンダーメタニズム株式会社</li>
+          <li><strong>運営責任者：</strong>呉羽　浩文</li>
+          <li><strong>所在地：</strong>東京都杉並区高井戸東3-19-8　TMレジデンス202</li>
           <li><strong>お問い合わせ：</strong>support@toafans.shop</li>
           <li><strong>販売価格：</strong>各商品・サービスごとに表示された価格に基づきます</li>
           <li><strong>商品代金以外の必要料金：</strong>振込手数料・通信費等（ユーザー負担）</li>
