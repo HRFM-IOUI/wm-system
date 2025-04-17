@@ -1,13 +1,8 @@
-// src/pages/user/Subscribe.js — Stripe申請対応＆誰でも閲覧可能な公開ページ仕様
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../../firebase';
 
 const Subscribe = () => {
   const navigate = useNavigate();
-  const [user] = useAuthState(auth);
 
   const handleSubscribe = () => {
     alert('サブスク申し込みフローは現在準備中です。');
@@ -36,14 +31,13 @@ const Subscribe = () => {
           onClick={handleSubscribe}
           className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-4 rounded-md shadow"
         >
-          メンバーになる(会員登録後に加入できます)
+          メンバーになる（登録後に加入できます）
         </button>
         <p className="text-xs text-gray-500 text-center">
-          解約はマイページからいつでも可能です。<br />
+          解約はマイページからいつでも可能です。
         </p>
       </div>
 
-      {/* 🔽 公開導線の補足リンクを表示 */}
       <div className="mt-8 text-center">
         <p className="text-sm text-gray-600 mb-2">下記のリンクからお戻りください。</p>
         <button
@@ -58,5 +52,6 @@ const Subscribe = () => {
 };
 
 export default Subscribe;
+
 
 
