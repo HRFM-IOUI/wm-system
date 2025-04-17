@@ -27,7 +27,7 @@ const Lounge = () => {
         <section className="relative w-full h-[90vh] overflow-hidden">
           <video
             className="absolute inset-0 w-full h-full object-cover z-0"
-            src="https://cdn.coverr.co/videos/coverr-lonely-palm-tree-9426/1080p.mp4"
+            src=""
             autoPlay
             loop
             muted
@@ -56,7 +56,7 @@ const Lounge = () => {
         <section className="bg-gray-100 py-12 px-6 text-center">
           <h2 className="text-2xl font-bold mb-4">提供中のコンテンツ</h2>
           <p className="text-gray-700 max-w-xl mx-auto mb-8">
-            本オンラインサロンでは、会員限定の映像・音声・イラスト・トークイベントへの参加機会など、
+            本オンラインサロンでは、会員限定の映像・音声・イラスト・イベントへの参加機会など、
             ファンとクリエイターがつながる特別な体験を提供しています。
           </p>
           <div className="flex flex-col md:flex-row gap-6 justify-center">

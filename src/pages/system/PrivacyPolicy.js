@@ -10,7 +10,7 @@ const PrivacyPolicy = () => {
 
         <div className="bg-gray-50 p-4 rounded shadow text-sm text-gray-700 space-y-4">
           <p>
-            TOA Lounge（以下「当サービス」）は、ユーザーのプライバシーを尊重し、個人情報の保護に努めています。
+            Toa Fans Shop （以下「当サービス」）は、ユーザーのプライバシーを尊重し、個人情報の保護に努めています。
           </p>
           <p>
             ご提供いただいた個人情報は、本人確認・サービスの提供・改善・不正行為の防止に活用されます。

@@ -15,7 +15,7 @@ const LegalNotice = () => {
           <li><strong>お問い合わせ：</strong>support@toafans.shop</li>
           <li><strong>販売価格：</strong>各商品・サービスごとに表示された価格に基づきます</li>
           <li><strong>商品代金以外の必要料金：</strong>振込手数料・通信費等（ユーザー負担）</li>
-          <li><strong>お支払い方法：</strong>PayPay・銀行振込・クレジットカード等</li>
+          <li><strong>お支払い方法：</strong>各種リンク決済・銀行振込・クレジットカード等</li>
           <li><strong>提供時期：</strong>決済確認後、即時または個別指定に応じて提供</li>
           <li><strong>返品・キャンセル：</strong>商品の性質上、提供後のキャンセル・返金は不可とさせていただきます</li>
         </ul>

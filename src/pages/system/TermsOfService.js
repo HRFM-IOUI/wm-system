@@ -9,7 +9,7 @@ const TermsOfService = () => {
         <h1 className="text-2xl font-bold text-center">利用規約</h1>
         <section className="bg-gray-50 p-4 rounded shadow text-sm text-gray-700 space-y-4">
           <p>
-            本利用規約（以下「本規約」）は、TOA Lounge（以下「当サービス」）が提供するサービス・コンテンツの利用条件を定めるものです。ユーザーは、本規約に同意した上で、当サービスをご利用ください。
+            本利用規約（以下「本規約」）は、Toa Fans Shop（以下「当サービス」）が提供するサービス・コンテンツの利用条件を定めるものです。ユーザーは、本規約に同意した上で、当サービスをご利用ください。
           </p>
           <ul className="list-disc list-inside space-y-2">
             <li>当サービスにおける全コンテンツは、無断転載・複製・二次配布を固く禁止します。</li>
