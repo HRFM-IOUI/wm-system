@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
@@ -17,7 +16,6 @@ import GachaSelect from './pages/gacha/GachaSelect';
 import GachaByType from './pages/gacha/GachaByType';
 import Mypage from './pages/user/Mypage';
 import Post from './pages/content/Post';
-import Search from './pages/system/Search';
 import Lounge from './pages/system/Lounge';
 import Subscribe from './pages/user/Subscribe';
 import TicketShop from './pages/system/TicketShop';
@@ -26,15 +24,16 @@ import VideoDetail from './pages/content/VideoDetail';
 import ProductList from './pages/content/ProductList';
 import ProductDetail from './pages/content/ProductDetail';
 import PaymentRequest from './pages/system/PaymentRequest';
-import ConfirmAll from './pages/system/ConfirmAll';
 
 // 管理者専用ページ
 import Dashboard from './pages/dashboard/Dashboard';
 
-// 法務ページ（追加）
+// 法務ページ
 import PrivacyPolicy from './pages/system/PrivacyPolicy';
 import TermsOfService from './pages/system/TermsOfService';
 import LegalNotice from './pages/system/LegalNotice';
+
+// ※ Search.js と ConfirmAll.js は削除し、ルートからも外しました
 
 function App() {
   const location = useLocation();
@@ -46,6 +45,7 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // ToppageやLoungeの判定
   const isToppage = location.pathname === '/toppage';
   const isLounge = location.pathname === '/lounge';
 
@@ -53,7 +53,6 @@ function App() {
     <GoogleReCaptchaProvider reCaptchaKey="6LcB6BgrAAAAAANmgakt5YmGjMMrukwz2FjnHtRi">
       <>
         {isMobile && (isToppage || isLounge) && <HeaderMobile />}
-
         <Routes>
           {/* 認証 */}
           <Route path="/login" element={<Login />} />
@@ -64,7 +63,6 @@ function App() {
           <Route path="/toppage" element={<ProtectedRoute element={<Toppage />} />} />
           <Route path="/mypage" element={<ProtectedRoute element={<Mypage />} />} />
           <Route path="/post" element={<ProtectedRoute element={<Post />} />} />
-          <Route path="/search" element={<ProtectedRoute element={<Search />} />} />
           <Route path="/subscribe" element={<ProtectedRoute element={<Subscribe />} />} />
           <Route path="/ticket-shop" element={<ProtectedRoute element={<TicketShop />} />} />
           <Route path="/videos" element={<ProtectedRoute element={<VideoList />} />} />
@@ -73,13 +71,15 @@ function App() {
           <Route path="/product/:id" element={<ProtectedRoute element={<ProductDetail />} />} />
           <Route path="/gacha-select" element={<ProtectedRoute element={<GachaSelect />} />} />
           <Route path="/gacha/:type" element={<ProtectedRoute element={<GachaByType />} />} />
-          <Route path="/system/payment-request/:productId" element={<ProtectedRoute element={<PaymentRequest />} />} />
-          <Route path="/confirm" element={<ProtectedRoute element={<ConfirmAll />} />} />
+          <Route
+            path="/system/payment-request/:productId"
+            element={<ProtectedRoute element={<PaymentRequest />} />}
+          />
 
           {/* 管理者 */}
           <Route path="/dashboard" element={<OwnerRoute element={<Dashboard />} />} />
 
-          {/* 法務ページ（誰でもアクセス可） */}
+          {/* 法務ページ */}
           <Route path="/system/PrivacyPolicy" element={<PrivacyPolicy />} />
           <Route path="/system/TermsOfService" element={<TermsOfService />} />
           <Route path="/system/LegalNotice" element={<LegalNotice />} />
@@ -94,6 +94,7 @@ function App() {
 }
 
 export default App;
+
 
 
 

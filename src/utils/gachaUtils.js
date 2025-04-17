@@ -1,3 +1,7 @@
+// src/utils/gachaUtils.js
+// ガチャ抽選ロジック、1等5%判定など。
+
+import { db } from '../firebase';
 import {
   collection,
   getDocs,
@@ -10,62 +14,54 @@ import {
   orderBy,
   limit,
 } from 'firebase/firestore';
-import { db } from '../firebase'; // ✅ 修正済みパス
 
-// 🎯 ガチャアイテムを取得（タイプ別対応）
+/**
+ * ガチャアイテムを取得（タイプ別対応）
+ */
 export const fetchGachaItems = async (type = 'default') => {
+  // 例： gachaItems_vip, gachaItems_1in50, etc.
   const targetCollection = type ? `gachaItems_${type}` : 'gachaItems';
   const querySnapshot = await getDocs(collection(db, targetCollection));
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
-// 🎫 ユーザーのチケット数を取得
-export const fetchUserTicketCount = async (userId) => {
-  const userRef = doc(db, 'users', userId);
-  const userSnap = await getDoc(userRef);
+/**
+ * ガチャ抽選処理
+ * @param {Array} items ガチャアイテム
+ * @param {number} count 回数
+ * @param {string} userId ユーザーID
+ * @returns {Array} 結果配列
+ */
+export const drawGacha = async (items, count = 1, userId) => {
+  // ここで 5% で1等サブスク当選 or はずれ の簡易抽選
+  // 1等アイテムは item = { name: 'サブスク無料', type: 'subscription' } など
 
-  if (userSnap.exists()) {
-    const data = userSnap.data();
-    return data.tickets || 0;
-  } else {
-    await setDoc(userRef, { tickets: 100 });
-    return 100;
+  if (!Array.isArray(items) || items.length === 0) {
+    // アイテムが設定されていない場合、5%で当たり or はずれアイテム
+    return Array(count).fill({ name: 'はずれ', type: 'none' });
   }
-};
-
-// 🎫 チケット消費
-export const consumeGachaTickets = async (userId, count) => {
-  const userRef = doc(db, 'users', userId);
-  const userSnap = await getDoc(userRef);
-
-  if (userSnap.exists()) {
-    const data = userSnap.data();
-    const current = data.tickets || 0;
-
-    if (current < count) throw new Error('チケットが不足しています');
-
-    await updateDoc(userRef, { tickets: current - count });
-  } else {
-    throw new Error('ユーザー情報が存在しません');
-  }
-};
-
-// 🎰 ガチャを回す処理（ランダム抽選）
-export const drawGacha = async (items, count) => {
-  if (!Array.isArray(items) || items.length === 0) return [];
 
   const results = [];
   for (let i = 0; i < count; i++) {
-    const randomIndex = Math.floor(Math.random() * items.length);
-    results.push(items[randomIndex]);
+    // 5%判定
+    const random = Math.random() * 100;
+    if (random < 5) {
+      results.push({ name: '1等サブスク1ヶ月無料', type: 'subscription' });
+    } else {
+      // 通常：アイテム配列から適当に1件
+      const randomIndex = Math.floor(Math.random() * items.length);
+      results.push(items[randomIndex]);
+    }
   }
+
   return results;
 };
 
-// 📦 ガチャ結果を保存
+/**
+ * ガチャ結果を保存
+ */
 export const saveGachaResult = async (userId, results) => {
   const timestamp = new Date();
-
   const historyCollection = collection(db, `gachaResults/${userId}/history`);
   await addDoc(historyCollection, {
     results,
@@ -73,13 +69,16 @@ export const saveGachaResult = async (userId, results) => {
   });
 };
 
-// 📖 ガチャ履歴を取得（最大 maxItems 件）
+/**
+ * ガチャ履歴を取得（最大 maxItems 件）
+ */
 export const getGachaHistory = async (userId, maxItems = 10) => {
   const historyRef = collection(db, `gachaResults/${userId}/history`);
   const q = query(historyRef, orderBy('timestamp', 'desc'), limit(maxItems));
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map(doc => doc.data());
 };
+
 
 
 

@@ -1,38 +1,62 @@
+// src/pages/user/Subscribe.js — Stripe申請対応＆誰でも閲覧可能な公開ページ仕様
+
 import React from 'react';
-import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../../firebase';
 
-function Subscribe() {
+const Subscribe = () => {
+  const navigate = useNavigate();
+  const [user] = useAuthState(auth);
+
+  const handleSubscribe = () => {
+    alert('サブスク申し込みフローは現在準備中です。');
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md"
-      >
-        <h2 className="text-2xl font-semibold text-center text-gray-800 mb-4">TOAラウンジ プレミアム入会</h2>
-
-        <div className="text-center mb-6">
-          <span className="text-4xl font-bold text-indigo-600">¥1,200</span>
-          <span className="text-gray-600"> / 月</span>
-        </div>
-
-        <ul className="mb-6 text-gray-700 list-disc list-inside space-y-1">
-          <li>全コンテンツ閲覧</li>
-          <li>限定イベントへの参加権</li>
-          <li>サポートチャット利用</li>
-        </ul>
-
-        <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200">
-          入会する
-        </button>
-
-        <p className="text-xs text-gray-400 text-center mt-4">
-          安心・安全な決済。キャンセルはいつでも可能です。
+    <div className="min-h-screen bg-white text-gray-800 flex flex-col items-center justify-center px-4 py-12">
+      <div className="max-w-md w-full bg-gray-50 p-6 rounded-xl shadow-md space-y-6">
+        <h2 className="text-2xl font-semibold text-center text-gray-800">
+          サブスクメニューのご紹介
+        </h2>
+        <p className="text-sm text-gray-600">
+          本オンラインサロンでは、TOAクリエイターによる限定コンテンツ、イベント参加、チャット交流などをお楽しみいただけます。
         </p>
-      </motion.div>
+        <div className="text-center">
+          <span className="text-3xl font-bold text-pink-600">¥1,200</span>
+          <span className="text-gray-700"> / 月 (税込・自動継続)</span>
+        </div>
+        <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+          <li>ファン限定コンテンツのフルアクセス</li>
+          <li>ライブ配信・イベントへの優先参加枠</li>
+          <li>イベントではファンと直接交流！</li>
+          <li>いつでもキャンセル可能</li>
+        </ul>
+        <button
+          onClick={handleSubscribe}
+          className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-4 rounded-md shadow"
+        >
+          メンバーになる(会員登録後に加入できます)
+        </button>
+        <p className="text-xs text-gray-500 text-center">
+          解約はマイページからいつでも可能です。<br />
+        </p>
+      </div>
+
+      {/* 🔽 公開導線の補足リンクを表示 */}
+      <div className="mt-8 text-center">
+        <p className="text-sm text-gray-600 mb-2">下記のリンクからお戻りください。</p>
+        <button
+          onClick={() => navigate('/lounge')}
+          className="text-blue-600 hover:underline text-sm"
+        >
+          Loungeに戻る
+        </button>
+      </div>
     </div>
   );
-}
+};
 
 export default Subscribe;
+
+

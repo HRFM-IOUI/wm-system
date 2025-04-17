@@ -1,4 +1,3 @@
-// src/pages/content/ProductList.js
 import React, { useEffect, useState } from 'react';
 import { db } from '../../firebase';
 import { collection, getDocs } from 'firebase/firestore';
@@ -11,8 +10,8 @@ const ProductList = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'products'));
-        const productList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const snap = await getDocs(collection(db, 'products'));
+        const productList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setProducts(productList);
       } catch (error) {
         console.error('商品取得失敗:', error);
@@ -25,20 +24,33 @@ const ProductList = () => {
   }, []);
 
   if (loading) {
-    return <div className="p-4 text-center">読み込み中...</div>;
+    return (
+      <div className="p-4 text-center text-gray-500">
+        読み込み中...
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-4 space-y-4">
-      <h1 className="text-2xl font-bold mb-4">🛍 商品一覧</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {products.map(product => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+    <div className="min-h-screen bg-white text-gray-800">
+      <div className="max-w-5xl mx-auto py-8 px-4">
+        <h1 className="text-2xl font-bold mb-4">🛍 商品一覧</h1>
+
+        {products.length === 0 ? (
+          <p className="text-gray-500">現在、商品が登録されていません。</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {products.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default ProductList;
+
+
 

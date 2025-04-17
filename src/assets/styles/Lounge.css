@@ -1,43 +1,46 @@
+/* src/assets/styles/Lounge.css */
+
 .lounge-container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #ff758c, #ff7eb3); /* MyFans風グラデ */
-    color: white;
-    font-family: 'Arial', sans-serif;
-    padding: 2rem;
-    text-align: center;
-  }
-  
-  .lounge-title {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-  }
-  
-  .lounge-description {
-    font-size: 1.2rem;
-    margin-bottom: 2rem;
-  }
-  
-  .lounge-buttons {
-    display: flex;
-    gap: 1rem;
-  }
-  
-  .lounge-button {
-    background-color: white;
-    color: #ff5e93;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: bold;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .lounge-button:hover {
-    background-color: #ffe3ec;
-  }
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ff758c, #ff7eb3); /* グラデ */
+  color: white;
+  font-family: 'Arial', sans-serif;
+  padding: 2rem;
+  text-align: center;
+}
+
+.lounge-title {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.lounge-description {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.lounge-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.lounge-button {
+  background-color: #ec4899; /* theme-pink */
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04); /* soft shadow */
+}
+
+.lounge-button:hover {
+  background-color: #db2777; /* theme-pink-dark */
+}

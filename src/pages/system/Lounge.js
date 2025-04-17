@@ -1,7 +1,7 @@
 // src/pages/system/Lounge.js
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Footer from '../../components/common/Footer'; // ✅ 追加
+import Footer from '../../components/common/Footer';
 
 const Lounge = () => {
   return (
@@ -79,18 +79,27 @@ const Lounge = () => {
               </p>
             </div>
           </div>
+          <div className="mt-8">
+            <p className="text-sm text-gray-700">
+              月額制プランの詳細は以下のリンクよりご確認いただけます。
+            </p>
+            <Link
+              to="/subscribe"
+              className="text-pink-600 underline hover:text-pink-800 text-sm"
+            >
+              サブスクメニューを見る
+            </Link>
+          </div>
           <p className="text-xs text-gray-500 text-center mt-8 px-4">
             当サービスで提供されるすべてのコンテンツは、クリエイター本人によって制作された合法的なオリジナル作品です。法令遵守のもと、健全なファンコミュニティの形成を目指しています。
           </p>
         </section>
       </main>
 
-      {/* ✅ フッターをここに追加 */}
       <Footer />
     </div>
   );
 };
 
 export default Lounge;
-
 

@@ -1,4 +1,4 @@
-// src/pages/content/Toppage.js（修正済）
+// src/pages/content/Toppage.js （修正：ログインボーナスバナー追加＋Lounge基準配色）
 
 import React, { useEffect, useRef, useState } from 'react';
 import { db } from '../../firebase';
@@ -14,6 +14,9 @@ import HeaderMobile from '../../components/common/HeaderMobile';
 import TabSwitcher from '../../components/common/TabSwitcher';
 import VideoCard from '../../components/VideoCard';
 import { useMediaQuery } from 'react-responsive';
+
+// ✅ ログインボーナスバナーをインポート
+import DailyBonusBanner from '../../components/ui/DailyBonusBanner';
 
 const Toppage = () => {
   const [activeTab, setActiveTab] = useState('videos');
@@ -86,24 +89,39 @@ const Toppage = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-black">
+      {/* モバイルなら上にHeaderMobile表示 */}
       {isMobile && (
         <HeaderMobile activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
+
       <div className="flex flex-1">
+        {/* 左サイドバー */}
         <aside className="hidden md:block md:w-1/5 bg-white p-4 h-screen sticky top-0">
           <SidebarLeft />
         </aside>
+
+        {/* メインコンテンツ */}
         <main className="flex-1 overflow-y-auto px-4 pb-20 pt-4 space-y-4">
+          {/* ログインボーナスのバナーを表示 */}
+          <DailyBonusBanner />
+
           <MenuPanel />
+
+          {/* デスクトップ時のみ タブ切り替え表示 */}
           {isDesktop && (
             <TabSwitcher activeTab={activeTab} setActiveTab={setActiveTab} />
           )}
+
           {renderTabContent()}
         </main>
+
+        {/* 右サイドバー */}
         <aside className="hidden lg:block lg:w-1/5 bg-white p-4 h-screen sticky top-0">
           <SidebarRight />
         </aside>
       </div>
+
+      {/* フッターメニュー(モバイル用) */}
       {isMobile && (
         <FooterTabMobile activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
@@ -112,6 +130,7 @@ const Toppage = () => {
 };
 
 export default Toppage;
+
 
 
 

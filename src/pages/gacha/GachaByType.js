@@ -1,3 +1,7 @@
+// src/pages/gacha/GachaByType.js
+// ガチャをポイント制にし、1等当選時のサブスク特典も付与
+// 配色はほぼ既存のまま
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -11,9 +15,8 @@ import {
   drawGacha,
   fetchGachaItems,
   saveGachaResult,
-  fetchUserTicketCount,
-  consumeGachaTickets,
 } from '../../utils/gachaUtils';
+import { getUserVipStatus, recordGachaPlay } from '../../utils/vipUtils';
 import gachaConfigs from '../../utils/gachaConfigs';
 import '../../assets/animatedBackground.css';
 
@@ -30,10 +33,13 @@ const GachaByType = () => {
   const [showResult, setShowResult] = useState(false);
   const [showTicketModal, setShowTicketModal] = useState(false);
   const [gachaCount, setGachaCount] = useState(1);
-  const [ticketCount, setTicketCount] = useState(0);
+  const [points, setPoints] = useState(0);
+  const [rank, setRank] = useState('');
+  const [gachaTotal, setGachaTotal] = useState(0);
+  const [spent, setSpent] = useState(0);
   const [showStage, setShowStage] = useState(false);
   const [skipAnimation, setSkipAnimation] = useState(false);
-  const [isMuted, setIsMuted] = useState(false); // 🔇 ミュート状態
+  const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
     if (!user) return navigate('/login');
@@ -42,8 +48,11 @@ const GachaByType = () => {
     const fetchData = async () => {
       const items = await fetchGachaItems(type);
       setGachaItems(items);
-      const count = await fetchUserTicketCount(user.uid);
-      setTicketCount(count);
+      const status = await getUserVipStatus(user.uid);
+      setPoints(status.points || 0);
+      setRank(status.rank || '');
+      setGachaTotal(status.gachaCount || 0);
+      setSpent(status.totalSpent || 0);
     };
     fetchData();
   }, [user, navigate, type, config]);
@@ -55,31 +64,31 @@ const GachaByType = () => {
 
   const executeDraw = async () => {
     if (!user) return;
-    if (ticketCount < gachaCount) {
-      alert('チケットが不足しています');
+    const cost = gachaCount * 500;
+    if (points < cost) {
+      alert(`ポイントが不足しています（必要: ${cost}pt）`);
       return;
     }
 
     try {
-      await consumeGachaTickets(user.uid, gachaCount);
-      setTicketCount(prev => prev - gachaCount);
+      setPoints(prev => prev - cost);
+      await recordGachaPlay(user.uid);
       setShowTicketModal(false);
       setShowStage(true);
 
-      // 🎵 BGM再生
       if (audioRef.current) {
         audioRef.current.muted = isMuted;
         audioRef.current.currentTime = 0;
         audioRef.current.play().catch(e => console.warn('BGM再生失敗:', e));
       }
     } catch (err) {
-      console.error('チケット消費エラー:', err);
+      console.error('ポイント消費エラー:', err);
     }
   };
 
   const handleAnimationComplete = async () => {
     try {
-      const results = await drawGacha(gachaItems, gachaCount);
+      const results = await drawGacha(gachaItems, gachaCount, user.uid);
       await saveGachaResult(user.uid, results);
       setDrawResults(results);
       setShowResult(true);
@@ -112,7 +121,6 @@ const GachaByType = () => {
       <GachaHeader />
       <GachaStatusOverlay />
 
-      {/* 🎵 BGM 再生 */}
       <audio
         ref={audioRef}
         src={require('../../assets/bgm/vip_theme_sample.mp3')}
@@ -120,11 +128,13 @@ const GachaByType = () => {
       />
 
       <div className="relative z-10 flex flex-col items-center justify-start pt-24 space-y-4">
-        <div className="text-black font-semibold">
-          {config?.name || 'ガチャ'} 🎫 チケット: {ticketCount}
+        <div className="text-black font-semibold text-center">
+          <div>{config?.name || 'ガチャ'} 💰 ポイント: {points}</div>
+          <div className="text-sm mt-1">
+            🏅 VIPランク: {rank} ／ 🎰 累計ガチャ: {gachaTotal}回 ／ 💸 課金累計: ¥{spent}
+          </div>
         </div>
 
-        {/* 🔇 ミュート切り替え */}
         <button
           className="text-sm text-pink-600 underline hover:text-pink-800"
           onClick={toggleMute}
@@ -137,19 +147,19 @@ const GachaByType = () => {
             className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded shadow"
             onClick={() => handleDraw(1)}
           >
-            1回
+            1回（500pt）
           </button>
           <button
             className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded shadow"
             onClick={() => handleDraw(10)}
           >
-            10回
+            10回（5000pt）
           </button>
           <button
             className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded shadow"
             onClick={() => handleDraw(100)}
           >
-            100回
+            100回（50000pt）
           </button>
         </div>
 
@@ -181,6 +191,10 @@ const GachaByType = () => {
 };
 
 export default GachaByType;
+
+
+
+
 
 
 

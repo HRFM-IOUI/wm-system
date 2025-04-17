@@ -1,44 +1,67 @@
 // src/pages/system/Confirm.js
-import React, { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CartContext } from '../../contexts/CartContext';
+// ConfirmAll.js と同等の「機能確認ダッシュボード」
+
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Confirm = () => {
-  const { cartItems, getTotalPrice } = useContext(CartContext);
-  const navigate = useNavigate();
-
-  const handleProceed = () => {
-    navigate('/checkout');
-  };
-
-  if (cartItems.length === 0) {
-    return <div className="p-4 text-center">カートに商品がありません。</div>;
-  }
-
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">🛍 注文内容の確認</h1>
+    <div className="min-h-screen bg-white text-gray-800">
+      <div className="max-w-4xl mx-auto p-6 space-y-6">
+        <h1 className="text-2xl font-bold mb-4">✅ 機能確認ダッシュボード</h1>
 
-      <div className="bg-white rounded shadow p-4 space-y-4">
-        {cartItems.map((item, index) => (
-          <div key={index} className="border-b pb-2">
-            <p className="font-semibold">{item.title}</p>
-            <p className="text-sm text-gray-500">¥{item.price.toLocaleString()}</p>
-          </div>
-        ))}
-        <div className="text-right font-bold text-lg">
-          合計金額: ¥{getTotalPrice().toLocaleString()}
-        </div>
+        <section className="bg-gray-50 p-4 rounded shadow">
+          <h2 className="text-lg font-semibold mb-2">📦 商品系</h2>
+          <ul className="list-disc list-inside space-y-1 text-pink-600 text-sm">
+            <li>
+              <Link to="/products" className="underline">商品一覧</Link>
+            </li>
+            <li>
+              <Link to="/post" className="underline">商品出品（画像アップなど）</Link>
+            </li>
+          </ul>
+        </section>
+
+        <section className="bg-gray-50 p-4 rounded shadow">
+          <h2 className="text-lg font-semibold mb-2">💳 決済関連</h2>
+          <ul className="list-disc list-inside space-y-1 text-pink-600 text-sm">
+            <li>
+              <Link to="/system/payment-request/sample-id" className="underline">決済リクエスト画面</Link>
+            </li>
+            <li>
+              <Link to="/dashboard" className="underline">ダッシュボード → 決済リクエスト承認</Link>
+            </li>
+          </ul>
+        </section>
+
+        <section className="bg-gray-50 p-4 rounded shadow">
+          <h2 className="text-lg font-semibold mb-2">🎥 動画・再生・VIP</h2>
+          <ul className="list-disc list-inside space-y-1 text-pink-600 text-sm">
+            <li>
+              <Link to="/videos" className="underline">動画一覧</Link>
+            </li>
+            <li>
+              <Link to="/dashboard" className="underline">ダッシュボード → 動画投稿・削除</Link>
+            </li>
+          </ul>
+        </section>
+
+        <section className="bg-gray-50 p-4 rounded shadow">
+          <h2 className="text-lg font-semibold mb-2">🛠 管理ツール系</h2>
+          <ul className="list-disc list-inside space-y-1 text-pink-600 text-sm">
+            <li>
+              <Link to="/dashboard" className="underline">ダッシュボード全体確認</Link>
+            </li>
+            <li>
+              <Link to="/mypage" className="underline">マイページ（VIP判定・履歴など）</Link>
+            </li>
+          </ul>
+        </section>
+
       </div>
-
-      <button
-        onClick={handleProceed}
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-      >
-        支払いへ進む
-      </button>
     </div>
   );
 };
 
 export default Confirm;
+
