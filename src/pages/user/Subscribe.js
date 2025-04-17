@@ -5,7 +5,7 @@ const Subscribe = () => {
   const navigate = useNavigate();
 
   const handleSubscribe = () => {
-    alert('サブスク申し込みフローは現在準備中です。');
+    navigate('/signup');
   };
 
   return (
@@ -52,6 +52,7 @@ const Subscribe = () => {
 };
 
 export default Subscribe;
+
 
 
 
