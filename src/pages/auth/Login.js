@@ -1,4 +1,3 @@
-// ✅ Login.js（完全版）
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
@@ -72,7 +71,10 @@ const Login = () => {
             />
           </div>
 
-          <CommonButton type="submit" className="w-full rounded-full text-lg">
+          <CommonButton
+            type="submit"
+            className="w-full rounded-full text-lg bg-pink-500 hover:bg-pink-600 text-white"
+          >
             ログイン
           </CommonButton>
         </form>
@@ -88,7 +90,7 @@ const Login = () => {
         </button>
 
         <p className="text-sm text-center text-gray-600">
-          アカウントをお持ちでない方は {" "}
+          アカウントをお持ちでない方は{" "}
           <a href="/signup" className="text-theme-pink hover:underline font-semibold">新規登録</a>
         </p>
         <p className="text-xs text-center text-gray-400">
@@ -100,6 +102,7 @@ const Login = () => {
 };
 
 export default Login;
+
 
 
 

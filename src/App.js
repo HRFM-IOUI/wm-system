@@ -9,6 +9,7 @@ import HeaderMobile from './components/common/HeaderMobile';
 // 認証ページ
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
+import EmailSignupPage from './pages/auth/EmailSignupPage'; // ✅ 追加
 
 // 一般ユーザー用ページ
 import Toppage from './pages/content/Toppage';
@@ -33,8 +34,6 @@ import PrivacyPolicy from './pages/system/PrivacyPolicy';
 import TermsOfService from './pages/system/TermsOfService';
 import LegalNotice from './pages/system/LegalNotice';
 
-// ※ Search.js と ConfirmAll.js は削除し、ルートからも外しました
-
 function App() {
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -45,7 +44,6 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // ToppageやLoungeの判定
   const isToppage = location.pathname === '/toppage';
   const isLounge = location.pathname === '/lounge';
 
@@ -57,6 +55,7 @@ function App() {
           {/* 認証 */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/signup/email" element={<EmailSignupPage />} /> {/* ✅ メール登録フォーム専用ページ */}
 
           {/* 一般ページ */}
           <Route path="/lounge" element={<Lounge />} />
@@ -94,6 +93,7 @@ function App() {
 }
 
 export default App;
+
 
 
 
