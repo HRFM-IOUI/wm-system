@@ -1,4 +1,5 @@
 // src/components/ui/VideoFilterBar.js
+
 import React from "react";
 
 const TAGS = ["ダンス", "料理", "ゲーム", "音楽", "Vlog"];
@@ -55,6 +56,8 @@ const VideoFilterBar = ({
 };
 
 export default VideoFilterBar;
+
+
 
 
 
