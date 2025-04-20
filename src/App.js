@@ -9,10 +9,11 @@ import HeaderMobile from './components/common/HeaderMobile';
 // 認証ページ
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
-import EmailSignupPage from './pages/auth/EmailSignupPage'; // ✅ 追加
+import EmailSignupPage from './pages/auth/EmailSignupPage';
 
 // 一般ユーザー用ページ
 import Toppage from './pages/content/Toppage';
+import DmodePage from './pages/content/DmodePage'; // ✅ 変更：VIPページ → Dmodeページ
 import GachaSelect from './pages/gacha/GachaSelect';
 import GachaByType from './pages/gacha/GachaByType';
 import Mypage from './pages/user/Mypage';
@@ -55,11 +56,12 @@ function App() {
           {/* 認証 */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/signup/email" element={<EmailSignupPage />} /> {/* ✅ メール登録フォーム専用ページ */}
+          <Route path="/signup/email" element={<EmailSignupPage />} />
 
           {/* 一般ページ */}
           <Route path="/lounge" element={<Lounge />} />
           <Route path="/toppage" element={<ProtectedRoute element={<Toppage />} />} />
+          <Route path="/dmode" element={<ProtectedRoute element={<DmodePage />} />} /> {/* ✅ Dmode */}
           <Route path="/mypage" element={<ProtectedRoute element={<Mypage />} />} />
           <Route path="/post" element={<ProtectedRoute element={<Post />} />} />
           <Route path="/subscribe" element={<ProtectedRoute element={<Subscribe />} />} />
@@ -70,10 +72,7 @@ function App() {
           <Route path="/product/:id" element={<ProtectedRoute element={<ProductDetail />} />} />
           <Route path="/gacha-select" element={<ProtectedRoute element={<GachaSelect />} />} />
           <Route path="/gacha/:type" element={<ProtectedRoute element={<GachaByType />} />} />
-          <Route
-            path="/system/payment-request/:productId"
-            element={<ProtectedRoute element={<PaymentRequest />} />}
-          />
+          <Route path="/system/payment-request/:productId" element={<ProtectedRoute element={<PaymentRequest />} />} />
 
           {/* 管理者 */}
           <Route path="/dashboard" element={<OwnerRoute element={<Dashboard />} />} />
@@ -93,6 +92,8 @@ function App() {
 }
 
 export default App;
+
+
 
 
 

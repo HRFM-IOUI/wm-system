@@ -1,4 +1,6 @@
+// src/components/common/TabSwitcher.js
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const tabs = [
   { key: 'videos', label: '動画', badge: 'メイン', badgeStyle: 'balloon' },
@@ -7,12 +9,25 @@ const tabs = [
 ];
 
 const TabSwitcher = ({ activeTab, setActiveTab }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isDmode = location.pathname.startsWith('/dmode');
+
+  const handleTabClick = (key) => {
+    setActiveTab(key);
+    if (isDmode) {
+      navigate(`/dmode?tab=${key}`);
+    } else {
+      navigate(`/toppage?tab=${key}`);
+    }
+  };
+
   return (
     <div className="flex justify-around border-b border-gray-300 bg-white sticky top-0 z-10">
       {tabs.map((tab) => (
         <div key={tab.key} className="relative flex-1">
           <button
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => handleTabClick(tab.key)}
             className={`w-full py-3 text-center font-semibold text-sm hover:bg-gray-100 transition-all duration-150 ${
               activeTab === tab.key
                 ? 'border-b-2 border-blue-500 text-blue-600'
@@ -40,6 +55,7 @@ const TabSwitcher = ({ activeTab, setActiveTab }) => {
 };
 
 export default TabSwitcher;
+
 
 
 

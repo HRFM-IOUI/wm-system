@@ -1,21 +1,47 @@
-import React from 'react';
 
-const VideoFilterBar = ({ categories, selectedCategory, onSelectCategory }) => {
+// src/components/ui/VideoFilterBar.js
+import React, { useEffect, useState } from 'react';
+
+const VideoFilterBar = ({ filter, setFilter }) => {
+  const [categories, setCategories] = useState(['サンプル', 'イベント', 'ドキュメンタリー']);
+  const [tags, setTags] = useState(['感動', '人気', '限定']);
+
+  useEffect(() => {
+    // 本来は動的取得の想定。ここではダミー値を使用。
+  }, []);
+
   return (
-    <div className="flex flex-wrap gap-2 p-2 justify-center">
-      {categories.map((category) => (
+    <div className="flex flex-wrap gap-4 mb-4">
+      <select
+        value={filter.category}
+        onChange={e => setFilter(prev => ({ ...prev, category: e.target.value }))}
+        className="p-2 border rounded"
+      >
+        <option value="">カテゴリ選択</option>
+        {categories.map(cat => (
+          <option key={cat} value={cat}>{cat}</option>
+        ))}
+      </select>
+
+      <select
+        value={filter.tag}
+        onChange={e => setFilter(prev => ({ ...prev, tag: e.target.value }))}
+        className="p-2 border rounded"
+      >
+        <option value="">タグ選択</option>
+        {tags.map(tag => (
+          <option key={tag} value={tag}>{tag}</option>
+        ))}
+      </select>
+
+      {(filter.category || filter.tag) && (
         <button
-          key={category}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-            selectedCategory === category
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-          onClick={() => onSelectCategory(category)}
+          onClick={() => setFilter({ category: '', tag: '' })}
+          className="text-sm text-pink-600 hover:underline"
         >
-          {category}
+          フィルター解除
         </button>
-      ))}
+      )}
     </div>
   );
 };

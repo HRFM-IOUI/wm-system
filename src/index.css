@@ -11,12 +11,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* コードブロックのフォント */
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
 
-/* 🔥 激熱アニメーション（交互に膨張）*/
+/* 🔥 激熱アニメーション（交互に膨張） */
 @keyframes hotBounce {
   0%, 100% {
     transform: scale(1);
@@ -33,7 +34,7 @@ code {
 }
 
 .hot-text {
-  font-size: 1.75rem; /* text-2xl相当より少し大きめ */
+  font-size: 1.75rem;
   font-weight: 900;
   letter-spacing: 0.05em;
   background: linear-gradient(to right, #ff0000, gold);
@@ -43,7 +44,7 @@ code {
   text-shadow: 0 0 4px rgba(255, 0, 0, 0.6), 0 0 10px gold;
 }
 
-/* 🎈メインバルーン（ふわふわ上昇） */
+/* 🎈ふわふわ上昇アニメーション */
 @keyframes balloonFloat {
   0% {
     transform: translateY(0) scale(1);
@@ -62,6 +63,7 @@ code {
   animation: balloonFloat 2s ease-in-out infinite;
   text-shadow: 0 0 5px rgba(0, 123, 255, 0.6);
 }
+
 @keyframes balloon {
   0% {
     transform: translateY(0);

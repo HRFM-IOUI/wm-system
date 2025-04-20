@@ -14,20 +14,38 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { executeRecaptcha } = useGoogleReCaptcha();
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError(null);
+    setLoading(true);
+
     try {
       if (!executeRecaptcha) {
-        alert("reCAPTCHAが準備できていません。");
+        setError("reCAPTCHAが無効です。ページを再読み込みしてください。");
         return;
       }
-      const token = await executeRecaptcha("login");
-      console.log("reCAPTCHA Token:", token);
+
+      let token;
+      try {
+        token = await executeRecaptcha("login");
+        if (!token) throw new Error("reCAPTCHAトークンが無効です。");
+        console.log("reCAPTCHA Token:", token);
+      } catch (recaptchaErr) {
+        console.error("reCAPTCHA エラー:", recaptchaErr);
+        setError("reCAPTCHA認証に失敗しました。しばらくして再度お試しください。");
+        return;
+      }
+
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/toppage");
-    } catch (error) {
-      alert("ログインに失敗しました: " + error.message);
+    } catch (err) {
+      console.error("ログインエラー:", err);
+      setError("ログインに失敗しました: " + (err.message || "エラーが発生しました。"));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,6 +55,7 @@ const Login = () => {
       console.log("ログイン成功:", result.user);
       navigate("/toppage");
     } catch (error) {
+      console.error("Googleログインエラー:", error);
       alert("Googleログインに失敗しました");
     }
   };
@@ -60,7 +79,7 @@ const Login = () => {
           </div>
 
           <div>
-            <FormLabel htmlFor="password">パスワード</FormLabel>
+            <FormLabel htmlFor="password">パスワード（6文字以上）</FormLabel>
             <FormInput
               type="password"
               name="password"
@@ -68,14 +87,18 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="6文字以上"
               required
+              minLength={6}
             />
           </div>
 
+          {error && <p className="text-sm text-red-500">{error}</p>}
+
           <CommonButton
             type="submit"
+            disabled={loading}
             className="w-full rounded-full text-lg bg-pink-500 hover:bg-pink-600 text-white"
           >
-            ログイン
+            {loading ? "ログイン中..." : "ログイン"}
           </CommonButton>
         </form>
 
@@ -93,6 +116,7 @@ const Login = () => {
           アカウントをお持ちでない方は{" "}
           <a href="/signup" className="text-theme-pink hover:underline font-semibold">新規登録</a>
         </p>
+
         <p className="text-xs text-center text-gray-400">
           <a href="/lounge" className="hover:underline">← Loungeに戻る</a>
         </p>

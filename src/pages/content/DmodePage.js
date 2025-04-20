@@ -1,7 +1,9 @@
+// src/pages/content/DmodePage.js
 import React, { useEffect, useRef, useState } from 'react';
 import { db } from '../../firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { useSearchParams } from 'react-router-dom';
+import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../../firebase';
 
 import SidebarLeft from '../../components/common/SidebarLeft';
 import SidebarRight from '../../components/common/SidebarRight';
@@ -13,51 +15,59 @@ import HeaderMobile from '../../components/common/HeaderMobile';
 import TabSwitcher from '../../components/common/TabSwitcher';
 import VideoCard from '../../components/VideoCard';
 import { useMediaQuery } from 'react-responsive';
-import DailyBonusBanner from '../../components/ui/DailyBonusBanner';
 
-const Toppage = () => {
-  const [searchParams] = useSearchParams();
+import DailyBonusBanner from '../../components/ui/DailyBonusBanner';
+import { getUserVipStatus } from '../../utils/vipUtils';
+
+const DmodePage = () => {
   const [activeTab, setActiveTab] = useState('videos');
-  const [posts, setPosts] = useState([]);
-  const [visiblePosts, setVisiblePosts] = useState([]);
+  const [vipContent, setVipContent] = useState([]);
+  const [visibleVipContent, setVisibleVipContent] = useState([]);
+  const [vipStatus, setVipStatus] = useState(null);
   const observer = useRef();
   const videoRefs = useRef([]);
   const lastPostRef = useRef(null);
   const isMobile = useMediaQuery({ maxWidth: 767 });
   const isDesktop = useMediaQuery({ minWidth: 768 });
+  const [user] = useAuthState(auth);
 
   useEffect(() => {
-    const tab = searchParams.get('tab');
-    if (tab === 'goods' || tab === 'gacha') {
-      setActiveTab(tab);
-    } else {
-      setActiveTab('videos');
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      const q = query(collection(db, 'videos'), orderBy('createdAt', 'desc'));
+    const fetchVipVideos = async () => {
+      const q = query(
+        collection(db, 'videos'),
+        where('mode', '==', 'director'),
+        orderBy('createdAt', 'desc')
+      );
       const snapshot = await getDocs(q);
       const fetched = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setPosts(fetched);
-      setVisiblePosts(fetched.slice(0, 5));
+      setVipContent(fetched);
+      setVisibleVipContent(fetched.slice(0, 5));
     };
-    fetchPosts();
-  }, []);
+    if (user) fetchVipVideos();
+  }, [user]);
+
+  useEffect(() => {
+    const loadVipStatus = async () => {
+      if (user) {
+        const status = await getUserVipStatus(user.uid);
+        setVipStatus(status);
+      }
+    };
+    loadVipStatus();
+  }, [user]);
 
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) {
-        setVisiblePosts(prev => {
-          const next = posts.slice(prev.length, prev.length + 5);
+        setVisibleVipContent(prev => {
+          const next = vipContent.slice(prev.length, prev.length + 5);
           return [...prev, ...next];
         });
       }
     });
     if (lastPostRef.current) observer.current.observe(lastPostRef.current);
-  }, [visiblePosts, posts]);
+  }, [visibleVipContent, vipContent]);
 
   useEffect(() => {
     const options = { threshold: 0.6 };
@@ -75,20 +85,20 @@ const Toppage = () => {
     const observer = new IntersectionObserver(callback, options);
     videoRefs.current.forEach(video => video && observer.observe(video));
     return () => observer.disconnect();
-  }, [visiblePosts]);
+  }, [visibleVipContent]);
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'videos':
-        return visiblePosts.map((post, index) => (
-          <div key={post.id} ref={index === visiblePosts.length - 1 ? lastPostRef : null}>
+        return visibleVipContent.map((post, index) => (
+          <div key={post.id} ref={index === visibleVipContent.length - 1 ? lastPostRef : null}>
             <VideoCard video={post} />
           </div>
         ));
       case 'goods':
-        return <DummyGoods />;
+        return <DummyGoods vip />;
       case 'gacha':
-        return <DummyGacha />;
+        return <DummyGacha vip />;
       default:
         return null;
     }
@@ -107,10 +117,24 @@ const Toppage = () => {
 
         <main className="flex-1 overflow-y-auto px-4 pb-20 pt-[64px] space-y-4">
           <DailyBonusBanner />
-          <MenuPanel />
+
+          {vipStatus && (
+            <div className="bg-gradient-to-r from-pink-500 to-yellow-500 text-black p-4 rounded-xl shadow text-sm">
+              <p className="font-bold">🎖️ VIPステータス</p>
+              <ul className="list-disc list-inside ml-4 mt-1">
+                <li>現在のランク: <strong>{vipStatus.rank}</strong></li>
+                <li>累計ログイン日数: {vipStatus.streak}日</li>
+                <li>保有VIPポイント: {vipStatus.points}pt</li>
+              </ul>
+            </div>
+          )}
+
+          <MenuPanel isDmode />
+
           {isDesktop && (
             <TabSwitcher activeTab={activeTab} setActiveTab={setActiveTab} />
           )}
+
           {renderTabContent()}
         </main>
 
@@ -126,34 +150,7 @@ const Toppage = () => {
   );
 };
 
-export default Toppage;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export default DmodePage;
 
 
 
