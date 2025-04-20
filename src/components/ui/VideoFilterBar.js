@@ -1,47 +1,56 @@
-
 // src/components/ui/VideoFilterBar.js
-import React, { useEffect, useState } from 'react';
 
-const VideoFilterBar = ({ filter, setFilter }) => {
-  const [categories, setCategories] = useState(['サンプル', 'イベント', 'ドキュメンタリー']);
-  const [tags, setTags] = useState(['感動', '人気', '限定']);
+import React from "react";
 
-  useEffect(() => {
-    // 本来は動的取得の想定。ここではダミー値を使用。
-  }, []);
+const TAGS = ["ダンス", "料理", "ゲーム", "音楽", "Vlog"];
+const CATEGORIES = ["すべて", "エンタメ", "ライフスタイル", "教育"];
+
+const VideoFilterBar = ({
+  selectedTags = [],
+  setSelectedTags,
+  selectedCategory = "すべて",
+  setSelectedCategory,
+}) => {
+  const toggleTag = (tag) => {
+    if (selectedTags.includes(tag)) {
+      setSelectedTags(selectedTags.filter((t) => t !== tag));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  };
 
   return (
-    <div className="flex flex-wrap gap-4 mb-4">
-      <select
-        value={filter.category}
-        onChange={e => setFilter(prev => ({ ...prev, category: e.target.value }))}
-        className="p-2 border rounded"
-      >
-        <option value="">カテゴリ選択</option>
-        {categories.map(cat => (
-          <option key={cat} value={cat}>{cat}</option>
+    <div className="px-4 py-2 space-y-2 bg-white rounded-xl shadow-sm mb-4">
+      <div className="space-x-2">
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`px-3 py-1 rounded-full text-sm ${
+              selectedCategory === cat
+                ? "bg-black text-white"
+                : "bg-gray-200 text-gray-800"
+            }`}
+          >
+            {cat}
+          </button>
         ))}
-      </select>
-
-      <select
-        value={filter.tag}
-        onChange={e => setFilter(prev => ({ ...prev, tag: e.target.value }))}
-        className="p-2 border rounded"
-      >
-        <option value="">タグ選択</option>
-        {tags.map(tag => (
-          <option key={tag} value={tag}>{tag}</option>
+      </div>
+      <div className="space-x-2">
+        {TAGS.map((tag) => (
+          <button
+            key={tag}
+            onClick={() => toggleTag(tag)}
+            className={`px-3 py-1 rounded-full text-sm ${
+              selectedTags.includes(tag)
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-800"
+            }`}
+          >
+            #{tag}
+          </button>
         ))}
-      </select>
-
-      {(filter.category || filter.tag) && (
-        <button
-          onClick={() => setFilter({ category: '', tag: '' })}
-          className="text-sm text-pink-600 hover:underline"
-        >
-          フィルター解除
-        </button>
-      )}
+      </div>
     </div>
   );
 };
