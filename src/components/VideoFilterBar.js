@@ -1,5 +1,4 @@
 // src/components/ui/VideoFilterBar.js
-
 import React from "react";
 
 const TAGS = ["ダンス", "料理", "ゲーム", "音楽", "Vlog"];
@@ -22,7 +21,7 @@ const VideoFilterBar = ({
   return (
     <div className="px-4 py-2 space-y-2 bg-white rounded-xl shadow-sm mb-4">
       <div className="space-x-2">
-        {(CATEGORIES || []).map((cat) => (
+        {CATEGORIES.map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
@@ -37,7 +36,7 @@ const VideoFilterBar = ({
         ))}
       </div>
       <div className="space-x-2">
-        {(TAGS || []).map((tag) => (
+        {TAGS.map((tag) => (
           <button
             key={tag}
             onClick={() => toggleTag(tag)}
@@ -56,6 +55,7 @@ const VideoFilterBar = ({
 };
 
 export default VideoFilterBar;
+
 
 
 
