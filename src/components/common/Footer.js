@@ -1,4 +1,3 @@
-// src/components/common/Footer.js
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -11,10 +10,11 @@ const Footer = () => {
         <Link to="/system/LegalNotice" className="hover:underline">特定商取引法に基づく表記</Link>
       </div>
       <div>
-        © {new Date().getFullYear()} TOA Lounge. All rights reserved.
+        © {new Date().getFullYear()} Toa Fans Shop. All rights reserved.
       </div>
     </footer>
   );
 };
 
 export default Footer;
+
