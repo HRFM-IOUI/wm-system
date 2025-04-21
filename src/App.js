@@ -1,3 +1,5 @@
+// src/App.js
+
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
@@ -13,13 +15,13 @@ import EmailSignupPage from './pages/auth/EmailSignupPage';
 
 // 一般ユーザー用ページ
 import Toppage from './pages/content/Toppage';
-import DmodePage from './pages/content/DmodePage'; // ✅ 変更：VIPページ → Dmodeページ
+import DmodePage from './pages/content/DmodePage';
 import GachaSelect from './pages/gacha/GachaSelect';
 import GachaByType from './pages/gacha/GachaByType';
 import Mypage from './pages/user/Mypage';
 import Post from './pages/content/Post';
 import Lounge from './pages/system/Lounge';
-import Subscribe from './pages/user/Subscribe';
+import Subscribe from './pages/user/Subscribe'; // ← ✅ここは保護しない
 import TicketShop from './pages/system/TicketShop';
 import VideoList from './pages/content/VideoList';
 import VideoDetail from './pages/content/VideoDetail';
@@ -61,10 +63,13 @@ function App() {
           {/* 一般ページ */}
           <Route path="/lounge" element={<Lounge />} />
           <Route path="/toppage" element={<ProtectedRoute element={<Toppage />} />} />
-          <Route path="/dmode" element={<ProtectedRoute element={<DmodePage />} />} /> {/* ✅ Dmode */}
+          <Route path="/dmode" element={<ProtectedRoute element={<DmodePage />} />} />
           <Route path="/mypage" element={<ProtectedRoute element={<Mypage />} />} />
           <Route path="/post" element={<ProtectedRoute element={<Post />} />} />
-          <Route path="/subscribe" element={<ProtectedRoute element={<Subscribe />} />} />
+
+          {/* ✅ 非保護のSubscribeページ */}
+          <Route path="/subscribe" element={<Subscribe />} />
+
           <Route path="/ticket-shop" element={<ProtectedRoute element={<TicketShop />} />} />
           <Route path="/videos" element={<ProtectedRoute element={<VideoList />} />} />
           <Route path="/video/:id" element={<ProtectedRoute element={<VideoDetail />} />} />
@@ -92,6 +97,7 @@ function App() {
 }
 
 export default App;
+
 
 
 
