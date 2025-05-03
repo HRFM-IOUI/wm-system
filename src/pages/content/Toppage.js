@@ -1,27 +1,29 @@
 // src/pages/content/Toppage.js
-import React, { useEffect, useRef, useState } from 'react';
-import { db } from '../../firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { useSearchParams } from 'react-router-dom';
 
-import SidebarLeft from '../../components/common/SidebarLeft';
-import SidebarRight from '../../components/common/SidebarRight';
-import MenuPanel from '../../components/common/MenuPanel';
-import DummyGoods from '../../components/common/DummyGoods';
-import DummyGacha from '../../components/common/DummyGacha';
-import FooterTabMobile from '../../components/common/FooterTabMobile';
-import HeaderMobile from '../../components/common/HeaderMobile';
-import TabSwitcher from '../../components/common/TabSwitcher';
-import VideoCard from '../../components/VideoCard';
-import { useMediaQuery } from 'react-responsive';
-import DailyBonusBanner from '../../components/ui/DailyBonusBanner';
+import React, { useEffect, useRef, useState, useMemo } from "react";
+import { db } from "../../firebase";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { useSearchParams } from "react-router-dom";
+
+import SidebarLeft from "../../components/common/SidebarLeft";
+import SidebarRight from "../../components/common/SidebarRight";
+import MenuPanel from "../../components/common/MenuPanel";
+import DummyGoods from "../../components/common/DummyGoods";
+import DummyGacha from "../../components/common/DummyGacha";
+import FooterTabMobile from "../../components/common/FooterTabMobile";
+import HeaderMobile from "../../components/common/HeaderMobile";
+import TabSwitcher from "../../components/common/TabSwitcher";
+import VideoCard from "../../components/VideoCard";
+import { useMediaQuery } from "react-responsive";
+import DailyBonusBanner from "../../components/ui/DailyBonusBanner";
 
 const Toppage = () => {
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState('videos');
+  const [activeTab, setActiveTab] = useState("videos");
   const [posts, setPosts] = useState([]);
   const [visiblePosts, setVisiblePosts] = useState([]);
-  const [selectedTag, setSelectedTag] = useState('');
+  const [selectedTag, setSelectedTag] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const observer = useRef();
   const videoRefs = useRef([]);
   const lastPostRef = useRef(null);
@@ -29,45 +31,60 @@ const Toppage = () => {
   const isDesktop = useMediaQuery({ minWidth: 768 });
 
   useEffect(() => {
-    const tab = searchParams.get('tab');
-    if (tab === 'goods' || tab === 'gacha') {
+    const tab = searchParams.get("tab");
+    if (tab === "goods" || tab === "gacha") {
       setActiveTab(tab);
     } else {
-      setActiveTab('videos');
+      setActiveTab("videos");
     }
   }, [searchParams]);
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const q = query(collection(db, 'videos'), orderBy('createdAt', 'desc'));
+      const q = query(collection(db, "videos"), orderBy("createdAt", "desc"));
       const snapshot = await getDocs(q);
-      const fetched = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const fetched = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
       setPosts(fetched);
-      setVisiblePosts(fetched.slice(0, 5));
+      setVisiblePosts(fetched.slice(0, 6));
     };
     fetchPosts();
   }, []);
 
+  const filteredPosts = useMemo(() => {
+    return posts.filter((post) => {
+      const matchTag =
+        !selectedTag ||
+        (Array.isArray(post.tags) && post.tags.includes(selectedTag));
+      const matchCategory =
+        !selectedCategory || post.category === selectedCategory;
+      const isPublic = !post.isPrivate;
+      return matchTag && matchCategory && isPublic;
+    });
+  }, [posts, selectedTag, selectedCategory]);
+
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver(entries => {
+    observer.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
-        setVisiblePosts(prev => {
-          const next = filteredPosts.slice(prev.length, prev.length + 5);
+        setVisiblePosts((prev) => {
+          const next = filteredPosts.slice(prev.length, prev.length + 6);
           return [...prev, ...next];
         });
       }
     });
     if (lastPostRef.current) observer.current.observe(lastPostRef.current);
-  }, [visiblePosts, posts, selectedTag]);
+  }, [visiblePosts, filteredPosts]);
 
   useEffect(() => {
     const options = { threshold: 0.6 };
-    const callback = entries => {
-      entries.forEach(entry => {
+    const callback = (entries) => {
+      entries.forEach((entry) => {
         const video = entry.target;
         if (entry.isIntersecting) {
-          videoRefs.current.forEach(v => v !== video && v?.pause());
+          videoRefs.current.forEach((v) => v !== video && v?.pause());
           video?.play().catch(() => {});
         } else {
           video?.pause();
@@ -75,25 +92,30 @@ const Toppage = () => {
       });
     };
     const observer = new IntersectionObserver(callback, options);
-    videoRefs.current.forEach(video => video && observer.observe(video));
+    videoRefs.current.forEach((video) => video && observer.observe(video));
     return () => observer.disconnect();
   }, [visiblePosts]);
 
-  const filteredPosts = selectedTag
-    ? posts.filter(post => Array.isArray(post.tags) && post.tags.includes(selectedTag))
-    : posts;
-
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'videos':
-        return filteredPosts.slice(0, visiblePosts.length).map((post, index) => (
-          <div key={post.id} ref={index === visiblePosts.length - 1 ? lastPostRef : null}>
-            <VideoCard video={post} />
+      case "videos":
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {filteredPosts.slice(0, visiblePosts.length).map((post, index) => (
+              <div
+                key={post.id}
+                ref={
+                  index === visiblePosts.length - 1 ? lastPostRef : undefined
+                }
+              >
+                <VideoCard video={post} />
+              </div>
+            ))}
           </div>
-        ));
-      case 'goods':
+        );
+      case "goods":
         return <DummyGoods />;
-      case 'gacha':
+      case "gacha":
         return <DummyGacha />;
       default:
         return null;
@@ -121,7 +143,11 @@ const Toppage = () => {
         </main>
 
         <aside className="hidden lg:block lg:w-1/5 bg-white p-4 h-screen sticky top-0">
-          <SidebarRight onTagSelect={setSelectedTag} />
+          <SidebarRight
+            onTagSelect={setSelectedTag}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+          />
         </aside>
       </div>
 
@@ -133,6 +159,7 @@ const Toppage = () => {
 };
 
 export default Toppage;
+
 
 
 
