@@ -24,6 +24,7 @@ const Signup = () => {
         <h1 className="text-center text-3xl font-extrabold text-gray-800">新規登録</h1>
 
         <div className="space-y-3">
+          {/* ✅ Googleのみ表示 */}
           <button
             onClick={handleGoogleSignup}
             className="w-full flex items-center justify-center gap-2 bg-white border rounded-full py-2.5 px-4 hover:bg-gray-100 shadow transition text-sm font-semibold text-black"
@@ -32,6 +33,8 @@ const Signup = () => {
             Googleで登録
           </button>
 
+          {/* 👇 LINEとXは一時非表示に */}
+          {/*
           <button
             className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white rounded-full py-2.5 px-4 text-sm font-semibold"
           >
@@ -45,6 +48,7 @@ const Signup = () => {
             <img src="/icons/x-icon.svg" alt="X" className="w-5 h-5" />
             Xで登録
           </button>
+          */}
         </div>
 
         <div className="text-sm text-center text-gray-600">
@@ -63,6 +67,7 @@ const Signup = () => {
 };
 
 export default Signup;
+
 
 
 

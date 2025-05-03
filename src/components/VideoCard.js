@@ -1,91 +1,61 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+// src/components/VideoCard.js
 
-const VideoCard = ({ video, isSubscribed = false }) => {
+import React from "react";
+import { useNavigate } from "react-router-dom";
+
+const VideoCard = ({ video, isVipUser }) => {
   const navigate = useNavigate();
 
-  const handleSamplePlay = () => {
-    navigate(`/video/${video.id}?preview=true`);
+  const handleSubscribe = () => {
+    navigate("/subscribe");
   };
 
-  const handleFullPlay = () => {
+  const handleDetail = () => {
     navigate(`/video/${video.id}`);
   };
 
-  const handlePurchaseClick = () => {
-    // ここは将来的にモーダル化 or 商品ページに誘導予定
-    alert('この機能は現在準備中です。');
-  };
-
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      {/* サムネイル or ダミー画像 */}
-      {video.thumbnailUrl ? (
+    <div className="border rounded-lg p-4 bg-white shadow hover:shadow-md transition">
+      <h2 className="text-lg font-bold mb-2">{video.title}</h2>
+
+      {video.thumbnailUrl && (
         <img
           src={video.thumbnailUrl}
           alt={video.title}
-          className="w-full h-48 object-cover"
+          className="w-full rounded mb-2"
         />
-      ) : (
-        <div className="w-full h-48 bg-gray-300 flex items-center justify-center text-gray-600">
-          No Image
-        </div>
       )}
 
-      <div className="p-4 space-y-2">
-        <h2 className="text-lg font-semibold">{video.title}</h2>
-        <p className="text-sm text-gray-500">
-          {video.description || '詳細情報はありません'}
-        </p>
+      {video.playbackUrl && isVipUser && (
+        <video
+          src={video.playbackUrl}
+          controls
+          className="w-full rounded mb-2"
+        />
+      )}
 
-        {/* 💡 補足表示 */}
-        <p className="text-xs text-pink-500">
-          🆓 サンプル視聴可能（{video.sampleDuration || '30秒'}）
-        </p>
-        {video.vipOnly && (
-          <span className="text-[10px] text-white bg-black px-2 py-0.5 rounded-full">
-            VIP限定
-          </span>
-        )}
+      <button
+        onClick={handleDetail}
+        className="w-full py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded mb-2"
+      >
+        詳細を見る
+      </button>
 
-        {/* 📺 FANZA風3ボタン */}
-        <div className="flex flex-col gap-2 mt-3">
-          <button
-            onClick={handleSamplePlay}
-            className="bg-pink-500 text-white py-1 rounded hover:bg-pink-600"
-          >
-            ▶️ サンプル再生
-          </button>
-
-          {!isSubscribed ? (
-            <button
-              onClick={() => navigate('/subscribe')}
-              className="bg-yellow-400 text-black py-1 rounded hover:bg-yellow-500"
-            >
-              💳 月額で見る
-            </button>
-          ) : (
-            <button
-              onClick={handleFullPlay}
-              className="bg-green-600 text-white py-1 rounded hover:bg-green-700"
-            >
-              ✅ 月額会員 本編視聴
-            </button>
-          )}
-
-          <button
-            onClick={handlePurchaseClick}
-            className="bg-blue-600 text-white py-1 rounded hover:bg-blue-700"
-          >
-            🛒 単品購入（準備中）
-          </button>
-        </div>
-      </div>
+      {/* 👇 未加入者にサブスク導線表示 */}
+      {!isVipUser && (
+        <button
+          onClick={handleSubscribe}
+          className="w-full py-2 text-sm bg-pink-500 hover:bg-pink-600 text-white rounded"
+        >
+          有料会員になる（今すぐ加入）
+        </button>
+      )}
     </div>
   );
 };
 
 export default VideoCard;
+
 
 
 

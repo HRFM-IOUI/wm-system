@@ -3,8 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../../firebase";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import VideoUploader from "../../components/video/VideoUploader"; // ✅ 追加
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../firebase"; // ✅ Firebase Auth を使う
 
 const Dashboard = () => {
+  const [user] = useAuthState(auth); // ✅ 現在のログインユーザー取得
   const [videos, setVideos] = useState([]);
   const [filterCategory, setFilterCategory] = useState("");
   const [filterType, setFilterType] = useState("");
@@ -43,6 +47,11 @@ const Dashboard = () => {
   return (
     <div className="p-4 space-y-4">
       <h1 className="text-xl font-bold">動画管理</h1>
+
+      {/* ✅ 動画アップロードフォーム */}
+      {user && (
+        <VideoUploader ownerId={user.uid} />
+      )}
 
       {/* フィルター */}
       <div className="flex flex-wrap gap-2">
@@ -114,6 +123,7 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
 
 
 
