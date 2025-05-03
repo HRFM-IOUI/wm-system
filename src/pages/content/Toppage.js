@@ -1,3 +1,4 @@
+// src/pages/content/Toppage.js
 import React, { useEffect, useRef, useState } from 'react';
 import { db } from '../../firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
@@ -20,6 +21,7 @@ const Toppage = () => {
   const [activeTab, setActiveTab] = useState('videos');
   const [posts, setPosts] = useState([]);
   const [visiblePosts, setVisiblePosts] = useState([]);
+  const [selectedTag, setSelectedTag] = useState('');
   const observer = useRef();
   const videoRefs = useRef([]);
   const lastPostRef = useRef(null);
@@ -51,13 +53,13 @@ const Toppage = () => {
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) {
         setVisiblePosts(prev => {
-          const next = posts.slice(prev.length, prev.length + 5);
+          const next = filteredPosts.slice(prev.length, prev.length + 5);
           return [...prev, ...next];
         });
       }
     });
     if (lastPostRef.current) observer.current.observe(lastPostRef.current);
-  }, [visiblePosts, posts]);
+  }, [visiblePosts, posts, selectedTag]);
 
   useEffect(() => {
     const options = { threshold: 0.6 };
@@ -77,10 +79,14 @@ const Toppage = () => {
     return () => observer.disconnect();
   }, [visiblePosts]);
 
+  const filteredPosts = selectedTag
+    ? posts.filter(post => Array.isArray(post.tags) && post.tags.includes(selectedTag))
+    : posts;
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'videos':
-        return visiblePosts.map((post, index) => (
+        return filteredPosts.slice(0, visiblePosts.length).map((post, index) => (
           <div key={post.id} ref={index === visiblePosts.length - 1 ? lastPostRef : null}>
             <VideoCard video={post} />
           </div>
@@ -115,7 +121,7 @@ const Toppage = () => {
         </main>
 
         <aside className="hidden lg:block lg:w-1/5 bg-white p-4 h-screen sticky top-0">
-          <SidebarRight />
+          <SidebarRight onTagSelect={setSelectedTag} />
         </aside>
       </div>
 
@@ -127,6 +133,8 @@ const Toppage = () => {
 };
 
 export default Toppage;
+
+
 
 
 

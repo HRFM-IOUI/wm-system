@@ -18,7 +18,7 @@ const Subscribe = () => {
           本オンラインサロンでは、TOAクリエイターによる限定コンテンツ、イベント参加、チャット交流などをお楽しみいただけます。
         </p>
         <div className="text-center">
-          <span className="text-3xl font-bold text-pink-600">¥1,200</span>
+          <span className="text-3xl font-bold text-pink-600">¥2,980</span>
           <span className="text-gray-700"> / 月 (税込・自動継続)</span>
         </div>
         <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">

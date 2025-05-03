@@ -10,7 +10,7 @@ const LegalNotice = () => {
 
         <ul className="space-y-2 text-sm bg-gray-50 p-4 rounded shadow">
           <li><strong>販売業者名：</strong>ワンダーメタニズム株式会社</li>
-          <li><strong>運営責任者：</strong>呉羽　浩文</li>
+          <li><strong>運営責任者：</strong>HIRAYAMA　SHOU</li>
           <li><strong>所在地：</strong>東京都杉並区高井戸東3-19-8　TMレジデンス202</li>
           <li><strong>お問い合わせ：</strong>support@toafans.shop</li>
           <li><strong>販売価格：</strong>各商品・サービスごとに表示された価格に基づきます</li>

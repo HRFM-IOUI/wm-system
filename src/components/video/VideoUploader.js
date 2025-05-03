@@ -9,6 +9,7 @@ const VideoUploader = ({ ownerId }) => {
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState("");
   const [category, setCategory] = useState("");
+  const [type, setType] = useState("sample");
   const [isPrivate, setIsPrivate] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
@@ -16,12 +17,6 @@ const VideoUploader = ({ ownerId }) => {
   const handleUpload = async () => {
     if (!file || !title) {
       setMessage("動画ファイルとタイトルを入力してください");
-      return;
-    }
-
-    if (!process.env.REACT_APP_BUNNY_CDN_HOST) {
-      console.error("環境変数 REACT_APP_BUNNY_CDN_HOST が定義されていません。");
-      setMessage("CDN設定が正しくありません。管理者に連絡してください。");
       return;
     }
 
@@ -54,6 +49,7 @@ const VideoUploader = ({ ownerId }) => {
         title,
         tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
         category,
+        type,
         isPrivate,
         videoId,
         playbackUrl,
@@ -66,6 +62,7 @@ const VideoUploader = ({ ownerId }) => {
       setTitle("");
       setTags("");
       setCategory("");
+      setType("sample");
       setIsPrivate(false);
     } catch (error) {
       console.error("アップロード失敗:", error);
@@ -105,6 +102,18 @@ const VideoUploader = ({ ownerId }) => {
         value={category}
         onChange={(e) => setCategory(e.target.value)}
       />
+      <div className="space-y-2">
+        <label className="block font-medium">投稿タイプ</label>
+        <select
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          className="w-full p-2 border rounded"
+        >
+          <option value="sample">サンプル</option>
+          <option value="main">本編</option>
+          <option value="dmode">DMODE</option>
+        </select>
+      </div>
       <label className="flex items-center space-x-2">
         <input
           type="checkbox"
@@ -126,6 +135,9 @@ const VideoUploader = ({ ownerId }) => {
 };
 
 export default VideoUploader;
+
+
+
 
 
 

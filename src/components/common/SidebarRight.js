@@ -1,27 +1,63 @@
 // src/components/common/SidebarRight.js
-import React from "react";
+import React, { useState } from "react";
 
-const SidebarRight = () => {
+const tags = [
+  "女子高生",
+  "合法jk",
+  "jk",
+  "幼児体型",
+  "幼児服",
+  "ロリ",
+  "未○年",
+  "素人",
+  "ハメ撮り",
+  "個人撮影",
+  "色白",
+  "細身",
+  "巨乳",
+  "パイパン",
+  "ガキ",
+  "メスガキ",
+  "お仕置き",
+  "レイプ",
+  "中出し",
+  "コスプレ",
+  "制服",
+  "学生",
+  "華奢",
+  "孕ませ",
+];
+
+const SidebarRight = ({ onTagSelect }) => {
+  const [selected, setSelected] = useState("");
+
+  const handleChange = (e) => {
+    const val = e.target.value;
+    setSelected(val);
+    if (onTagSelect) onTagSelect(val);
+  };
+
   return (
-    <aside className="hidden xl:block w-[280px] p-4 space-y-6 bg-gray-50 text-sm">
-      <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="font-bold text-gray-800 mb-2">おすすめ</h2>
-        <ul className="space-y-2">
-          <li className="hover:underline cursor-pointer">ガチャアイテム新着</li>
-          <li className="hover:underline cursor-pointer">フォロー提案</li>
-          <li className="hover:underline cursor-pointer">人気タグ</li>
-        </ul>
+    <div className="space-y-4">
+      <div>
+        <label htmlFor="tagSelect" className="block font-semibold mb-2 text-gray-700">
+          タグ検索 🎯
+        </label>
+        <select
+          id="tagSelect"
+          value={selected}
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
+        >
+          <option value="">選択してください</option>
+          {tags.map((tag) => (
+            <option key={tag} value={tag}>
+              {tag}
+            </option>
+          ))}
+        </select>
       </div>
-
-      <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="font-bold text-gray-800 mb-2">トレンド</h2>
-        <ul className="space-y-2">
-          <li className="hover:underline cursor-pointer">#カフェ巡り</li>
-          <li className="hover:underline cursor-pointer">#動画投稿</li>
-          <li className="hover:underline cursor-pointer">#人気ユーザー</li>
-        </ul>
-      </div>
-    </aside>
+    </div>
   );
 };
 
