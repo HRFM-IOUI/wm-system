@@ -3,8 +3,9 @@ import React, { useState } from "react";
 import { uploadVideoToBunny, checkVideoStatus } from "../../utils/bunnyUtils";
 import { db } from "../../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
-const VideoUploader = ({ ownerId }) => {
+const VideoUploader = () => {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState("");
@@ -44,8 +45,13 @@ const VideoUploader = ({ ownerId }) => {
       const playbackUrl = `https://${process.env.REACT_APP_BUNNY_CDN_HOST}/${videoId}/playlist.m3u8`;
       const thumbnailUrl = `https://${process.env.REACT_APP_BUNNY_CDN_HOST}/${videoId}/thumbnails/${status.thumbnailFileName}`;
 
+      // Firebase Auth からログイン中のユーザーIDを取得
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+      const resolvedOwnerId = currentUser ? currentUser.uid : "unknown";
+
       await addDoc(collection(db, "videos"), {
-        ownerId,
+        ownerId: resolvedOwnerId,
         title,
         tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
         category,
@@ -135,6 +141,7 @@ const VideoUploader = ({ ownerId }) => {
 };
 
 export default VideoUploader;
+
 
 
 
