@@ -1,18 +1,25 @@
 // src/components/VideoCard.js
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const VideoCard = ({ video, isVipUser }) => {
   const navigate = useNavigate();
 
+  const handleDetail = () => {
+    navigate(`/video/${video.id}`);
+  };
+
   const handleSubscribe = () => {
     navigate("/subscribe");
   };
 
-  const handleDetail = () => {
-    navigate(`/video/${video.id}`);
+  const handlePurchase = () => {
+    navigate(`/purchase/${video.id}`);
   };
+
+  const showSample = video.type === "sample";
+  const showMain = video.type === "main";
+  const showDmode = video.type === "dmode";
 
   return (
     <div className="border rounded-lg p-4 bg-white shadow hover:shadow-md transition">
@@ -26,35 +33,45 @@ const VideoCard = ({ video, isVipUser }) => {
         />
       )}
 
-      {video.playbackUrl && isVipUser && (
-        <video
-          src={video.playbackUrl}
-          controls
-          className="w-full rounded mb-2"
-        />
-      )}
+      <div className="space-y-2">
+        {showSample && (
+          <button
+            onClick={handleDetail}
+            className="w-full py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded"
+          >
+            サンプル視聴
+          </button>
+        )}
 
-      <button
-        onClick={handleDetail}
-        className="w-full py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded mb-2"
-      >
-        詳細を見る
-      </button>
+        {showMain && (
+          <button
+            onClick={isVipUser ? handleDetail : handleSubscribe}
+            className={`w-full py-2 text-sm rounded text-white ${
+              isVipUser ? "bg-green-500 hover:bg-green-600" : "bg-pink-500 hover:bg-pink-600"
+            }`}
+          >
+            {isVipUser ? "視聴する" : "月額会員で視聴"}
+          </button>
+        )}
 
-      {/* 👇 未加入者にサブスク導線表示 */}
-      {!isVipUser && (
-        <button
-          onClick={handleSubscribe}
-          className="w-full py-2 text-sm bg-pink-500 hover:bg-pink-600 text-white rounded"
-        >
-          有料会員になる（今すぐ加入）
-        </button>
-      )}
+        {showDmode && (
+          <button
+            onClick={handlePurchase}
+            className="w-full py-2 text-sm bg-indigo-500 hover:bg-indigo-600 text-white rounded"
+          >
+            単品購入へ
+          </button>
+        )}
+      </div>
     </div>
   );
 };
 
 export default VideoCard;
+
+
+
+
 
 
 

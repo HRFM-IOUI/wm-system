@@ -21,13 +21,15 @@ import GachaByType from './pages/gacha/GachaByType';
 import Mypage from './pages/user/Mypage';
 import Post from './pages/content/Post';
 import Lounge from './pages/system/Lounge';
-import Subscribe from './pages/user/Subscribe'; // ← ✅ここは保護しない
+import Subscribe from './pages/user/Subscribe';
 import TicketShop from './pages/system/TicketShop';
 import VideoList from './pages/content/VideoList';
 import VideoDetail from './pages/content/VideoDetail';
+import PurchasePage from './pages/content/PurchasePage';
 import ProductList from './pages/content/ProductList';
 import ProductDetail from './pages/content/ProductDetail';
 import PaymentRequest from './pages/system/PaymentRequest';
+import ThankYouPage from './pages/ThankYou'; // ✅ 修正済み
 
 // 管理者専用ページ
 import Dashboard from './pages/dashboard/Dashboard';
@@ -66,18 +68,17 @@ function App() {
           <Route path="/dmode" element={<ProtectedRoute element={<DmodePage />} />} />
           <Route path="/mypage" element={<ProtectedRoute element={<Mypage />} />} />
           <Route path="/post" element={<ProtectedRoute element={<Post />} />} />
-
-          {/* ✅ 非保護のSubscribeページ */}
           <Route path="/subscribe" element={<Subscribe />} />
-
           <Route path="/ticket-shop" element={<ProtectedRoute element={<TicketShop />} />} />
           <Route path="/videos" element={<ProtectedRoute element={<VideoList />} />} />
           <Route path="/video/:id" element={<ProtectedRoute element={<VideoDetail />} />} />
-          <Route path="/products" element={<ProtectedRoute element={<ProductList />} />} />
+          <Route path="/purchase/:id" element={<ProtectedRoute element={<PurchasePage />} />} />
           <Route path="/product/:id" element={<ProtectedRoute element={<ProductDetail />} />} />
+          <Route path="/products" element={<ProtectedRoute element={<ProductList />} />} />
           <Route path="/gacha-select" element={<ProtectedRoute element={<GachaSelect />} />} />
           <Route path="/gacha/:type" element={<ProtectedRoute element={<GachaByType />} />} />
           <Route path="/system/payment-request/:productId" element={<ProtectedRoute element={<PaymentRequest />} />} />
+          <Route path="/thankyou" element={<ProtectedRoute element={<ThankYouPage />} />} />
 
           {/* 管理者 */}
           <Route path="/dashboard" element={<OwnerRoute element={<Dashboard />} />} />
@@ -97,6 +98,12 @@ function App() {
 }
 
 export default App;
+
+
+
+
+
+
 
 
 

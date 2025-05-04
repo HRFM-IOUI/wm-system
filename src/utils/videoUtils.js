@@ -13,18 +13,6 @@ export const fetchPublicVideos = async () => {
   }
 };
 
-// コメント数取得
-export const fetchCommentCount = async (videoId) => {
-  try {
-    const q = query(collection(db, `videos/${videoId}/comments`));
-    const snapshot = await getDocs(q);
-    return snapshot.size;
-  } catch (error) {
-    console.error('コメント数取得エラー:', error);
-    return 0;
-  }
-};
-
 // いいね数取得
 export const fetchLikeCount = async (videoId) => {
   try {
@@ -38,7 +26,7 @@ export const fetchLikeCount = async (videoId) => {
 };
 
 // ID指定で1件の動画を取得
-export const fetchVideoById = async (videoId) => {
+export const getVideoById = async (videoId) => {
   try {
     const docRef = doc(db, 'videos', videoId);
     const docSnap = await getDoc(docRef);
@@ -53,7 +41,7 @@ export const fetchVideoById = async (videoId) => {
   }
 };
 
-// ✅ 単品購入済みかどうかチェック
+// 単品購入済みかどうかチェック
 export const checkUserHasPurchasedVideo = async (userId, videoId) => {
   try {
     const ref = doc(db, `videos/${videoId}/purchases/${userId}`);
@@ -65,7 +53,7 @@ export const checkUserHasPurchasedVideo = async (userId, videoId) => {
   }
 };
 
-// ✅ 単品購入を記録
+// 単品購入を記録
 export const recordVideoPurchase = async (userId, videoId) => {
   try {
     const ref = doc(db, `videos/${videoId}/purchases/${userId}`);
@@ -78,6 +66,7 @@ export const recordVideoPurchase = async (userId, videoId) => {
     return false;
   }
 };
+
 
 
 

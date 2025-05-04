@@ -19,12 +19,9 @@ const VideoList = () => {
     const fetchVideos = async () => {
       const snap = await getDocs(query(collection(db, 'videos'), orderBy('createdAt', 'desc')));
       const all = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-      // ログイン済みの場合、自分の動画または公開動画だけ表示
       const filtered = all.filter(v => !v.isPrivate || v.ownerId === user?.uid);
       setVideos(filtered);
     };
-
     if (user) {
       fetchVideos();
     }
@@ -88,16 +85,16 @@ const VideoList = () => {
               />
 
               {video.ownerId === user?.uid && (
-                <div className="flex justify-between items-center mt-3">
+                <div className="flex flex-col gap-2 mt-3 text-sm">
                   <button
                     onClick={() => handleTogglePrivacy(video.id, video.isPrivate)}
-                    className="text-sm text-blue-600 hover:underline"
+                    className="text-blue-600 hover:underline"
                   >
                     {video.isPrivate ? '公開にする' : '非公開にする'}
                   </button>
                   <button
                     onClick={() => handleDelete(video.videoId, video.id)}
-                    className="text-sm text-red-600 hover:underline"
+                    className="text-red-600 hover:underline"
                   >
                     削除
                   </button>
@@ -112,6 +109,8 @@ const VideoList = () => {
 };
 
 export default VideoList;
+
+
 
 
 

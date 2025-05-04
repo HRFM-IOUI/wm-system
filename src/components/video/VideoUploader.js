@@ -46,7 +46,7 @@ const VideoUploader = () => {
         throw new Error("エンコード未完了または失敗。Firestoreへ登録しません。");
       }
 
-      const playbackUrl = `https://${process.env.REACT_APP_BUNNY_CDN_HOST}/${videoId}/playlist.m3u8`;
+      const playbackUrl = `https://iframe.mediadelivery.net/play/${process.env.REACT_APP_BUNNY_LIBRARY_ID}/${videoId}`;
       const thumbnailUrl = `https://${process.env.REACT_APP_BUNNY_CDN_HOST}/${videoId}/thumbnails/${status.thumbnailFileName}`;
 
       const auth = getAuth();
@@ -144,6 +144,7 @@ const VideoUploader = () => {
 };
 
 export default VideoUploader;
+
 
 
 

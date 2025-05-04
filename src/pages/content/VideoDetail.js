@@ -1,14 +1,16 @@
 // src/pages/VideoDetail.js
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../firebase";
 
 const VideoDetail = ({ isVipUser }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [video, setVideo] = useState(null);
+  const [user] = useAuthState(auth);
 
   useEffect(() => {
     const fetchVideo = async () => {
@@ -21,16 +23,12 @@ const VideoDetail = ({ isVipUser }) => {
     fetchVideo();
   }, [id]);
 
-  if (!video) {
-    return <div className="p-4">読み込み中...</div>;
-  }
+  if (!video) return <div className="p-4">読み込み中...</div>;
 
-  const handleSubscribe = () => {
-    navigate("/subscribe");
-  };
-
+  const handleSubscribe = () => navigate("/subscribe");
+  const handlePurchase = () => navigate(`/purchase/${video.id}`);
   const canPlay =
-    isVipUser || video.type === "sample" || !video.isPrivate;
+    isVipUser || video.type === "sample" || (!video.isPrivate && video.type === "sample");
 
   return (
     <div className="p-4 max-w-3xl mx-auto space-y-4 bg-white shadow rounded">
@@ -51,15 +49,28 @@ const VideoDetail = ({ isVipUser }) => {
         )
       ) : (
         <>
-          <div className="p-4 border rounded bg-gray-50 text-center text-gray-700">
-            この動画は有料会員のみ視聴できます
-          </div>
-          <button
-            onClick={handleSubscribe}
-            className="w-full py-2 mt-3 bg-pink-500 hover:bg-pink-600 text-white rounded"
-          >
-            有料会員になる（サブスク登録）
-          </button>
+          {video.type === "main" && (
+            <div className="p-4 border rounded bg-gray-50 text-center text-gray-700">
+              この動画は月額会員限定です
+              <button
+                onClick={handleSubscribe}
+                className="w-full py-2 mt-3 bg-pink-500 hover:bg-pink-600 text-white rounded"
+              >
+                月額会員になる
+              </button>
+            </div>
+          )}
+          {video.type === "dmode" && (
+            <div className="p-4 border rounded bg-gray-50 text-center text-gray-700">
+              この動画は単品購入が必要です
+              <button
+                onClick={handlePurchase}
+                className="w-full py-2 mt-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded"
+              >
+                単品購入する
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>
@@ -67,6 +78,8 @@ const VideoDetail = ({ isVipUser }) => {
 };
 
 export default VideoDetail;
+
+
 
 
 
