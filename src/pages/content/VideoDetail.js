@@ -1,4 +1,3 @@
-// src/pages/content/VideoDetail.js
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../../firebase";
@@ -24,6 +23,7 @@ const VideoDetail = ({ isVipUser }) => {
 
   const handleSubscribe = () => navigate("/subscribe");
   const handlePurchase = () => navigate(`/purchase/${video.id}`);
+
   const canPlay =
     isVipUser || video.type === "sample" || (!video.isPrivate && video.type === "sample");
 
@@ -35,15 +35,19 @@ const VideoDetail = ({ isVipUser }) => {
       </p>
 
       {canPlay ? (
-        video.playbackUrl ? (
-          <video
-            src={video.playbackUrl}
-            type="application/x-mpegURL"
-            controls
-            className="w-full rounded"
-          />
+        video.videoId ? (
+          <div className="aspect-w-16 aspect-h-9">
+            <iframe
+              src={`https://iframe.mediadelivery.net/embed/${process.env.REACT_APP_BUNNY_LIBRARY_ID}/${video.videoId}`}
+              loading="lazy"
+              className="w-full h-64 md:h-96 rounded"
+              allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+              allowFullScreen
+              title="動画プレイヤー"
+            ></iframe>
+          </div>
         ) : (
-          <p>動画URLがありません</p>
+          <p>動画IDがありません</p>
         )
       ) : (
         <>
@@ -76,6 +80,7 @@ const VideoDetail = ({ isVipUser }) => {
 };
 
 export default VideoDetail;
+
 
 
 
