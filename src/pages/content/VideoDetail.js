@@ -38,6 +38,7 @@ const VideoDetail = ({ isVipUser }) => {
         video.playbackUrl ? (
           <video
             src={video.playbackUrl}
+            type="application/x-mpegURL"
             controls
             className="w-full rounded"
           />
@@ -75,6 +76,7 @@ const VideoDetail = ({ isVipUser }) => {
 };
 
 export default VideoDetail;
+
 
 
 

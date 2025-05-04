@@ -40,7 +40,8 @@ const VideoUploader = () => {
         throw new Error("エンコード未完了。Firestore登録スキップ");
       }
 
-      const playbackUrl = `https://iframe.mediadelivery.net/play/${process.env.REACT_APP_BUNNY_LIBRARY_ID}/${videoId}`;
+      // ✅ CDN再生形式（HLS形式 .m3u8）に修正
+      const playbackUrl = `https://${process.env.REACT_APP_BUNNY_CDN_HOST}/${videoId}/playlist.m3u8`;
       const thumbnailUrl = `https://${process.env.REACT_APP_BUNNY_CDN_HOST}/${videoId}/thumbnails/${status.thumbnailFileName}`;
       const auth = getAuth();
       const currentUser = auth.currentUser;
