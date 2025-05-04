@@ -8,8 +8,7 @@ const SidebarLeft = () => {
   const location = useLocation();
 
   const navItems = [
-    { path: "/toppage", label: "ホーム", icon: <Home size={20} /> },
-    { path: "/search", label: "探す", icon: <Search size={20} /> },
+    
     { path: "/mypage", label: "マイページ", icon: <User size={20} /> },
     { path: "/gacha-select", label: "ガチャ", icon: <Gamepad2 size={20} /> },
   ];

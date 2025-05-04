@@ -1,5 +1,3 @@
-// src/pages/content/Toppage.js
-
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { db } from "../../firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
@@ -8,8 +6,6 @@ import { useSearchParams } from "react-router-dom";
 import SidebarLeft from "../../components/common/SidebarLeft";
 import SidebarRight from "../../components/common/SidebarRight";
 import MenuPanel from "../../components/common/MenuPanel";
-import DummyGoods from "../../components/common/DummyGoods";
-import DummyGacha from "../../components/common/DummyGacha";
 import FooterTabMobile from "../../components/common/FooterTabMobile";
 import HeaderMobile from "../../components/common/HeaderMobile";
 import TabSwitcher from "../../components/common/TabSwitcher";
@@ -114,9 +110,12 @@ const Toppage = () => {
           </div>
         );
       case "goods":
-        return <DummyGoods />;
       case "gacha":
-        return <DummyGacha />;
+        return (
+          <div className="text-center text-gray-500 py-12">
+            このコンテンツは現在準備中です。
+          </div>
+        );
       default:
         return null;
     }
@@ -159,6 +158,7 @@ const Toppage = () => {
 };
 
 export default Toppage;
+
 
 
 
