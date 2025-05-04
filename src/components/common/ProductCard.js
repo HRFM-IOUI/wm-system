@@ -1,4 +1,4 @@
-// src/components/common/ProductCard.js
+// src/components/ProductCard.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -29,7 +29,9 @@ const ProductCard = ({ product }) => {
       )}
 
       <div className="p-4 space-y-2">
-        <h2 className="text-lg font-semibold truncate" onClick={handleViewDetail}>{product.title}</h2>
+        <h2 className="text-lg font-semibold truncate" onClick={handleViewDetail}>
+          {product.title}
+        </h2>
         <p className="text-sm text-gray-500 line-clamp-2">
           {product.description || '商品説明はありません'}
         </p>
@@ -47,5 +49,6 @@ const ProductCard = ({ product }) => {
 };
 
 export default ProductCard;
+
 
 

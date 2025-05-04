@@ -1,4 +1,4 @@
-// src/components/video/VideoUploader.js
+// src/components/dashboard/VideoUploader.js
 import React, { useState } from "react";
 import { uploadVideoToBunny, checkVideoStatus } from "../../utils/bunnyUtils";
 import { db } from "../../firebase";
@@ -26,37 +26,29 @@ const VideoUploader = () => {
 
     try {
       const { videoId } = await uploadVideoToBunny(file, title);
-      console.log("Bunnyアップロード成功:", videoId);
-
-      setMessage("エンコード完了待機中（最大30秒）...");
       let status = null;
-
       for (let i = 0; i < 10; i++) {
         await new Promise((res) => setTimeout(res, 3000));
         const check = await checkVideoStatus(videoId);
-        console.log("ステータス確認", check);
-
         if (check?.encodeProgress === 100 && check?.thumbnailFileName) {
           status = check;
           break;
         }
       }
 
-      if (!status || status.encodeProgress < 100 || !status.thumbnailFileName) {
-        throw new Error("エンコード未完了または失敗。Firestoreへ登録しません。");
+      if (!status) {
+        throw new Error("エンコード未完了。Firestore登録スキップ");
       }
 
       const playbackUrl = `https://iframe.mediadelivery.net/play/${process.env.REACT_APP_BUNNY_LIBRARY_ID}/${videoId}`;
       const thumbnailUrl = `https://${process.env.REACT_APP_BUNNY_CDN_HOST}/${videoId}/thumbnails/${status.thumbnailFileName}`;
-
       const auth = getAuth();
       const currentUser = auth.currentUser;
-      const resolvedOwnerId = currentUser ? currentUser.uid : "unknown";
 
       await addDoc(collection(db, "videos"), {
-        ownerId: resolvedOwnerId,
+        ownerId: currentUser ? currentUser.uid : "unknown",
         title,
-        tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
+        tags: tags.split(",").map(t => t.trim()).filter(Boolean),
         category,
         type,
         isPrivate,
@@ -73,9 +65,9 @@ const VideoUploader = () => {
       setCategory("");
       setType("sample");
       setIsPrivate(false);
-    } catch (error) {
-      console.error("アップロード失敗:", error);
-      setMessage("❌ アップロード失敗しました。動画が破損しているか、エンコードが完了していません。");
+    } catch (err) {
+      console.error("アップロード失敗:", err);
+      setMessage("❌ アップロードに失敗しました");
     }
 
     setUploading(false);
@@ -111,18 +103,15 @@ const VideoUploader = () => {
         value={category}
         onChange={(e) => setCategory(e.target.value)}
       />
-      <div className="space-y-2">
-        <label className="block font-medium">投稿タイプ</label>
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          className="w-full p-2 border rounded"
-        >
-          <option value="sample">サンプル</option>
-          <option value="main">本編</option>
-          <option value="dmode">DMODE</option>
-        </select>
-      </div>
+      <select
+        value={type}
+        onChange={(e) => setType(e.target.value)}
+        className="w-full p-2 border rounded"
+      >
+        <option value="sample">サンプル</option>
+        <option value="main">本編</option>
+        <option value="dmode">DMODE</option>
+      </select>
       <label className="flex items-center space-x-2">
         <input
           type="checkbox"
@@ -144,6 +133,7 @@ const VideoUploader = () => {
 };
 
 export default VideoUploader;
+
 
 
 

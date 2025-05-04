@@ -1,11 +1,20 @@
 // src/pages/dashboard/Dashboard.js
-
 import React, { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { collection, getDocs, query, where, deleteDoc, doc, updateDoc, orderBy } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  deleteDoc,
+  doc,
+  updateDoc,
+  orderBy
+} from 'firebase/firestore';
 import { auth, db } from '../../firebase';
 import VideoCard from '../../components/VideoCard';
-import ProductCard from '../../components/common/ProductCard'; // ✅ 修正箇所
+import ProductCard from '../../components/common/ProductCard'; // ✅ 修正済み
+import VideoUploader from '../../components/video/VideoUploader';
 import { deleteVideoFromBunny } from '../../utils/bunnyUtils';
 
 const Dashboard = () => {
@@ -20,15 +29,29 @@ const Dashboard = () => {
 
     const fetchData = async () => {
       const videoSnap = await getDocs(
-        query(collection(db, 'videos'), where('ownerId', '==', user.uid), orderBy('createdAt', 'desc'))
+        query(
+          collection(db, 'videos'),
+          where('ownerId', '==', user.uid),
+          orderBy('createdAt', 'desc')
+        )
       );
-      const videoData = videoSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const videoData = videoSnap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
       setVideos(videoData);
 
       const productSnap = await getDocs(
-        query(collection(db, 'products'), where('ownerId', '==', user.uid), orderBy('createdAt', 'desc'))
+        query(
+          collection(db, 'products'),
+          where('ownerId', '==', user.uid),
+          orderBy('createdAt', 'desc')
+        )
       );
-      const productData = productSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const productData = productSnap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
       setProducts(productData);
     };
 
@@ -37,8 +60,14 @@ const Dashboard = () => {
 
   const handleTogglePrivacy = async (videoId, isPrivate) => {
     try {
-      await updateDoc(doc(db, 'videos', videoId), { isPrivate: !isPrivate });
-      setVideos(prev => prev.map(v => (v.id === videoId ? { ...v, isPrivate: !isPrivate } : v)));
+      await updateDoc(doc(db, 'videos', videoId), {
+        isPrivate: !isPrivate
+      });
+      setVideos(prev =>
+        prev.map(v =>
+          v.id === videoId ? { ...v, isPrivate: !isPrivate } : v
+        )
+      );
     } catch (e) {
       console.error('公開状態変更エラー:', e);
     }
@@ -66,11 +95,16 @@ const Dashboard = () => {
       <h1 className="text-2xl font-bold mb-4">ダッシュボード</h1>
 
       <section>
+        <h2 className="text-xl font-semibold mb-2">動画投稿</h2>
+        <VideoUploader />
+      </section>
+
+      <section>
         <h2 className="text-xl font-semibold mb-2">動画管理</h2>
         <div className="flex gap-4 mb-4">
           <select
             value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
+            onChange={e => setFilterType(e.target.value)}
             className="border p-2 rounded"
           >
             <option value="all">すべて</option>
@@ -84,7 +118,7 @@ const Dashboard = () => {
             placeholder="カテゴリでフィルタ"
             className="border p-2 rounded"
             value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
+            onChange={e => setFilterCategory(e.target.value)}
           />
         </div>
 
@@ -94,7 +128,9 @@ const Dashboard = () => {
               <VideoCard video={video} isVipUser={true} />
               <div className="flex justify-between items-center mt-2">
                 <button
-                  onClick={() => handleTogglePrivacy(video.id, video.isPrivate)}
+                  onClick={() =>
+                    handleTogglePrivacy(video.id, video.isPrivate)
+                  }
                   className="text-sm text-blue-600 hover:underline"
                 >
                   {video.isPrivate ? '公開にする' : '非公開にする'}
@@ -115,7 +151,11 @@ const Dashboard = () => {
         <h2 className="text-xl font-semibold mt-6 mb-2">商品管理</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {products.map(product => (
-            <ProductCard key={product.id} product={product} showOwnerControls={true} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              showOwnerControls={true}
+            />
           ))}
         </div>
       </section>
@@ -124,6 +164,7 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
 
 
 
