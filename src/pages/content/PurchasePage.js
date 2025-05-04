@@ -35,18 +35,21 @@ const PurchasePage = () => {
       const res = await fetch("https://shrill-unit-35d4.ik39-10vevic.workers.dev", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ videoId: video.id }),
+        body: JSON.stringify({
+          videoId: video.id,
+          returnUrl: `${window.location.origin}/thankyou?videoId=${video.id}`,
+        }),
       });
 
       const { url } = await res.json();
       if (url) {
         window.location.href = url;
       } else {
-        throw new Error("URL取得に失敗しました");
+        throw new Error("決済URL取得に失敗しました");
       }
     } catch (err) {
-      console.error("Checkout エラー:", err);
-      alert("決済処理でエラーが発生しました");
+      console.error("Stripe Checkout エラー:", err);
+      alert("決済に失敗しました。もう一度お試しください。");
     }
   };
 
@@ -58,7 +61,7 @@ const PurchasePage = () => {
       <h1 className="text-xl font-bold">単品購入: {video.title}</h1>
       <p className="text-sm text-gray-600">カテゴリ: {video.category}</p>
       <p className="text-sm text-gray-600">タイプ: {video.type}</p>
-      <p className="text-sm text-gray-600 mb-4">価格例: 1000円（テスト環境では決済なし）</p>
+      <p className="text-sm text-gray-600 mb-4">価格例: 1000円</p>
 
       <button
         onClick={handleStripeCheckout}
@@ -71,6 +74,7 @@ const PurchasePage = () => {
 };
 
 export default PurchasePage;
+
 
 
 

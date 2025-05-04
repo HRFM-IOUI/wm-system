@@ -1,66 +1,51 @@
 // src/pages/ThankYou.js
-import React, { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { recordVideoPurchase } from '../utils/videoUtils';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../firebase';
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { db } from "../firebase"; // ✅ 修正済みパス
+import { doc, updateDoc } from "firebase/firestore";
 
 const ThankYouPage = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [user] = useAuthState(auth);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
-    const sessionId = searchParams.get('session_id');
-    if (!sessionId || !user) {
-      setError('ユーザー情報またはセッションIDが不足しています');
-      setLoading(false);
-      return;
-    }
+    const updatePurchaseStatus = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const videoId = urlParams.get("videoId");
+      const uid = urlParams.get("uid");
 
-    const verifyAndRecord = async () => {
-      try {
-        const response = await fetch('https://shrill-unit-35d4.ik39-10vevic.workers.dev', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ session_id: sessionId }),
-        });
-
-        const result = await response.json();
-        if (response.ok && result.videoId) {
-          const success = await recordVideoPurchase(user.uid, result.videoId);
-          if (success) {
-            navigate(`/video/${result.videoId}`);
-          } else {
-            throw new Error('購入記録に失敗しました');
-          }
-        } else {
-          throw new Error(result.error || 'セッション検証に失敗しました');
+      if (videoId && uid) {
+        const ref = doc(db, "purchases", `${uid}_${videoId}`);
+        try {
+          await updateDoc(ref, { status: "paid" });
+          console.log("購入ステータス更新完了");
+        } catch (err) {
+          console.error("Firestore更新エラー:", err);
         }
-      } catch (err) {
-        console.error('検証エラー:', err);
-        setError('セッションの検証中にエラーが発生しました');
-        setLoading(false);
       }
+
+      // 数秒後にマイページなどに遷移させてもよい
+      // setTimeout(() => navigate("/mypage"), 4000);
     };
 
-    verifyAndRecord();
-  }, [searchParams, navigate, user]);
+    updatePurchaseStatus();
+  }, [navigate]);
 
   return (
-    <div className="p-6 text-center">
-      {loading ? (
-        <p>セッション確認中...</p>
-      ) : (
-        <p className="text-red-500">{error}</p>
-      )}
+    <div className="p-8 max-w-xl mx-auto text-center bg-white shadow rounded">
+      <h1 className="text-2xl font-bold text-green-600">🎉 ご購入ありがとうございます！</h1>
+      <p className="mt-4 text-gray-700">決済が正常に完了しました。</p>
+      <button
+        onClick={() => navigate("/mypage")}
+        className="mt-6 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+      >
+        マイページに戻る
+      </button>
     </div>
   );
 };
 
 export default ThankYouPage;
+
 
 
 

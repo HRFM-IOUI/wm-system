@@ -1,12 +1,16 @@
+// src/pages/content/VideoDetail.js
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { db } from "../../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { db, auth } from "../../firebase";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const VideoDetail = ({ isVipUser }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [user] = useAuthState(auth);
   const [video, setVideo] = useState(null);
+  const [isPurchased, setIsPurchased] = useState(false);
 
   useEffect(() => {
     const fetchVideo = async () => {
@@ -16,8 +20,23 @@ const VideoDetail = ({ isVipUser }) => {
         setVideo({ id: snap.id, ...snap.data() });
       }
     };
+
+    const checkPurchase = async () => {
+      if (!user) return;
+      const q = query(
+        collection(db, "purchases"),
+        where("userId", "==", user.uid),
+        where("videoId", "==", id)
+      );
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        setIsPurchased(true);
+      }
+    };
+
     fetchVideo();
-  }, [id]);
+    checkPurchase();
+  }, [id, user]);
 
   if (!video) return <div className="p-4">読み込み中...</div>;
 
@@ -25,7 +44,10 @@ const VideoDetail = ({ isVipUser }) => {
   const handlePurchase = () => navigate(`/purchase/${video.id}`);
 
   const canPlay =
-    isVipUser || video.type === "sample" || (!video.isPrivate && video.type === "sample");
+    isVipUser ||
+    video.type === "sample" ||
+    (!video.isPrivate && video.type === "sample") ||
+    (video.type === "dmode" && isPurchased);
 
   return (
     <div className="p-4 max-w-3xl mx-auto space-y-4 bg-white shadow rounded">
@@ -80,6 +102,7 @@ const VideoDetail = ({ isVipUser }) => {
 };
 
 export default VideoDetail;
+
 
 
 
