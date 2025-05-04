@@ -22,30 +22,33 @@ const VideoUploader = () => {
     }
 
     setUploading(true);
-    setMessage("アップロード中...");
+    setMessage("動画アップロード中...");
 
     try {
       const { videoId } = await uploadVideoToBunny(file, title);
+      console.log("Bunnyアップロード成功:", videoId);
 
-      setMessage("エンコード確認中...");
+      setMessage("エンコード完了待機中（最大30秒）...");
       let status = null;
+
       for (let i = 0; i < 10; i++) {
         await new Promise((res) => setTimeout(res, 3000));
         const check = await checkVideoStatus(videoId);
+        console.log("ステータス確認", check);
+
         if (check?.encodeProgress === 100 && check?.thumbnailFileName) {
           status = check;
           break;
         }
       }
 
-      if (!status || status.encodeProgress < 100) {
-        throw new Error("エンコードが完了しませんでした");
+      if (!status || status.encodeProgress < 100 || !status.thumbnailFileName) {
+        throw new Error("エンコード未完了または失敗。Firestoreへ登録しません。");
       }
 
       const playbackUrl = `https://${process.env.REACT_APP_BUNNY_CDN_HOST}/${videoId}/playlist.m3u8`;
       const thumbnailUrl = `https://${process.env.REACT_APP_BUNNY_CDN_HOST}/${videoId}/thumbnails/${status.thumbnailFileName}`;
 
-      // Firebase Auth からログイン中のユーザーIDを取得
       const auth = getAuth();
       const currentUser = auth.currentUser;
       const resolvedOwnerId = currentUser ? currentUser.uid : "unknown";
@@ -63,7 +66,7 @@ const VideoUploader = () => {
         createdAt: serverTimestamp(),
       });
 
-      setMessage("アップロード完了！");
+      setMessage("✅ アップロード完了しました");
       setFile(null);
       setTitle("");
       setTags("");
@@ -72,7 +75,7 @@ const VideoUploader = () => {
       setIsPrivate(false);
     } catch (error) {
       console.error("アップロード失敗:", error);
-      setMessage("アップロード失敗");
+      setMessage("❌ アップロード失敗しました。動画が破損しているか、エンコードが完了していません。");
     }
 
     setUploading(false);
@@ -141,6 +144,7 @@ const VideoUploader = () => {
 };
 
 export default VideoUploader;
+
 
 
 
