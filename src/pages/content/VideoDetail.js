@@ -1,16 +1,13 @@
-// src/pages/VideoDetail.js
+// src/pages/content/VideoDetail.js
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../../firebase";
 
 const VideoDetail = ({ isVipUser }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [video, setVideo] = useState(null);
-  const [user] = useAuthState(auth);
 
   useEffect(() => {
     const fetchVideo = async () => {
@@ -78,6 +75,7 @@ const VideoDetail = ({ isVipUser }) => {
 };
 
 export default VideoDetail;
+
 
 
 
