@@ -1,14 +1,13 @@
 // src/components/ui/SidebarLeft.js
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, User, Gamepad2, LogOut } from "lucide-react";
+import { User, Gamepad2, LogOut } from "lucide-react"; // ← ✅ Home, Search を削除
 import { auth } from "../../firebase";
 
 const SidebarLeft = () => {
   const location = useLocation();
 
   const navItems = [
-    
     { path: "/mypage", label: "マイページ", icon: <User size={20} /> },
     { path: "/gacha-select", label: "ガチャ", icon: <Gamepad2 size={20} /> },
   ];
@@ -44,3 +43,4 @@ const SidebarLeft = () => {
 };
 
 export default SidebarLeft;
+
