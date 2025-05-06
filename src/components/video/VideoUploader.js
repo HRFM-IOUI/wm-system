@@ -35,15 +35,14 @@ const VideoUploader = () => {
     setMessage("アップロード中...");
 
     const upload = new Upload(file, {
-      endpoint: "https://video.bunnycdn.com/tusupload",
+      endpoint: `https://video.bunnycdn.com/tusupload?library=${BUNNY_LIBRARY_ID}`,
+      headers: {
+        Authorization: BUNNY_API_KEY, // ✅ Bearerは不要
+      },
       metadata: {
         filename: file.name,
         filetype: file.type,
         title,
-      },
-      headers: {
-        Authorization: `Bearer ${BUNNY_API_KEY}`,
-        LibraryId: BUNNY_LIBRARY_ID,
       },
       onError: (error) => {
         console.error("❌ アップロード失敗:", error);
@@ -184,6 +183,7 @@ const VideoUploader = () => {
 };
 
 export default VideoUploader;
+
 
 
 
