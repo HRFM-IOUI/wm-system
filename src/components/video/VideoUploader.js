@@ -5,6 +5,8 @@ import { getAuth } from "firebase/auth";
 import { Upload } from "tus-js-client";
 import { checkVideoStatus } from "../../utils/bunnyUtils";
 
+const safeBtoa = (str) => btoa(unescape(encodeURIComponent(str)));
+
 const VideoUploader = () => {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
@@ -35,14 +37,15 @@ const VideoUploader = () => {
     setMessage("アップロード中...");
 
     const upload = new Upload(file, {
-      endpoint: `https://video.bunnycdn.com/tusupload?library=${BUNNY_LIBRARY_ID}`,
-      headers: {
-        Authorization: BUNNY_API_KEY, // ✅ Bearerは不要
-      },
+      endpoint: "https://video.bunnycdn.com/tusupload",
       metadata: {
-        filename: file.name,
+        filename: safeBtoa(file.name),
         filetype: file.type,
-        title,
+        title: safeBtoa(title),
+      },
+      headers: {
+        Authorization: `Bearer ${BUNNY_API_KEY}`,
+        LibraryId: BUNNY_LIBRARY_ID,
       },
       onError: (error) => {
         console.error("❌ アップロード失敗:", error);
@@ -102,7 +105,7 @@ const VideoUploader = () => {
           setIsPrivate(false);
           setProgress(0);
         } catch (e) {
-          console.error("登録エラー:", e);
+          console.error("Firestore登録エラー:", e);
           setMessage("❌ Firestore登録に失敗しました");
         }
         setUploading(false);
@@ -183,6 +186,9 @@ const VideoUploader = () => {
 };
 
 export default VideoUploader;
+
+
+
 
 
 
