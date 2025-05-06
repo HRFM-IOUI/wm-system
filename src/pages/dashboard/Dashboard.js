@@ -1,4 +1,3 @@
-// src/pages/dashboard/Dashboard.js
 import React, { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import {
@@ -14,9 +13,7 @@ import {
 import { auth, db } from '../../firebase';
 import VideoCard from '../../components/VideoCard';
 import ProductCard from '../../components/common/ProductCard';
-import VideoUploader from '../../components/video/VideoUploader';
-import TusUploader from './TusUploader'; // ✅ 修正済み（相対パスで）
-
+import Uploader from '../../components/video/Uploader'; // ✅ 統合版に変更
 import { deleteVideoFromBunny } from '../../utils/bunnyUtils';
 
 const Dashboard = () => {
@@ -97,13 +94,8 @@ const Dashboard = () => {
       <h1 className="text-2xl font-bold mb-4">ダッシュボード</h1>
 
       <section>
-        <h2 className="text-xl font-semibold mb-2">動画投稿（通常）</h2>
-        <VideoUploader />
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mb-2">動画投稿（大容量TUS）</h2>
-        <TusUploader /> {/* ✅ 追加表示済 */}
+        <h2 className="text-xl font-semibold mb-2">動画投稿</h2>
+        <Uploader />
       </section>
 
       <section>
@@ -171,6 +163,8 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+
 
 
 

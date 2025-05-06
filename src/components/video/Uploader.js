@@ -1,3 +1,4 @@
+// src/components/video/Uploader.js
 import React, { useState } from "react";
 import { db } from "../../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
@@ -7,7 +8,7 @@ import { checkVideoStatus } from "../../utils/bunnyUtils";
 
 const safeBtoa = (str) => btoa(unescape(encodeURIComponent(str)));
 
-const VideoUploader = () => {
+const Uploader = () => {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState("");
@@ -36,6 +37,8 @@ const VideoUploader = () => {
     setUploading(true);
     setMessage("アップロード中...");
 
+    const isLargeFile = file.size > 100 * 1024 * 1024; // 100MB超はTUS
+
     const upload = new Upload(file, {
       endpoint: "https://video.bunnycdn.com/tusupload",
       metadata: {
@@ -61,27 +64,35 @@ const VideoUploader = () => {
           const urlParts = upload.url.split("/");
           const videoId = urlParts[urlParts.length - 1];
 
-          let status = null;
-          for (let i = 0; i < 10; i++) {
-            await new Promise((r) => setTimeout(r, 3000));
-            const check = await checkVideoStatus(videoId);
-            if (check?.encodeProgress === 100 && check?.thumbnailFileName) {
-              status = check;
-              break;
-            }
-          }
+          let playbackUrl = "";
+          let thumbnailUrl = "";
 
-          if (!status) {
-            setMessage("⚠️ エンコード未完了。登録をスキップしました");
-            setUploading(false);
-            return;
+          if (!isLargeFile) {
+            // 通常：エンコード完了を待つ
+            let status = null;
+            for (let i = 0; i < 10; i++) {
+              await new Promise((r) => setTimeout(r, 3000));
+              const check = await checkVideoStatus(videoId);
+              if (check?.encodeProgress === 100 && check?.thumbnailFileName) {
+                status = check;
+                break;
+              }
+            }
+            if (!status) {
+              setMessage("⚠️ エンコード未完了。登録をスキップしました");
+              setUploading(false);
+              return;
+            }
+            playbackUrl = `https://${BUNNY_CDN_HOST}/${videoId}/playlist.m3u8`;
+            thumbnailUrl = `https://${BUNNY_CDN_HOST}/${videoId}/thumbnails/${status.thumbnailFileName}`;
+          } else {
+            // 大容量：iframe再生URLで代替
+            playbackUrl = `https://iframe.mediadelivery.net/play/${BUNNY_LIBRARY_ID}/${videoId}`;
+            thumbnailUrl = "";
           }
 
           const auth = getAuth();
           const currentUser = auth.currentUser;
-
-          const playbackUrl = `https://${BUNNY_CDN_HOST}/${videoId}/playlist.m3u8`;
-          const thumbnailUrl = `https://${BUNNY_CDN_HOST}/${videoId}/thumbnails/${status.thumbnailFileName}`;
 
           await addDoc(collection(db, "videos"), {
             ownerId: currentUser?.uid || "unknown",
@@ -117,7 +128,7 @@ const VideoUploader = () => {
 
   return (
     <div className="p-4 border rounded-xl shadow bg-white space-y-4">
-      <h2 className="text-lg font-bold">TUS動画アップロード</h2>
+      <h2 className="text-lg font-bold">動画アップロード（自動切替）</h2>
       <input
         type="text"
         placeholder="タイトル"
@@ -185,23 +196,4 @@ const VideoUploader = () => {
   );
 };
 
-export default VideoUploader;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export default Uploader;
