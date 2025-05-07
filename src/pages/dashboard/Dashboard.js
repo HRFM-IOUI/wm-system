@@ -1,168 +1,101 @@
+// src/pages/dashboard/Dashboard.js
 import React, { useEffect, useState } from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  deleteDoc,
-  doc,
-  updateDoc,
-  orderBy
-} from 'firebase/firestore';
+import { collection, query, where, getDocs, deleteDoc, updateDoc, doc } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
-import VideoCard from '../../components/VideoCard';
-import ProductCard from '../../components/common/ProductCard';
-import Uploader from '../../components/video/Uploader'; // ✅ 統合版に変更
 import { deleteVideoFromBunny } from '../../utils/bunnyUtils';
+import VideoPlayer from '../../components/video/VideoPlayer';
+import Uploader from '../../components/video/Uploader'; // ← 追加
 
 const Dashboard = () => {
-  const [user] = useAuthState(auth);
   const [videos, setVideos] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [filterType, setFilterType] = useState('all');
-  const [filterCategory, setFilterCategory] = useState('');
 
-  useEffect(() => {
+  const fetchVideos = async () => {
+    const user = auth.currentUser;
     if (!user) return;
 
-    const fetchData = async () => {
-      const videoSnap = await getDocs(
-        query(
-          collection(db, 'videos'),
-          where('ownerId', '==', user.uid),
-          orderBy('createdAt', 'desc')
-        )
-      );
-      const videoData = videoSnap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setVideos(videoData);
-
-      const productSnap = await getDocs(
-        query(
-          collection(db, 'products'),
-          where('ownerId', '==', user.uid),
-          orderBy('createdAt', 'desc')
-        )
-      );
-      const productData = productSnap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setProducts(productData);
-    };
-
-    fetchData();
-  }, [user]);
-
-  const handleTogglePrivacy = async (videoId, isPrivate) => {
-    try {
-      await updateDoc(doc(db, 'videos', videoId), {
-        isPrivate: !isPrivate
-      });
-      setVideos(prev =>
-        prev.map(v =>
-          v.id === videoId ? { ...v, isPrivate: !isPrivate } : v
-        )
-      );
-    } catch (e) {
-      console.error('公開状態変更エラー:', e);
-    }
+    const q = query(collection(db, 'videos'), where('userId', '==', user.uid));
+    const querySnapshot = await getDocs(q);
+    const videoList = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    setVideos(videoList);
   };
 
-  const handleDelete = async (videoId, docId) => {
+  const handleDelete = async (guid) => {
+    if (!window.confirm('本当に削除しますか？')) return;
+
     try {
-      await deleteVideoFromBunny(videoId);
-      await deleteDoc(doc(db, 'videos', docId));
-      setVideos(prev => prev.filter(v => v.id !== docId));
+      await deleteVideoFromBunny(guid);
+      await deleteDoc(doc(db, 'videos', guid));
+      setVideos((prev) => prev.filter((v) => v.guid !== guid));
     } catch (err) {
+      console.error(err);
       alert('削除に失敗しました');
     }
   };
 
-  const filteredVideos = videos.filter(v => {
-    return (
-      (filterType === 'all' || v.type === filterType) &&
-      (!filterCategory || v.category === filterCategory)
-    );
-  });
+  const togglePublic = async (guid, current) => {
+    try {
+      const ref = doc(db, 'videos', guid);
+      await updateDoc(ref, { isPublic: !current });
+      setVideos((prev) =>
+        prev.map((v) => (v.guid === guid ? { ...v, isPublic: !current } : v))
+      );
+    } catch (err) {
+      console.error(err);
+      alert('更新に失敗しました');
+    }
+  };
+
+  useEffect(() => {
+    fetchVideos();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-white p-6 space-y-6">
-      <h1 className="text-2xl font-bold mb-4">ダッシュボード</h1>
+    <div className="p-6 space-y-6 max-w-4xl mx-auto">
+      <h1 className="text-xl font-bold">マイ動画管理</h1>
 
-      <section>
-        <h2 className="text-xl font-semibold mb-2">動画投稿</h2>
-        <Uploader />
-      </section>
+      {/* 投稿フォーム */}
+      <Uploader />
 
-      <section>
-        <h2 className="text-xl font-semibold mb-2">動画管理</h2>
-        <div className="flex gap-4 mb-4">
-          <select
-            value={filterType}
-            onChange={e => setFilterType(e.target.value)}
-            className="border p-2 rounded"
-          >
-            <option value="all">すべて</option>
-            <option value="sample">サンプル</option>
-            <option value="main">本編</option>
-            <option value="dmode">DMODE</option>
-          </select>
-
-          <input
-            type="text"
-            placeholder="カテゴリでフィルタ"
-            className="border p-2 rounded"
-            value={filterCategory}
-            onChange={e => setFilterCategory(e.target.value)}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredVideos.map(video => (
-            <div key={video.id} className="bg-gray-50 rounded shadow p-4">
-              <VideoCard video={video} isVipUser={true} />
-              <div className="flex justify-between items-center mt-2">
+      {/* 投稿一覧 */}
+      <div className="grid gap-4">
+        {videos.length === 0 ? (
+          <p>まだ動画がありません。</p>
+        ) : (
+          videos.map((video) => (
+            <div
+              key={video.guid}
+              className="p-4 border rounded-xl shadow-sm bg-white space-y-2"
+            >
+              <p className="font-semibold">{video.title}</p>
+              <VideoPlayer guid={video.guid} />
+              <div className="flex gap-4 mt-2">
                 <button
-                  onClick={() =>
-                    handleTogglePrivacy(video.id, video.isPrivate)
-                  }
-                  className="text-sm text-blue-600 hover:underline"
+                  onClick={() => togglePublic(video.guid, video.isPublic)}
+                  className={`px-3 py-1 rounded ${
+                    video.isPublic ? 'bg-green-500' : 'bg-gray-400'
+                  } text-white`}
                 >
-                  {video.isPrivate ? '公開にする' : '非公開にする'}
+                  {video.isPublic ? '公開中' : '非公開'}
                 </button>
                 <button
-                  onClick={() => handleDelete(video.videoId, video.id)}
-                  className="text-sm text-red-600 hover:underline"
+                  onClick={() => handleDelete(video.guid)}
+                  className="bg-red-500 text-white px-3 py-1 rounded"
                 >
                   削除
                 </button>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mt-6 mb-2">商品管理</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {products.map(product => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              showOwnerControls={true}
-            />
-          ))}
-        </div>
-      </section>
+          ))
+        )}
+      </div>
     </div>
   );
 };
 
 export default Dashboard;
+
+
+
 
 
 

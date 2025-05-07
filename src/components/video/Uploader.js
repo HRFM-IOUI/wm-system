@@ -1,199 +1,176 @@
 // src/components/video/Uploader.js
-import React, { useState } from "react";
-import { db } from "../../firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import { Upload } from "tus-js-client";
-import { checkVideoStatus } from "../../utils/bunnyUtils";
-
-const safeBtoa = (str) => btoa(unescape(encodeURIComponent(str)));
+import React, { useState } from 'react';
+import {
+  createVideoInBunny,
+  uploadVideoToBunny,
+} from '../../utils/bunnyUtils';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { db, auth } from '../../firebase';
 
 const Uploader = () => {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [type, setType] = useState('sample');
+  const [category, setCategory] = useState('その他');
   const [file, setFile] = useState(null);
-  const [title, setTitle] = useState("");
-  const [tags, setTags] = useState("");
-  const [category, setCategory] = useState("");
-  const [type, setType] = useState("sample");
-  const [isPrivate, setIsPrivate] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [message, setMessage] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const categoryOptions = [
+    'AV',
+    'コスプレ',
+    '美少女',
+    '人妻',
+    '素人',
+    'ディレクターズカット',
+    'その他',
+  ];
 
   const handleUpload = async () => {
-    if (!file || !title) {
-      setMessage("動画ファイルとタイトルを入力してください");
+    if (!title || !file) {
+      alert('タイトルと動画を入力してください');
       return;
     }
 
-    const BUNNY_API_KEY = process.env.REACT_APP_BUNNY_API_KEY;
-    const BUNNY_LIBRARY_ID = process.env.REACT_APP_BUNNY_LIBRARY_ID;
-    const BUNNY_CDN_HOST = process.env.REACT_APP_BUNNY_CDN_HOST;
+    try {
+      setUploading(true);
+      setMessage('動画を作成中...');
+      const videoMeta = await createVideoInBunny(title);
+      const guid = videoMeta.guid;
 
-    if (!BUNNY_API_KEY || !BUNNY_LIBRARY_ID || !BUNNY_CDN_HOST) {
-      setMessage("環境変数が未設定です");
-      return;
+      setMessage('アップロード中...');
+      await uploadVideoToBunny(guid, file, (e) => {
+        const percent = Math.round((e.loaded * 100) / e.total);
+        setProgress(percent);
+      });
+
+      const user = auth.currentUser;
+      const docRef = doc(db, 'videos', guid);
+      await setDoc(docRef, {
+        guid,
+        title,
+        description,
+        type,
+        category,
+        userId: user?.uid || 'unknown',
+        isPublic: true,
+        createdAt: serverTimestamp(),
+      });
+
+      setMessage('アップロード完了！');
+      setTitle('');
+      setDescription('');
+      setType('sample');
+      setCategory('その他');
+      setFile(null);
+      setProgress(0);
+    } catch (err) {
+      console.error(err);
+      setMessage('アップロードに失敗しました');
+    } finally {
+      setUploading(false);
     }
-
-    setUploading(true);
-    setMessage("アップロード中...");
-
-    const isLargeFile = file.size > 100 * 1024 * 1024; // 100MB超はTUS
-
-    const upload = new Upload(file, {
-      endpoint: "https://video.bunnycdn.com/tusupload",
-      metadata: {
-        filename: safeBtoa(file.name),
-        filetype: file.type,
-        title: safeBtoa(title),
-      },
-      headers: {
-        Authorization: `Bearer ${BUNNY_API_KEY}`,
-        LibraryId: BUNNY_LIBRARY_ID,
-      },
-      onError: (error) => {
-        console.error("❌ アップロード失敗:", error);
-        setMessage("❌ アップロードに失敗しました");
-        setUploading(false);
-      },
-      onProgress: (bytesUploaded, bytesTotal) => {
-        const percentage = Math.floor((bytesUploaded / bytesTotal) * 100);
-        setProgress(percentage);
-      },
-      onSuccess: async () => {
-        try {
-          const urlParts = upload.url.split("/");
-          const videoId = urlParts[urlParts.length - 1];
-
-          let playbackUrl = "";
-          let thumbnailUrl = "";
-
-          if (!isLargeFile) {
-            // 通常：エンコード完了を待つ
-            let status = null;
-            for (let i = 0; i < 10; i++) {
-              await new Promise((r) => setTimeout(r, 3000));
-              const check = await checkVideoStatus(videoId);
-              if (check?.encodeProgress === 100 && check?.thumbnailFileName) {
-                status = check;
-                break;
-              }
-            }
-            if (!status) {
-              setMessage("⚠️ エンコード未完了。登録をスキップしました");
-              setUploading(false);
-              return;
-            }
-            playbackUrl = `https://${BUNNY_CDN_HOST}/${videoId}/playlist.m3u8`;
-            thumbnailUrl = `https://${BUNNY_CDN_HOST}/${videoId}/thumbnails/${status.thumbnailFileName}`;
-          } else {
-            // 大容量：iframe再生URLで代替
-            playbackUrl = `https://iframe.mediadelivery.net/play/${BUNNY_LIBRARY_ID}/${videoId}`;
-            thumbnailUrl = "";
-          }
-
-          const auth = getAuth();
-          const currentUser = auth.currentUser;
-
-          await addDoc(collection(db, "videos"), {
-            ownerId: currentUser?.uid || "unknown",
-            title,
-            tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
-            category,
-            type,
-            isPrivate,
-            videoId,
-            playbackUrl,
-            thumbnailUrl,
-            createdAt: serverTimestamp(),
-          });
-
-          setMessage("✅ アップロード完了しました");
-          setFile(null);
-          setTitle("");
-          setTags("");
-          setCategory("");
-          setType("sample");
-          setIsPrivate(false);
-          setProgress(0);
-        } catch (e) {
-          console.error("Firestore登録エラー:", e);
-          setMessage("❌ Firestore登録に失敗しました");
-        }
-        setUploading(false);
-      },
-    });
-
-    upload.start();
   };
 
   return (
-    <div className="p-4 border rounded-xl shadow bg-white space-y-4">
-      <h2 className="text-lg font-bold">動画アップロード（自動切替）</h2>
+    <div className="p-4 border rounded-xl shadow-md bg-white space-y-4">
+      <h2 className="text-lg font-semibold">動画アップロード</h2>
+
       <input
         type="text"
         placeholder="タイトル"
-        className="w-full p-2 border rounded"
+        className="border p-2 w-full"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
+
+      <textarea
+        placeholder="動画の説明"
+        className="border p-2 w-full"
+        rows={3}
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <label className="block text-sm font-semibold mb-1">投稿タイプ</label>
+          <select
+            className="border p-2 w-full"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+          >
+            <option value="sample">① サンプル</option>
+            <option value="main">② 本編</option>
+            <option value="dmode">③ ディレクターズカット</option>
+          </select>
+        </div>
+
+        <div className="flex-1">
+          <label className="block text-sm font-semibold mb-1">カテゴリ</label>
+          <select
+            className="border p-2 w-full"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            {categoryOptions.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <input
         type="file"
-        accept="video/mp4,video/mov"
+        accept="video/*"
+        className="border p-2 w-full"
         onChange={(e) => setFile(e.target.files[0])}
-        className="w-full"
       />
-      <input
-        type="text"
-        placeholder="タグ（カンマ区切り）"
-        className="w-full p-2 border rounded"
-        value={tags}
-        onChange={(e) => setTags(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="カテゴリ"
-        className="w-full p-2 border rounded"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-      />
-      <select
-        value={type}
-        onChange={(e) => setType(e.target.value)}
-        className="w-full p-2 border rounded"
-      >
-        <option value="sample">サンプル</option>
-        <option value="main">本編</option>
-        <option value="dmode">DMODE</option>
-      </select>
-      <label className="flex items-center space-x-2">
-        <input
-          type="checkbox"
-          checked={isPrivate}
-          onChange={(e) => setIsPrivate(e.target.checked)}
-        />
-        <span>非公開（自分のみ視聴可）</span>
-      </label>
 
       {uploading && (
         <div className="w-full bg-gray-200 h-4 rounded">
           <div
-            className="bg-green-500 h-4 rounded"
+            className="bg-pink-500 h-4 rounded"
             style={{ width: `${progress}%` }}
-          />
+          ></div>
         </div>
       )}
 
       <button
         onClick={handleUpload}
         disabled={uploading}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600"
       >
-        {uploading ? "アップロード中..." : "アップロード"}
+        アップロード
       </button>
 
-      {message && <p className="text-sm mt-2 text-gray-700">{message}</p>}
+      {message && <p className="text-sm mt-2">{message}</p>}
     </div>
   );
 };
 
 export default Uploader;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

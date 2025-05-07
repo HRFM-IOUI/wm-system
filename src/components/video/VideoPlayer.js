@@ -1,47 +1,42 @@
-import React, { useEffect, useRef } from "react";
-import Hls from "hls.js";
+// src/components/video/VideoPlayer.js
+import React, { useEffect, useRef } from 'react';
+import Hls from 'hls.js';
 
-const VideoPlayer = ({ playbackUrl }) => {
+const VideoPlayer = ({ guid }) => {
   const videoRef = useRef(null);
 
   useEffect(() => {
+    if (!guid) return;
+
     const video = videoRef.current;
+    const streamUrl = `https://${process.env.REACT_APP_BUNNY_CDN_HOST}/${guid}/playlist.m3u8`;
 
-    if (!video || !playbackUrl) return;
-
-    // HLS.js がサポートされているブラウザの場合
     if (Hls.isSupported()) {
       const hls = new Hls();
-      hls.loadSource(playbackUrl);
+      hls.loadSource(streamUrl);
       hls.attachMedia(video);
-
-      hls.on(Hls.Events.ERROR, (event, data) => {
-        console.error("HLS エラー:", data);
+      hls.on(Hls.Events.ERROR, function (event, data) {
+        console.error('HLS error', data);
       });
-
-      return () => {
-        hls.destroy();
-      };
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = streamUrl;
     }
-
-    // ネイティブ HLS 対応（Safariなど）
-    else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = playbackUrl;
-    }
-  }, [playbackUrl]);
+  }, [guid]);
 
   return (
-    <video
-      ref={videoRef}
-      controls
-      className="w-full rounded border"
-      preload="metadata"
-      playsInline
-    />
+    <div className="w-full">
+      <video
+        ref={videoRef}
+        controls
+        className="w-full rounded-xl shadow-md"
+        poster={`https://${process.env.REACT_APP_BUNNY_CDN_HOST}/${guid}/thumbnail.jpg`}
+      />
+    </div>
   );
 };
 
 export default VideoPlayer;
+
 
 
 

@@ -1,3 +1,4 @@
+// src/pages/Toppage.js
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { db } from "../../firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
@@ -56,7 +57,7 @@ const Toppage = () => {
         (Array.isArray(post.tags) && post.tags.includes(selectedTag));
       const matchCategory =
         !selectedCategory || post.category === selectedCategory;
-      const isPublic = !post.isPrivate;
+      const isPublic = post.isPublic !== false; // ← 修正済
       return matchTag && matchCategory && isPublic;
     });
   }, [posts, selectedTag, selectedCategory]);
@@ -100,9 +101,7 @@ const Toppage = () => {
             {filteredPosts.slice(0, visiblePosts.length).map((post, index) => (
               <div
                 key={post.id}
-                ref={
-                  index === visiblePosts.length - 1 ? lastPostRef : undefined
-                }
+                ref={index === visiblePosts.length - 1 ? lastPostRef : undefined}
               >
                 <VideoCard video={post} />
               </div>
@@ -158,6 +157,7 @@ const Toppage = () => {
 };
 
 export default Toppage;
+
 
 
 
