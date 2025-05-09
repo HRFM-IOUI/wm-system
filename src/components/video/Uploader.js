@@ -14,12 +14,7 @@ const Uploader = () => {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
 
-  const categoryOptions = [
-    "女子高生", "合法jk", "jk", "幼児体型", "幼児服", "ロリ", "未○年", "素人", "ハメ撮り", "個人撮影",
-    "色白", "細身", "巨乳", "パイパン", "ガキ", "メスガキ", "お仕置き", "レイプ", "中出し",
-    "コスプレ", "制服", "学生", "華奢", "孕ませ", "ディレクターズカット", "その他", "本編"
-  ];
-
+  const categoryOptions = ["ディレクターズカット", "その他", "本編"];
   const tagArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag);
 
   const handleUpload = async () => {
@@ -32,6 +27,7 @@ const Uploader = () => {
       setUploading(true);
       setMessage('アップロードURLを取得中...');
 
+      // Step 1: Cloudflare Worker にリクエストして署名付きURL取得
       const metaRes = await fetch('https://s3-upload.ik39-10vevic.workers.dev', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -42,8 +38,9 @@ const Uploader = () => {
       });
 
       const data = await metaRes.json();
-      if (!metaRes.ok) throw new Error(data.error || 'アップロードURL取得失敗');
+      if (!metaRes.ok) throw new Error(data.error || '署名付きURL取得に失敗');
 
+      // Step 2: S3へmultipart/form-dataでアップロード
       const s3FormData = new FormData();
       Object.entries(data.fields).forEach(([key, value]) => {
         s3FormData.append(key, value);
@@ -57,6 +54,7 @@ const Uploader = () => {
 
       if (!uploadRes.ok) throw new Error('S3アップロード失敗');
 
+      // Step 3: Firestoreにメタ情報を保存
       const videoUrl = `${data.url}${data.fields.key}`;
       const user = auth.currentUser;
       if (!user) throw new Error('ログインが必要です');
@@ -183,6 +181,7 @@ const Uploader = () => {
 };
 
 export default Uploader;
+
 
 
 
