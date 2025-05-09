@@ -14,9 +14,13 @@ const Uploader = () => {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
 
-  const categoryOptions = ["女子高生", "合法jk", "jk", "幼児体型", "幼児服", "ロリ", "未○年","素人", "ハメ撮り", "個人撮影", "色白", "細身", "巨乳", "パイパン",
-"ガキ", "メスガキ", "お仕置き", "レイプ", "中出し", "コスプレ", "制服","学生", "華奢", "孕ませ", 'ディレクターズカット', 'その他', "本編", "ディレクターズカット", "その他"];
-  const tagArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag); // タグを分割
+  const categoryOptions = [
+    "女子高生", "合法jk", "jk", "幼児体型", "幼児服", "ロリ", "未○年", "素人", "ハメ撮り", "個人撮影",
+    "色白", "細身", "巨乳", "パイパン", "ガキ", "メスガキ", "お仕置き", "レイプ", "中出し",
+    "コスプレ", "制服", "学生", "華奢", "孕ませ", "ディレクターズカット", "その他", "本編"
+  ];
+
+  const tagArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag);
 
   const handleUpload = async () => {
     if (!title || !file) {
@@ -28,18 +32,30 @@ const Uploader = () => {
       setUploading(true);
       setMessage('アップロードURLを取得中...');
 
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('fileName', file.name);
-      formData.append('fileType', file.type);
-
-      const res = await fetch('https://s3-upload.ik39-10vevic.workers.dev', {
+      const metaRes = await fetch('https://s3-upload.ik39-10vevic.workers.dev', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileType: file.type,
+        }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'アップロードに失敗しました');
+      const data = await metaRes.json();
+      if (!metaRes.ok) throw new Error(data.error || 'アップロードURL取得失敗');
+
+      const s3FormData = new FormData();
+      Object.entries(data.fields).forEach(([key, value]) => {
+        s3FormData.append(key, value);
+      });
+      s3FormData.append('file', file);
+
+      const uploadRes = await fetch(data.url, {
+        method: 'POST',
+        body: s3FormData,
+      });
+
+      if (!uploadRes.ok) throw new Error('S3アップロード失敗');
 
       const videoUrl = `${data.url}${data.fields.key}`;
       const user = auth.currentUser;
@@ -53,7 +69,7 @@ const Uploader = () => {
         type,
         category,
         price: parseInt(price, 10),
-        tags: tagArray,  // タグを保存
+        tags: tagArray,
         videoUrl,
         userId: user.uid,
         isPublic: true,
@@ -149,10 +165,7 @@ const Uploader = () => {
 
       {uploading && (
         <div className="w-full bg-gray-200 h-4 rounded">
-          <div
-            className="bg-pink-500 h-4 rounded"
-            style={{ width: `${progress}%` }}
-          ></div>
+          <div className="bg-pink-500 h-4 rounded" style={{ width: `${progress}%` }}></div>
         </div>
       )}
 
@@ -170,6 +183,7 @@ const Uploader = () => {
 };
 
 export default Uploader;
+
 
 
 
