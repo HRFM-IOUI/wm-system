@@ -48,7 +48,7 @@ const VideoDetail = () => {
       <h1 className="text-xl font-bold mb-4">{video.title}</h1>
 
       {accessGranted ? (
-        <VideoPlayer guid={video.guid} />
+        <VideoPlayer videoUrl={video.videoUrl} />
       ) : (
         <div className="space-y-4">
           {video.type === 'main' && (
@@ -85,6 +85,7 @@ const VideoDetail = () => {
 };
 
 export default VideoDetail;
+
 
 
 

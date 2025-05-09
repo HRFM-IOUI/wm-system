@@ -2,26 +2,34 @@
 import React, { useEffect, useRef } from 'react';
 import Hls from 'hls.js';
 
-const VideoPlayer = ({ guid }) => {
+const VideoPlayer = ({ videoUrl }) => {
   const videoRef = useRef(null);
 
   useEffect(() => {
-    if (!guid) return;
+    if (!videoUrl || !videoRef.current) return;
 
     const video = videoRef.current;
-    const streamUrl = `https://${process.env.REACT_APP_BUNNY_CDN_HOST}/${guid}/playlist.m3u8`;
+    let hls;
 
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource(streamUrl);
+    if (Hls.isSupported() && videoUrl.endsWith('.m3u8')) {
+      hls = new Hls();
+      hls.loadSource(videoUrl);
       hls.attachMedia(video);
       hls.on(Hls.Events.ERROR, function (event, data) {
         console.error('HLS error', data);
       });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = streamUrl;
+    } else {
+      video.src = videoUrl;
     }
-  }, [guid]);
+
+    return () => {
+      if (hls) {
+        hls.destroy(); // メモリ解放
+      } else {
+        video.src = ''; // 非HLS用でも再生中断
+      }
+    };
+  }, [videoUrl]);
 
   return (
     <div className="w-full">
@@ -29,13 +37,13 @@ const VideoPlayer = ({ guid }) => {
         ref={videoRef}
         controls
         className="w-full rounded-xl shadow-md"
-        poster={`https://${process.env.REACT_APP_BUNNY_CDN_HOST}/${guid}/thumbnail.jpg`}
       />
     </div>
   );
 };
 
 export default VideoPlayer;
+
 
 
 

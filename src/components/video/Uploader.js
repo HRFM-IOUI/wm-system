@@ -1,9 +1,4 @@
-// src/components/video/Uploader.js
 import React, { useState } from 'react';
-import {
-  createVideoInBunny,
-  uploadVideoToBunny,
-} from '../../utils/bunnyUtils';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../../firebase';
 
@@ -12,20 +7,16 @@ const Uploader = () => {
   const [description, setDescription] = useState('');
   const [type, setType] = useState('sample');
   const [category, setCategory] = useState('その他');
+  const [price, setPrice] = useState('1000');
+  const [tags, setTags] = useState('');
   const [file, setFile] = useState(null);
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
 
-  const categoryOptions = [
-    'AV',
-    'コスプレ',
-    '美少女',
-    '人妻',
-    '素人',
-    'ディレクターズカット',
-    'その他',
-  ];
+  const categoryOptions = ["女子高生", "合法jk", "jk", "幼児体型", "幼児服", "ロリ", "未○年","素人", "ハメ撮り", "個人撮影", "色白", "細身", "巨乳", "パイパン",
+"ガキ", "メスガキ", "お仕置き", "レイプ", "中出し", "コスプレ", "制服","学生", "華奢", "孕ませ", 'ディレクターズカット', 'その他', "本編", "ディレクターズカット", "その他"];
+  const tagArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag); // タグを分割
 
   const handleUpload = async () => {
     if (!title || !file) {
@@ -35,25 +26,36 @@ const Uploader = () => {
 
     try {
       setUploading(true);
-      setMessage('動画を作成中...');
-      const videoMeta = await createVideoInBunny(title);
-      const guid = videoMeta.guid;
+      setMessage('アップロードURLを取得中...');
 
-      setMessage('アップロード中...');
-      await uploadVideoToBunny(guid, file, (e) => {
-        const percent = Math.round((e.loaded * 100) / e.total);
-        setProgress(percent);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fileName', file.name);
+      formData.append('fileType', file.type);
+
+      const res = await fetch('https://s3-upload.ik39-10vevic.workers.dev', {
+        method: 'POST',
+        body: formData,
       });
 
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'アップロードに失敗しました');
+
+      const videoUrl = `${data.url}${data.fields.key}`;
       const user = auth.currentUser;
-      const docRef = doc(db, 'videos', guid);
-      await setDoc(docRef, {
-        guid,
+      if (!user) throw new Error('ログインが必要です');
+
+      const id = crypto.randomUUID();
+      await setDoc(doc(db, 'videos', id), {
+        id,
         title,
         description,
         type,
         category,
-        userId: user?.uid || 'unknown',
+        price: parseInt(price, 10),
+        tags: tagArray,  // タグを保存
+        videoUrl,
+        userId: user.uid,
         isPublic: true,
         createdAt: serverTimestamp(),
       });
@@ -63,6 +65,8 @@ const Uploader = () => {
       setDescription('');
       setType('sample');
       setCategory('その他');
+      setPrice('1000');
+      setTags('');
       setFile(null);
       setProgress(0);
     } catch (err) {
@@ -70,6 +74,16 @@ const Uploader = () => {
       setMessage('アップロードに失敗しました');
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleFileDrop = (e) => {
+    e.preventDefault();
+    const droppedFile = e.dataTransfer.files[0];
+    if (droppedFile && droppedFile.type.startsWith('video/')) {
+      setFile(droppedFile);
+    } else {
+      alert('動画ファイルのみアップロードできます');
     }
   };
 
@@ -93,42 +107,45 @@ const Uploader = () => {
         onChange={(e) => setDescription(e.target.value)}
       />
 
-      <div className="flex gap-4">
-        <div className="flex-1">
-          <label className="block text-sm font-semibold mb-1">投稿タイプ</label>
-          <select
-            className="border p-2 w-full"
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-          >
-            <option value="sample">① サンプル</option>
-            <option value="main">② 本編</option>
-            <option value="dmode">③ ディレクターズカット</option>
-          </select>
-        </div>
+      <input
+        type="number"
+        placeholder="価格（円）"
+        className="border p-2 w-full"
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
+      />
 
-        <div className="flex-1">
-          <label className="block text-sm font-semibold mb-1">カテゴリ</label>
-          <select
-            className="border p-2 w-full"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            {categoryOptions.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="flex gap-4">
+        <select className="border p-2 w-full" value={type} onChange={(e) => setType(e.target.value)}>
+          <option value="sample">① サンプル</option>
+          <option value="main">② 本編</option>
+          <option value="dmode">③ ディレクターズカット</option>
+        </select>
+
+        <select className="border p-2 w-full" value={category} onChange={(e) => setCategory(e.target.value)}>
+          {categoryOptions.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
       </div>
 
       <input
-        type="file"
-        accept="video/*"
+        type="text"
+        placeholder="タグ（カンマ区切りで入力）"
         className="border p-2 w-full"
-        onChange={(e) => setFile(e.target.files[0])}
+        value={tags}
+        onChange={(e) => setTags(e.target.value)}
       />
+
+      <div
+        className="border p-4 w-full border-dashed border-gray-400"
+        onDrop={handleFileDrop}
+        onDragOver={(e) => e.preventDefault()}
+      >
+        <p className="text-center text-gray-600">ここに動画をドラッグ＆ドロップしてください</p>
+      </div>
+
+      {file && <p>選択した動画: {file.name}</p>}
 
       {uploading && (
         <div className="w-full bg-gray-200 h-4 rounded">
@@ -141,7 +158,7 @@ const Uploader = () => {
 
       <button
         onClick={handleUpload}
-        disabled={uploading}
+        disabled={uploading || !file}
         className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600"
       >
         アップロード
@@ -153,6 +170,13 @@ const Uploader = () => {
 };
 
 export default Uploader;
+
+
+
+
+
+
+
 
 
 

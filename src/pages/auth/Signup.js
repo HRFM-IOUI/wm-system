@@ -1,9 +1,9 @@
-// src/pages/auth/Signup.js
 import React from "react";
 import { signInWithPopup } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { auth, provider } from "../../firebase";
 import SectionBox from "../../components/ui/SectionBox";
+import { createFreeSubscription } from "../../utils/stripeUtils";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -11,8 +11,13 @@ const Signup = () => {
   const handleGoogleSignup = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
-      console.log("Google登録成功:", result.user);
-      navigate("/toppage");
+      const user = result.user;
+      console.log("Google登録成功:", user);
+
+      // サブスク作成処理を実行（coupon: GACHA_FREE_1M）
+      await createFreeSubscription(user.uid, user.email);
+
+      // リダイレクトはcreateFreeSubscription内部で完了する
     } catch (error) {
       alert("Google登録に失敗しました: " + error.message);
     }
@@ -24,31 +29,13 @@ const Signup = () => {
         <h1 className="text-center text-3xl font-extrabold text-gray-800">新規登録</h1>
 
         <div className="space-y-3">
-          {/* ✅ Googleのみ表示 */}
           <button
             onClick={handleGoogleSignup}
             className="w-full flex items-center justify-center gap-2 bg-white border rounded-full py-2.5 px-4 hover:bg-gray-100 shadow transition text-sm font-semibold text-black"
           >
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
-            Googleで登録
+            Googleで登録 → 自動で加入
           </button>
-
-          {/* 👇 LINEとXは一時非表示に */}
-          {/*
-          <button
-            className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white rounded-full py-2.5 px-4 text-sm font-semibold"
-          >
-            <img src="/icons/line-icon.svg" alt="LINE" className="w-5 h-5" />
-            LINEで登録
-          </button>
-
-          <button
-            className="w-full flex items-center justify-center gap-2 bg-black hover:bg-gray-900 text-white rounded-full py-2.5 px-4 text-sm font-semibold"
-          >
-            <img src="/icons/x-icon.svg" alt="X" className="w-5 h-5" />
-            Xで登録
-          </button>
-          */}
         </div>
 
         <div className="text-sm text-center text-gray-600">
@@ -67,6 +54,8 @@ const Signup = () => {
 };
 
 export default Signup;
+
+
 
 
 

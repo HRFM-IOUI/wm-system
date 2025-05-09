@@ -1,7 +1,7 @@
 // src/pages/content/PurchasePage.js
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { db } from "../../firebase";
+import { db, auth } from "../../firebase";
 import { doc, getDoc } from "firebase/firestore";
 
 const PurchasePage = () => {
@@ -31,22 +31,30 @@ const PurchasePage = () => {
   }, [id]);
 
   const handleStripeCheckout = async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("ログインが必要です");
+      return;
+    }
+
     try {
       const res = await fetch("https://shrill-unit-35d4.ik39-10vevic.workers.dev", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          userId: user.uid,
+          userEmail: user.email,
           videoId: video.id,
           returnUrl: `${window.location.origin}/thankyou?videoId=${video.id}`,
         }),
       });
 
-      const { url } = await res.json();
-      if (url) {
-        window.location.href = url;
-      } else {
-        throw new Error("決済URL取得に失敗しました");
+      const result = await res.json();
+      if (!res.ok || !result.url) {
+        throw new Error(result.error || "決済URL取得に失敗しました");
       }
+
+      window.location.href = result.url;
     } catch (err) {
       console.error("Stripe Checkout エラー:", err);
       alert("決済に失敗しました。もう一度お試しください。");
@@ -74,6 +82,7 @@ const PurchasePage = () => {
 };
 
 export default PurchasePage;
+
 
 
 

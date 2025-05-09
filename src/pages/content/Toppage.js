@@ -1,9 +1,7 @@
-// src/pages/Toppage.js
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { db } from "../../firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { useSearchParams } from "react-router-dom";
-
 import SidebarLeft from "../../components/common/SidebarLeft";
 import SidebarRight from "../../components/common/SidebarRight";
 import MenuPanel from "../../components/common/MenuPanel";
@@ -57,7 +55,7 @@ const Toppage = () => {
         (Array.isArray(post.tags) && post.tags.includes(selectedTag));
       const matchCategory =
         !selectedCategory || post.category === selectedCategory;
-      const isPublic = post.isPublic !== false; // ← 修正済
+      const isPublic = post.isPublic !== false;
       return matchTag && matchCategory && isPublic;
     });
   }, [posts, selectedTag, selectedCategory]);
@@ -157,8 +155,6 @@ const Toppage = () => {
 };
 
 export default Toppage;
-
-
 
 
 
